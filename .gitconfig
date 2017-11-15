@@ -3,3 +3,16 @@
 # Please adapt and uncomment the following lines:
 name = Kyle Altendorf
 email = kyle.altendorf@epcpower.com
+[credential]
+	helper = cache --timeout=3600
+[difftool "charm"]
+	cmd = charm_diff_with_wait --local="$LOCAL" --remote="$REMOTE"
+[diff]
+	tool = charm
+[difftool]
+	prompt = false
+[mergetool "charm"]
+	#cmd = charm merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
+	cmd = charm_merge_with_wait --local="$LOCAL" --remote="$REMOTE" --base="$BASE" --merged="$MERGED"
+[merge]
+        tool = charm
