@@ -24,3 +24,9 @@ twine:
         symlink_prefix: /home/altendky/venvs/bin
     twine:
         symlink: ['twine']
+blurb:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    blurb:
+        symlink: ['blurb']
