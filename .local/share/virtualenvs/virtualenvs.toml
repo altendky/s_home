@@ -1,0 +1,65 @@
+[virtualenv.mkenv]
+install = [
+    "mkenv",
+]
+link = ["mkenv", "convergeenvs"]
+
+[virtualenv.virtualenv]
+install = [
+    "virtualenv",
+]
+link = ["virtualenv"]
+
+[virtualenv.tox]
+install = [
+    "tox",
+]
+link = ["tox"]
+
+[virtualenv.pipenv]
+install = [
+    "git+https://github.com/pypa/pipenv",
+]
+link = ["pipenv", "pew"]
+
+[virtualenv.twine]
+install = [
+    "twine",
+]
+link = ["twine"]
+
+[virtualenv.blurb]
+install = [
+    "blurb",
+]
+link = ["blurb"]
+
+[virtualenv.flake8]
+install = [
+    "flake8",
+]
+link = ["flake8"]
+
+[virtualenv.git-cola]
+install = [
+    "git-cola",
+]
+link = ["git-cola", "git-dag"]
+
+[virtualenv.versioneer]
+install = [
+    "versioneer",
+]
+link = ["versioneer"]
+
+[virtualenv.cython]
+install = [
+    "cython",
+]
+link = ["cython"]
+
+[virtualenv.ccstudiodss]
+install = [
+    "ccstudiodss",
+]
+link = ["dss"]

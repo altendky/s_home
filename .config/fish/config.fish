@@ -2,6 +2,10 @@ function ct
     cd /epc/t/$argv
 end
 
+function cg
+    cd /epc/g/$argv
+end
+
 function confish
     eval $EDITOR ~/.config/fish/config.fish
 end

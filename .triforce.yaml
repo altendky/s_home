@@ -8,6 +8,7 @@ pipenv:
         venv_prefix: /home/altendky/venvs
         symlink_prefix: /home/altendky/venvs/bin
     pipenv:
+        git-url: git+https://github.com/pypa/pipenv
         symlink: ['pipenv', 'pew']
 # epyqlib:
 #     triforce:
@@ -63,3 +64,10 @@ cython:
         symlink_prefix: /home/altendky/venvs/bin
     cython:
         symlink: ['cython']
+ccstudiodss:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    ccstudiodss:
+        url: git+https://github.com/altendky/ccstudiodss
+        symlink: ['dss']
