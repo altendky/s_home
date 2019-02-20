@@ -11,12 +11,14 @@ function confish
 end
 alias fource 'source ~/.config/fish/config.fish'
 
+alias gl 'git log'
 alias gs 'git status'
 alias gc 'git commit'
 alias gd 'git diff'
 alias gdt 'git difftool'
 alias gdtd 'git difftool --dir-diff'
 alias gdtdc 'git difftool --dir-diff --cached'
+alias gmnf 'git merge --no-ff'
 alias gmt 'git mergetool'
 alias gdc 'git diff --cached'
 alias gau 'git add -u'
