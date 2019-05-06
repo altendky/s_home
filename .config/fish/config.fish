@@ -11,6 +11,8 @@ function confish
 end
 alias fource 'source ~/.config/fish/config.fish'
 
+alias gda 'git-dag --all'
+
 alias gl 'git log'
 alias gs 'git status'
 alias gc 'git commit'
@@ -31,4 +33,6 @@ function gaus
     gs
 end
 
-set PATH ~/.local/bin $PATH
+set PIPX_BIN_DIR ~/.local/bin/pipx
+set PATH ~/.local/bin ~/.local/bin_pipx $PATH
+set PYTHONDONTWRITEBYTECODE 1
