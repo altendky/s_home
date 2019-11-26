@@ -11,6 +11,11 @@ function confish
 end
 alias fource 'source ~/.config/fish/config.fish'
 
+function dmesgrun
+    sudo bash -c "echo about to run: $argv > /dev/kmsg"
+    eval $argv
+end
+
 alias gda 'git-dag --all'
 
 alias gl 'git log'
@@ -34,6 +39,7 @@ function gaus
 end
 
 set PIPX_BIN_DIR ~/.local/bin/pipx
-set PATH ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
+set PATH /epc/bin ~/.pyenv/bin ~/.pyenv/shims ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
 set PYTHONDONTWRITEBYTECODE 1
 set EDITOR vim
+set JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
