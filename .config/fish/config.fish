@@ -16,6 +16,11 @@ function dmesgrun
     eval $argv
 end
 
+# https://github.com/xtendo-org/chips#gnulinux-x64
+alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
+    https://github.com/xtendo-org/chips/releases/download/1.1.2/chips_gnulinux
+    ; and chmod +x ~/.local/bin/chips'
+
 alias gda 'git-dag --all'
 
 alias gl 'git log'
