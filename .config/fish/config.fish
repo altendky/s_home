@@ -49,5 +49,11 @@ set PYTHONDONTWRITEBYTECODE 1
 set EDITOR vim
 set JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
+# https://github.com/pyenv/pyenv/issues/32#issuecomment-482980350
+set -x PYENV_ROOT $HOME/.pyenv
+set -x PATH $PYENV_ROOT/bin $PATH
+status --is-interactive; and . (pyenv init -|psub)
+status --is-interactive; and . (pyenv virtualenv-init -|psub)
+
 # chips
 if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
