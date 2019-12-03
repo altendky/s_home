@@ -43,11 +43,11 @@ function gaus
     gs
 end
 
-set PIPX_BIN_DIR ~/.local/bin/pipx
-set PATH /epc/bin ~/.pyenv/bin ~/.pyenv/shims ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
-set PYTHONDONTWRITEBYTECODE 1
-set EDITOR vim
-set JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
+set --export PIPX_BIN_DIR ~/.local/bin/pipx
+set --export PATH /epc/bin ~/.pyenv/bin ~/.pyenv/shims ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
+set --export PYTHONDONTWRITEBYTECODE 1
+set --export EDITOR vim
+set --export JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 # https://github.com/pyenv/pyenv/issues/32#issuecomment-482980350
 set -x PYENV_ROOT $HOME/.pyenv
