@@ -2,6 +2,14 @@ function ct
     cd /epc/t/$argv
 end
 
+function cr
+    cd /epc/repos/$argv
+end
+
+function cdr
+    cd ~/repos/$argv
+end
+
 function cg
     cd /epc/g/$argv
 end
