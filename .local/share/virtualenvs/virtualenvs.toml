@@ -91,3 +91,11 @@ link = ["poetry"]
 
 # [virtualenv.py3]
 # python = "python3"
+
+[virtualenv.black]
+python = "python3"
+install = [
+    "black",
+]
+link = ["black"]
+
