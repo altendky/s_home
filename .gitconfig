@@ -4,6 +4,7 @@
 # Please adapt and uncomment the following lines:
 name = Kyle Altendorf
 	email = sda@fstab.net
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE1cUs3N31e+2vmYhXi8dovxt/NHr15bWOc8gzXNWgwA
 [credential]
 	helper = cache --timeout=3600
 [difftool "charm"]
@@ -16,8 +17,20 @@ name = Kyle Altendorf
 	#cmd = charm merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 	cmd = charm_merge_with_wait --local="$LOCAL" --remote="$REMOTE" --base="$BASE" --merged="$MERGED"
 [merge]
-	tool = kdiff3
+	tool = charm
 [difftool "bc3"]
 	trustExitCode = true
 [mergetool "bc3"]
 	trustExitCode = true
+[cola]
+	spellcheck = false
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /opt/1Password/op-ssh-sign
+[commit]
+	gpgSign = true
+[tag]
+	forceSignAnnotated = true
+[init]
+	defaultBranch = main
