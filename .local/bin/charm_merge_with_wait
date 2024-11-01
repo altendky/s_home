@@ -21,7 +21,7 @@ def cli(local, remote, base, merged):
         merged,
     ])
 
-    input('When done diffing press enter...')
+    # input('When done diffing press enter...')
 
 if __name__ == '__main__':
     cli()
