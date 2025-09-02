@@ -9,6 +9,8 @@ name = Kyle Altendorf
 	helper = cache --timeout=3600
 [difftool "charm"]
 	cmd = charm_diff_with_wait --local="$LOCAL" --remote="$REMOTE"
+[difftool "rustrover"]
+	cmd = rustrover diff "$LOCAL" "$REMOTE"
 [diff]
 	tool = charm
 [difftool]
@@ -16,6 +18,8 @@ name = Kyle Altendorf
 [mergetool "charm"]
 	#cmd = charm merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 	cmd = charm_merge_with_wait --local="$LOCAL" --remote="$REMOTE" --base="$BASE" --merged="$MERGED"
+[mergetool "rustrover"]
+	cmd = rustrover diff
 [merge]
 	tool = charm
 [difftool "bc3"]
