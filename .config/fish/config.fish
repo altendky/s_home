@@ -1,8 +1,40 @@
 # export NVM_DIR="$HOME/.nvm"
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-function nvm
-    bash -c "source ~/.nvm/nvm.sh; nvm $argv"
+# function nvm
+#     bash -c "source ~/.nvm/nvm.sh; nvm $argv"
+# end
+# https://gist.github.com/calle2010/b3f0054c1d4b72394d0fda7f22d47b38
+function load_nvm --on-variable PWD
+  set -l default_node_version (nvm version default)
+  set -l node_version (nvm version)
+  set -l nvmrc_path (nvm_find_nvmrc)
+  if test -n "$nvmrc_path"
+    set -l nvmrc_node_version (nvm version (cat $nvmrc_path))
+    if test "$nvmrc_node_version" = "N/A"
+      nvm install (cat $nvmrc_path)
+    else if test "$nvmrc_node_version" != "$node_version"
+      nvm use $nvmrc_node_version
+    end
+  else if test "$node_version" != "$default_node_version"
+    echo "Reverting to default Node version"
+    nvm use default
+  end
 end
+
+function nvm
+  set -x current_path (mktemp)
+  bash -c "source ~/.nvm/nvm.sh --no-use; nvm $argv; dirname \$(nvm which current) >$current_path"
+  fish_add_path -m (cat $current_path)
+  rm $current_path
+end
+
+function nvm_find_nvmrc
+  bash -c "source ~/.nvm/nvm.sh --no-use; nvm_find_nvmrc"
+end
+
+#alias npm="socket npm"
+#alias npx="socket npx"
+#alias socket-nvm-install="nvm ls --no-colors --no-alias | sed -n 's/.*v\(.*\) .*/\1/p' | xargs -i'{}' bash -lc 'nvm exec {} npm install --global @socketsecurity/cli'"
 
 #function ct
 #    cd /epc/t/$argv
@@ -44,9 +76,9 @@ function cdr
     cd ~/repos/$argv
 end
 
-#function cg
-#    cd /epc/g/$argv
-#end
+function cg
+    cd /home/altendky/repos/gw/$argv
+end
 
 function confish
     eval $EDITOR ~/.config/fish/config.fish
@@ -66,6 +98,12 @@ function byebyedocker
     docker network rm (docker network ls -q)
     docker system prune --all --force
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+end
+
+function renice-rustc
+    while true
+        sudo renice -n -20 (ps aux | grep -E '(rustc)' | grep -v grep | awk -F ' ' '{print($2)}'); sleep 1
+    end
 end
 
 function renice-python
@@ -103,6 +141,9 @@ alias gsu 'git submodule update --init'
 alias gsp 'git stash && git pull --rebase && git stash pop'
 alias gfi 'git checkout develop && git flow init --defaults && git checkout -'
 alias gcan 'gc --amend --no-edit'
+alias gb "git reflog show --grep-reflog='checkout: moving' --format='%gs' |
+  sed -n 's/.*to //p' |
+  awk '!seen[\$0]++'"
 
 alias xcs 'sed -z '"'"'$ s/\n$//'"'"' | xclip -selection clipboard'
 
@@ -122,6 +163,8 @@ alias msr 'mosh --ssh="ssh -p 2204" --server=mosh-server-upnp altendky@home.fsta
 alias brewon 'eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)'
 
 alias debuf 'stdbuf -i0 -o0 -e0'
+
+alias byebyeew 'bash -c \'sudo rm -rf .simulator/ && git clean -ffdx && ../copy-env.sh && docker compose up simulator; sudo chown -R $(id -u).$(id -g) .simulator && $(which npm) i && npm run build\''
 
 function keybase-hide
     echo '{"method": "list"}' | keybase chat api | jq --raw-output '.result.conversations[] | select(.channel.members_type == "impteamnative" and .unread == false) | .channel.name' | xargs --no-run-if-empty --max-lines=1 --max-procs=10 keybase chat hide
@@ -166,6 +209,19 @@ if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
 
 # Added by Krypton
 #set -x GPG_TTY (tty)
+
+# GWT setup
+source "/home/altendky/.local/bin/gwt.fish"
+set -gx GWT_GIT_DIR "/home/altendky/repos/gw/monorepo/.git"
+
+# bun
+set --export BUN_INSTALL "$HOME/.bun"
+set --export PATH $BUN_INSTALL/bin $PATH
+
+set -gx CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR 1
+set -gx MAX_THINKING_TOKENS 32000
+
+source ~/.secrets.env
 
 if [ "$ALTENDKY_FISH_CONFIGURED" = "1" ]
     exit 0
