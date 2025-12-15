@@ -100,15 +100,21 @@ function byebyedocker
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 end
 
-function renice-rustc
+function renice-rust
+    sudo -v
+    set REFRESH_TIME (sudo sudo -V | awk '/Authentication timestamp timeout:/ {printf "%d%s\n", $4 / 2, substr($5, 1, 1)}')
     while true
-        sudo renice -n -20 (ps aux | grep -E '(rustc)' | grep -v grep | awk -F ' ' '{print($2)}'); sleep 1
+        echo "    refreshing sudo (every $REFRESH_TIME)"
+        sudo -v
+        timeout --signal=kill "$REFRESH_TIME" sudo execsnoop-bpfcc -u altendky 2>/dev/null | sed --unbuffered -nE 's/^(rustc|ld|rust-analyzer)\s+([0-9]+)\s.*/\2/p' | xargs --replace={} sudo renice -n -20 {} || true
     end
 end
 
 function renice-python
     while true
-        sudo renice -n -20 (ps aux | grep -E '(python .*pytest|chia_data_layer)' | grep -v grep | awk -F ' ' '{print($2)}'); sleep 1
+        sudo -v
+        sudo renice -n -20 (ps aux | grep -E '(python .*pytest|chia_data_layer)' | grep -v grep | awk -F ' ' '{print($2)}')
+        sleep 1
     end
 end
 
@@ -124,6 +130,9 @@ alias gl 'git log --graph'
 alias gl1 "git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'"
 alias gl2 "git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
 alias gl3 "git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'"
+alias gl1f "gl1 --first-parent"
+alias gl2f "gl2 --first-parent"
+alias gl3f "gl3 --first-parent"
 alias gs 'git status'
 alias gc 'git commit'
 alias gp 'git pull --rebase'
@@ -163,6 +172,7 @@ alias msr 'mosh --ssh="ssh -p 2204" --server=mosh-server-upnp altendky@home.fsta
 alias brewon 'eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)'
 
 alias debuf 'stdbuf -i0 -o0 -e0'
+alias debuf-line 'stdbuf -i0 -oL -eL'
 
 alias byebyeew 'bash -c \'sudo rm -rf .simulator/ && git clean -ffdx && ../copy-env.sh && docker compose up simulator; sudo chown -R $(id -u).$(id -g) .simulator && $(which npm) i && npm run build\''
 
@@ -212,7 +222,7 @@ if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
 
 # GWT setup
 source "/home/altendky/.local/bin/gwt.fish"
-set -gx GWT_GIT_DIR "/home/altendky/repos/gw/monorepo/.git"
+set -gx GWT_GIT_DIR "/home/altendky/repos/gw/monorepo"
 
 # bun
 set --export BUN_INSTALL "$HOME/.bun"
