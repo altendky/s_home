@@ -39,6 +39,6 @@ name = Kyle Altendorf
 [init]
 	defaultBranch = main
 [core]
-	excludesFile = /home/altendky/gitignore.global
+	excludesFile = ~/.gitignore.global
 [mergetool]
 	keepBackup = false
