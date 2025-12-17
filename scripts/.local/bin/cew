@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export CHIA_ROOT=/farm/roots/ent-wallet/.chia
-export CHIA_GIT=/home/altendky/repos/chia-blockchain.ent-wallet
+export CHIA_GIT="$HOME/repos/chia-blockchain.ent-wallet"
 
 cd "$CHIA_GIT"
 source ./activate
