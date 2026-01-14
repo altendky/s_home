@@ -55,10 +55,20 @@ function tun
 end
 
 function fix-mouse
+    # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.disable
     sudo rmmod psmouse
     sudo modprobe psmouse
     sleep 5
     sudo udevadm trigger -s input
+    # xinput disable "Synaptics TM3512-010"
+    # sleep 2
+    # xinput enable "Synaptics TM3512-010"
+    sleep 2
+    xinput set-prop "Synaptics TM3512-010" "libinput Tapping Enabled" 1
+    # sleep 2
+    # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.reloadSettings
+    # sleep 2
+    # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.enable
 end
 
 function fix-kde
@@ -66,6 +76,14 @@ function fix-kde
     kstart5 kwin
     sleep 5
     kstart5 plasmashell
+end
+
+function fix-fiio
+    bluetoothctl disconnect 40:ED:98:1A:99:B4
+    systemctl restart bluetooth
+    fuser -v /dev/snd/*
+    bluetoothctl connect 40:ED:98:1A:99:B4
+    pactl list cards
 end
 
 function cr
@@ -106,7 +124,7 @@ function renice-rust
     while true
         echo "    refreshing sudo (every $REFRESH_TIME)"
         sudo -v
-        timeout --signal=kill "$REFRESH_TIME" sudo execsnoop-bpfcc -u altendky 2>/dev/null | sed --unbuffered -nE 's/^(rustc|ld|rust-analyzer)\s+([0-9]+)\s.*/\2/p' | xargs --replace={} sudo renice -n -20 {} || true
+        timeout --signal=kill "$REFRESH_TIME" sudo execsnoop-bpfcc -u altendky 2>/dev/null | sed --unbuffered -nE 's/^(cargo|sccache|rustc|cc|ld)\s+([0-9]+)\s.*/\2/p' | xargs --replace={} sudo renice -n -20 {} || true
     end
 end
 
@@ -118,11 +136,37 @@ function renice-python
     end
 end
 
+function gwts
+    cdm
+    gwt switch $argv
+end
+
+function journal-vac
+    df -h /var/log/journal
+    du -hs /var/log/journal
+    sudo journalctl --vacuum-size=500M
+end
+
+function target-vac
+    cd /home/altendky/repos/gw/monorepo.gwt/
+    df -h .
+    find . -type d -name target | xargs -I {} rm -rf {}
+    df -h .
+end
 
 # https://github.com/xtendo-org/chips#gnulinux-x64
 alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
     https://github.com/xtendo-org/chips/releases/download/1.1.2/chips_gnulinux
     ; and chmod +x ~/.local/bin/chips'
+
+alias cdm 'cd ~/repos/gw/monorepo/'
+alias gfm "fish -c 'cdm && git pull'"
+alias o 'opencode'
+alias ai-cli 'opencode run'
+#alias aicli 'claude'
+alias oc 'ai-cli /commit'
+alias odp 'ai-cli /describe_pr'
+#alias cdp 'mv ~/.gitignore ~/.gitignore.moved || true && claude /describe_pr && mv ~/.gitignore.moved ~/.gitignore'
 
 alias gda 'git-dag --all'
 
@@ -226,18 +270,26 @@ set -gx GWT_GIT_DIR "/home/altendky/repos/gw/monorepo"
 
 # bun
 set --export BUN_INSTALL "$HOME/.bun"
-set --export PATH $BUN_INSTALL/bin $PATH
 
 set -gx CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR 1
 set -gx MAX_THINKING_TOKENS 32000
+set -gx ENABLE_LSP_TOOLS 1
+
+set -gx OPENCODE_DISABLE_AUTOCOMPACT 1
+# set -gx OPENCODE_DISABLE_PRUNE 1
 
 source ~/.secrets.env
+
+set -gx CARGO_INCREMENTAL 1
+
+set -gx CARGO_BUILD_JOBS (math (lscpu -p=CORE | grep -v '^#' | sort -u | wc -l) - 2)
 
 if [ "$ALTENDKY_FISH_CONFIGURED" = "1" ]
     exit 0
 end
 set --export ALTENDKY_FISH_CONFIGURED "1"
 
+set --export PATH $BUN_INSTALL/bin $PATH
 set --export PATH $PYENV_ROOT/shims $PYENV_ROOT/bin $PATH
 #set --export PATH /epc/bin ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
 set --export PATH ~/.local/bin ~/.local/bin/pipx $PATH
@@ -245,3 +297,10 @@ set --export PATH ~/.cargo/bin $PATH
 set --export PATH $N_PREFIX/bin $PATH
 #set --export PATH $PYENV_ROOT/bin $PATH
 set --export PATH $PATH /home/altendky/.local/bin/pipx
+
+# pnpm
+set -gx PNPM_HOME "/home/altendky/.local/share/pnpm"
+if not string match -q -- $PNPM_HOME $PATH
+  set -gx PATH "$PNPM_HOME" $PATH
+end
+# pnpm end

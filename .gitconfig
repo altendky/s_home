@@ -12,16 +12,16 @@ name = Kyle Altendorf
 [difftool "rustrover"]
 	cmd = rustrover diff "$LOCAL" "$REMOTE"
 [diff]
-	tool = charm
+	tool = rustrover
 [difftool]
 	prompt = false
 [mergetool "charm"]
 	#cmd = charm merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 	cmd = charm_merge_with_wait --local="$LOCAL" --remote="$REMOTE" --base="$BASE" --merged="$MERGED"
 [mergetool "rustrover"]
-	cmd = rustrover diff
+	cmd = rustrover merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 [merge]
-	tool = charm
+	tool = rustrover
 [difftool "bc3"]
 	trustExitCode = true
 [mergetool "bc3"]
