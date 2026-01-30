@@ -1,0 +1,26 @@
+triforce:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+        install: true
+pipenv:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    pipenv:
+        symlink: ['pipenv', 'pew']
+# epyqlib:
+#     triforce:
+#         venv_prefix: /home/altendky/venvs
+#         symlink_prefix: /home/altendky/venvs/bin
+#     st:
+#         url: git+https://github.com/altendky/st@master
+#     epyqlib:
+#         url: git+https://github.com/altendky/st@lib
+#         symlink: ['collectdevices']
+twine:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    twine:
+        symlink: ['twine']
