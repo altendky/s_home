@@ -99,7 +99,7 @@ install = [
 ]
 link = ["black"]
 
-[virtualenv.black]
+[virtualenv.mypy]
 python = "python3"
 install = [
     "mypy",
