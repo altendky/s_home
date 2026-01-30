@@ -7,3 +7,4 @@ github:
 # For example, uncomment below to enable the fish-sensible plugin.
 # - simnalamburt/fish-sensible
 - simnalamburt/shellder
+- ivakyb/fish_ssh_agent

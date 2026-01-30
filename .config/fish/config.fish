@@ -72,6 +72,7 @@ set --export PATH $PYENV_ROOT/bin $PATH
 status --is-interactive; and pyenv init - | source
 status --is-interactive; and pyenv virtualenv-init - | source
 
+fish_ssh_agent
 ssh-add ~/.ssh/id_rsa.github
 ssh-add ~/.ssh/id_ed25519.github
 ssh-add ~/.ssh/id_rsa.qt_gerrit
