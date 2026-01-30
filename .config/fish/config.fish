@@ -34,5 +34,5 @@ function gaus
 end
 
 set PIPX_BIN_DIR ~/.local/bin/pipx
-set PATH ~/.local/bin ~/.local/bin_pipx $PATH
+set PATH ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
 set PYTHONDONTWRITEBYTECODE 1
