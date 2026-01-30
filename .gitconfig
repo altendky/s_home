@@ -34,3 +34,7 @@ name = Kyle Altendorf
 	forceSignAnnotated = true
 [init]
 	defaultBranch = main
+[core]
+	excludesFile = /home/altendky/gitignore.global
+[mergetool]
+	keepBackup = false
