@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+
+import click
+
+@click.command()
+@click.option('--local', required=True)
+@click.option('--remote', required=True)
+@click.option('--base', required=True)
+@click.option('--merged', required=True)
+def cli(local, remote, base, merged):
+    subprocess.check_call([
+        'charm',
+        'merge',
+        local,
+        remote,
+        base,
+        merged,
+    ])
+
+    input('When done diffing press enter...')
+
+if __name__ == '__main__':
+    cli()

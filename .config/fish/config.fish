@@ -1,6 +1,6 @@
-function ct
-    cd /epc/t/$argv
-end
+#function ct
+#    cd /epc/t/$argv
+#end
 
 function cr
     cd /epc/repos/$argv
@@ -10,9 +10,9 @@ function cdr
     cd ~/repos/$argv
 end
 
-function cg
-    cd /epc/g/$argv
-end
+#function cg
+#    cd /epc/g/$argv
+#end
 
 function confish
     eval $EDITOR ~/.config/fish/config.fish
@@ -23,6 +23,15 @@ function dmesgrun
     sudo bash -c "echo about to run: $argv > /dev/kmsg"
     eval $argv
 end
+
+function byebyedocker
+    docker stop (docker ps -qa)
+    docker rm (docker ps -qa)
+    docker rmi -f (docker images -qa)
+    docker volume rm (docker volume ls -q)
+    docker network rm (docker network ls -q)
+end
+
 
 # https://github.com/xtendo-org/chips#gnulinux-x64
 alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
@@ -53,6 +62,23 @@ alias gsp 'git stash && git pull --rebase && git stash pop'
 alias gfi 'git checkout develop && git flow init --defaults && git checkout -'
 
 alias h heroku
+alias sr 'ssh ubuntu@pi'
+alias srr 'ssh -p 2205 ubuntu@home.fstab.net'
+alias sc 'ssh chia@chia'
+alias scr 'ssh -p 2203 chia@home.fstab.net'
+alias mr 'mosh ubuntu@pi'
+alias mrr 'mosh --ssh="ssh -p 2204" --server=mosh-server-upnp ubuntu@home.fstab.net'
+alias mc 'mosh chia@chia'
+alias mcr 'mosh --ssh="ssh -p 2203" --server=mosh-server-upnp chia@home.fstab.net'
+alias mw 'mosh altendky@w550s'
+#alias mwr 'mosh --ssh="ssh -p 2203" --server=mosh-server-upnp chia@home.fstab.net'
+alias ms 'mosh altendky@server'
+alias msr 'mosh --ssh="ssh -p 2204" --server=mosh-server-upnp altendky@home.fstab.net'
+
+function keybase-hide
+    echo '{"method": "list"}' | keybase chat api | jq --raw-output '.result.conversations[] | select(.channel.members_type == "impteamnative" and .unread == false) | .channel.name' | xargs --no-run-if-empty --max-lines=1 --max-procs=10 keybase chat hide
+    echo '{"method": "list"}' | keybase chat api | jq --raw-output '.result.conversations[] | select(.channel.members_type == "team" and .unread == false) | (.channel.topic_name + "\n" + .channel.name)' | xargs --no-run-if-empty --max-lines=2 --max-procs=10 keybase chat hide --channel
+end
 
 function gaus
     gau $argv
@@ -60,26 +86,35 @@ function gaus
 end
 
 set --export PIPX_BIN_DIR ~/.local/bin/pipx
-set --export PATH /epc/bin ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
+#set --export PATH /epc/bin ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
 set --export PYTHONDONTWRITEBYTECODE 1
 set --export PYTHON_CONFIGURE_OPTS --enable-shared
+set --export PIP_REQUIRE_VIRTUALENV 1
 set --export EDITOR vim
-set --export JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
+#set --export JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 # https://github.com/pyenv/pyenv/issues/32#issuecomment-482980350
 set --export PYENV_ROOT $HOME/.pyenv
-set --export PATH $PYENV_ROOT/bin $PATH
-if which pyenv
-    status --is-interactive; and pyenv init - | source
-    status --is-interactive; and pyenv virtualenv-init - | source
-end
+set --export PATH $PYENV_ROOT/shims $PYENV_ROOT/bin $PATH
+#set -Ux PYENV_ROOT $HOME/.pyenv
+#set -U fish_user_paths $PYENV_ROOT/bin $fish_user_paths
 
-fish_ssh_agent
-for key in chia id_rsa.github id_ed25519.github id_rsa.qt_gerrit
-    if test -f ~/.ssh/$key
-        ssh-add ~/.ssh/$key &> /dev/null
-    end
-end
+status is-login; and pyenv init --path | source
+pyenv init - | source
+
+#set --export PYENV_ROOT $HOME/.pyenv
+#set --export PATH $PYENV_ROOT/bin $PATH
+#status --is-interactive; and pyenv init - | source
+#status --is-interactive; and pyenv virtualenv-init - | source
+
+#ssh-add ~/.ssh/id_rsa.github
+#ssh-add ~/.ssh/id_rsa.qt_gerrit
+#ssh-add ~/.ssh/w550s
+#ssh-add ~/.ssh/id_ed25519.server
+#ssh-add ~/.ssh/id_ed25519.pi
 
 # chips
 if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
+
+# Added by Krypton
+#set -x GPG_TTY (tty)

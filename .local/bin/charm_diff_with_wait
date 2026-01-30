@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+
+import click
+
+@click.command()
+@click.option('--local', required=True)
+@click.option('--remote', required=True)
+def cli(local, remote):
+    subprocess.check_call([
+        'charm',
+        'diff',
+        local,
+        remote,
+    ])
+
+    input('When done diffing press enter...')
+
+if __name__ == '__main__':
+    cli()
