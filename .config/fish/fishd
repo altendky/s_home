@@ -2,6 +2,8 @@
 # Do NOT edit it directly, your changes will be overwritten.
 SET_EXPORT EDITOR:vi
 SET PATH:/epc/bin\x1e/home/altendky/\x2epyenv/bin\x1e/home/altendky/\x2epyenv/shims\x1e/usr/local/bin\x1e/usr/bin\x1e/bin\x1e/usr/local/games\x1e/usr/games\x1e/home/altendky/bin
+SET_EXPORT PIPENV_VENV_IN_PROJECT:1
+SET_EXPORT PYTHONDONTWRITEBYTECODE:1
 SET PYENV_ROOT:/home/altendky/\x2epyenv
 SET __fish_init_2_39_8:\x1d
 SET __fish_init_2_3_0:\x1d
