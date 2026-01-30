@@ -1,3 +1,9 @@
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+function nvm
+    bash -c "source ~/.nvm/nvm.sh; nvm $argv"
+end
+
 #function ct
 #    cd /epc/t/$argv
 #end
@@ -59,6 +65,13 @@ function byebyedocker
     docker volume rm (docker volume ls -q)
     docker network rm (docker network ls -q)
     docker system prune --all --force
+    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+end
+
+function renice-python
+    while true
+        sudo renice -n -20 (ps aux | grep -E '(python .*pytest|chia_data_layer)' | grep -v grep | awk -F ' ' '{print($2)}'); sleep 1
+    end
 end
 
 
@@ -91,7 +104,7 @@ alias gsp 'git stash && git pull --rebase && git stash pop'
 alias gfi 'git checkout develop && git flow init --defaults && git checkout -'
 alias gcan 'gc --amend --no-edit'
 
-alias xcs 'xclip -selection clipboard'
+alias xcs 'sed -z '"'"'$ s/\n$//'"'"' | xclip -selection clipboard'
 
 alias h heroku
 alias sr 'ssh ubuntu@pi'
@@ -107,6 +120,8 @@ alias mw 'mosh altendky@w550s'
 alias ms 'mosh altendky@server'
 alias msr 'mosh --ssh="ssh -p 2204" --server=mosh-server-upnp altendky@home.fstab.net'
 alias brewon 'eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)'
+
+alias debuf 'stdbuf -i0 -o0 -e0'
 
 function keybase-hide
     echo '{"method": "list"}' | keybase chat api | jq --raw-output '.result.conversations[] | select(.channel.members_type == "impteamnative" and .unread == false) | .channel.name' | xargs --no-run-if-empty --max-lines=1 --max-procs=10 keybase chat hide
