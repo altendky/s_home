@@ -73,6 +73,7 @@ status --is-interactive; and pyenv init - | source
 status --is-interactive; and pyenv virtualenv-init - | source
 
 ssh-add ~/.ssh/id_rsa.github
+ssh-add ~/.ssh/id_ed25519.github
 ssh-add ~/.ssh/id_rsa.qt_gerrit
 
 # chips
