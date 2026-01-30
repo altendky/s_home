@@ -64,6 +64,13 @@ install = [
 ]
 link = ["dss"]
 
+[virtualenv.offlineimap]
+python = "python2"
+install = [
+    "offlineimap",
+]
+link = ["offlineimap"]
+
 [virtualenv.py2]
 python = "python2"
 
