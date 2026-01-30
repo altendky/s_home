@@ -69,13 +69,17 @@ set --export JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
 # https://github.com/pyenv/pyenv/issues/32#issuecomment-482980350
 set --export PYENV_ROOT $HOME/.pyenv
 set --export PATH $PYENV_ROOT/bin $PATH
-status --is-interactive; and pyenv init - | source
-status --is-interactive; and pyenv virtualenv-init - | source
+if which pyenv
+    status --is-interactive; and pyenv init - | source
+    status --is-interactive; and pyenv virtualenv-init - | source
+end
 
 fish_ssh_agent
-ssh-add ~/.ssh/id_rsa.github
-ssh-add ~/.ssh/id_ed25519.github
-ssh-add ~/.ssh/id_rsa.qt_gerrit
+for key in chia id_rsa.github id_ed25519.github id_rsa.qt_gerrit
+    if test -f ~/.ssh/$key
+        ssh-add ~/.ssh/$key &> /dev/null
+    end
+end
 
 # chips
 if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
