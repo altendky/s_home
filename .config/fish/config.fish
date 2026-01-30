@@ -43,3 +43,6 @@ set PATH /epc/bin ~/.pyenv/bin ~/.pyenv/shims ~/.local/bin ~/.local/bin_pipx ~/.
 set PYTHONDONTWRITEBYTECODE 1
 set EDITOR vim
 set JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
+
+# chips
+if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
