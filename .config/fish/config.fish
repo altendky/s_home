@@ -17,6 +17,8 @@ alias gdc 'git diff --cached'
 alias gau 'git add -u'
 alias grph 'git rev-parse HEAD'
 
+alias h heroku
+
 function gaus
     gau $argv
     gs
