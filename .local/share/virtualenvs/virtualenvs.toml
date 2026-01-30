@@ -1,8 +1,8 @@
-[virtualenv.venvs]
-install = [
-    "venvs",
-]
-link = ["venvs", "convergeenvs"]
+# [virtualenv.venvs]
+# install = [
+#     "venvs",
+# ]
+# link = ["venvs"]
 
 [virtualenv.virtualenv]
 install = [
@@ -16,11 +16,11 @@ install = [
 ]
 link = ["tox"]
 
-[virtualenv.pipenv]
-install = [
-    "git+https://github.com/pypa/pipenv",
-]
-link = ["pipenv", "pew"]
+# [virtualenv.pipenv]
+# install = [
+#     "git+https://github.com/pypa/pipenv",
+# ]
+# link = ["pipenv", "pew"]
 
 [virtualenv.twine]
 install = [
@@ -40,11 +40,11 @@ install = [
 ]
 link = ["flake8"]
 
-[virtualenv.git-cola]
-install = [
-    "git-cola",
-]
-link = ["git-cola", "git-dag"]
+# [virtualenv.git-cola]
+# install = [
+    # "https://github.com/git-cola/git-cola/archive/v3.6.tar.gz",
+# ]
+# link = ["git-cola", "git-dag"]
 
 [virtualenv.versioneer]
 install = [
@@ -52,11 +52,11 @@ install = [
 ]
 link = ["versioneer"]
 
-[virtualenv.cython]
-install = [
-    "cython",
-]
-link = ["cython"]
+# [virtualenv.cython]
+# install = [
+#     "cython",
+# ]
+# link = ["cython"]
 
 [virtualenv.ccstudiodss]
 install = [
@@ -64,12 +64,13 @@ install = [
 ]
 link = ["dss"]
 
-[virtualenv.offlineimap]
-python = "python2"
-install = [
-    "offlineimap",
-]
-link = ["offlineimap"]
+# [virtualenv.offlineimap]
+# python = "python2"
+# install = [
+#     "six",
+#     "offlineimap",
+# ]
+# link = ["offlineimap"]
 
 [virtualenv.poetry]
 python = "python3"
@@ -78,15 +79,15 @@ install = [
 ]
 link = ["poetry"]
 
-[virtualenv.pipx]
-python = "python3"
-install = [
-    "pipx",
-]
-link = ["pipx"]
+# [virtualenv.pipx]
+# python = "python3"
+# install = [
+#     "pipx",
+# ]
+# link = ["pipx"]
 
-[virtualenv.py2]
-python = "python2"
+# [virtualenv.py2]
+# python = "python2"
 
-[virtualenv.py3]
-python = "python3"
+# [virtualenv.py3]
+# python = "python3"
