@@ -1,19 +1,19 @@
 triforce:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
         install: true
 pipenv:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     pipenv:
         git-url: git+https://github.com/pypa/pipenv
         symlink: ['pipenv', 'pew']
 # epyqlib:
 #     triforce:
-#         venv_prefix: /home/altendky/venvs
-#         symlink_prefix: /home/altendky/venvs/bin
+#         venv_prefix: ~/venvs
+#         symlink_prefix: ~/venvs/bin
 #     st:
 #         url: git+https://github.com/altendky/st@master
 #     epyqlib:
@@ -21,32 +21,32 @@ pipenv:
 #         symlink: ['collectdevices']
 twine:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     twine:
         symlink: ['twine']
 blurb:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     blurb:
         symlink: ['blurb']
 tox:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     tox:
         symlink: ['tox']
 flake8:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     flake8:
         symlink: ['flake8']
 git-cola:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     git-cola:
         url: git+https://github.com/git-cola/git-cola@v3.0
         symlink: ['git-cola', 'git-dag']
@@ -54,20 +54,20 @@ git-cola:
         symlink: []
 versioneer:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     versioneer:
         symlink: ['versioneer']
 cython:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     cython:
         symlink: ['cython']
 ccstudiodss:
     triforce:
-        venv_prefix: /home/altendky/venvs
-        symlink_prefix: /home/altendky/venvs/bin
+        venv_prefix: ~/venvs
+        symlink_prefix: ~/venvs/bin
     ccstudiodss:
         url: git+https://github.com/altendky/ccstudiodss
         symlink: ['dss']

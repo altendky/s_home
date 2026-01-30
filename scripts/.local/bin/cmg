@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export CHIA_ROOT=/farm/roots/rpi/.chia
-export CHIA_GIT=/home/altendky/repos/chia-for-gui
+export CHIA_GIT="$HOME/repos/chia-for-gui"
 
 cd "$CHIA_GIT"
 source ./activate

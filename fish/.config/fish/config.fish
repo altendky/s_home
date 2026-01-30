@@ -77,7 +77,7 @@ function cdr
 end
 
 function cg
-    cd /home/altendky/repos/gw/$argv
+    cd $HOME/repos/gw/$argv
 end
 
 function confish
@@ -106,7 +106,7 @@ function renice-rust
     while true
         echo "    refreshing sudo (every $REFRESH_TIME)"
         sudo -v
-        timeout --signal=kill "$REFRESH_TIME" sudo execsnoop-bpfcc -u altendky 2>/dev/null | sed --unbuffered -nE 's/^(rustc|ld|rust-analyzer)\s+([0-9]+)\s.*/\2/p' | xargs --replace={} sudo renice -n -20 {} || true
+        timeout --signal=kill "$REFRESH_TIME" sudo execsnoop-bpfcc -u (whoami) 2>/dev/null | sed --unbuffered -nE 's/^(rustc|ld|rust-analyzer)\s+([0-9]+)\s.*/\2/p' | xargs --replace={} sudo renice -n -20 {} || true
     end
 end
 
@@ -221,8 +221,8 @@ if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
 #set -x GPG_TTY (tty)
 
 # GWT setup
-source "/home/altendky/.local/bin/gwt.fish"
-set -gx GWT_GIT_DIR "/home/altendky/repos/gw/monorepo"
+source "$HOME/.local/bin/gwt.fish"
+set -gx GWT_GIT_DIR "$HOME/repos/gw/monorepo"
 
 # bun
 set --export BUN_INSTALL "$HOME/.bun"
@@ -244,4 +244,4 @@ set --export PATH ~/.local/bin ~/.local/bin/pipx $PATH
 set --export PATH ~/.cargo/bin $PATH
 set --export PATH $N_PREFIX/bin $PATH
 #set --export PATH $PYENV_ROOT/bin $PATH
-set --export PATH $PATH /home/altendky/.local/bin/pipx
+set --export PATH $PATH $HOME/.local/bin/pipx
