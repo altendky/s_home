@@ -30,3 +30,30 @@ blurb:
         symlink_prefix: /home/altendky/venvs/bin
     blurb:
         symlink: ['blurb']
+tox:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    tox:
+        symlink: ['tox']
+flake8:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    flake8:
+        symlink: ['flake8']
+git-cola:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    git-cola:
+        url: git+https://github.com/git-cola/git-cola@v3.0
+        symlink: ['git-cola', 'git-dag']
+    pyqt5:
+        symlink: []
+versioneer:
+    triforce:
+        venv_prefix: /home/altendky/venvs
+        symlink_prefix: /home/altendky/venvs/bin
+    versioneer:
+        symlink: ['versioneer']
