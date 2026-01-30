@@ -71,6 +71,20 @@ install = [
 ]
 link = ["offlineimap"]
 
+[virtualenv.poetry]
+python = "python3"
+install = [
+    "poetry",
+]
+link = ["poetry"]
+
+[virtualenv.pipx]
+python = "python3"
+install = [
+    "pipx",
+]
+link = ["pipx"]
+
 [virtualenv.py2]
 python = "python2"
 
