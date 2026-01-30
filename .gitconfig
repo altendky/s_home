@@ -8,14 +8,14 @@ email = kyle.altendorf@epcpower.com
 [difftool "charm"]
 	cmd = charm_diff_with_wait --local="$LOCAL" --remote="$REMOTE"
 [diff]
-	tool = bc3
+	tool = charm
 [difftool]
 	prompt = false
 [mergetool "charm"]
 	#cmd = charm merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 	cmd = charm_merge_with_wait --local="$LOCAL" --remote="$REMOTE" --base="$BASE" --merged="$MERGED"
 [merge]
-	tool = bc3
+	tool = kdiff3
 [difftool "bc3"]
 	trustExitCode = true
 [mergetool "bc3"]
