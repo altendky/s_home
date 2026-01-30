@@ -69,8 +69,10 @@ set --export JDK_HOME /usr/lib/jvm/java-8-openjdk-amd64
 # https://github.com/pyenv/pyenv/issues/32#issuecomment-482980350
 set --export PYENV_ROOT $HOME/.pyenv
 set --export PATH $PYENV_ROOT/bin $PATH
-status --is-interactive; and . (pyenv init -|psub)
-status --is-interactive; and . (pyenv virtualenv-init -|psub)
+status --is-interactive; and pyenv init - | source
+status --is-interactive; and pyenv virtualenv-init - | source
+
+ssh-add ~/.ssh/id_rsa.github
 
 # chips
 if [ -e ~/.config/chips/build.fish ] ; . ~/.config/chips/build.fish ; end
