@@ -1,3 +1,9 @@
+[virtualenv.venvs]
+install = [
+    "venvs",
+]
+link = ["venvs", "convergeenvs"]
+
 [virtualenv.virtualenv]
 install = [
     "virtualenv",
@@ -36,7 +42,7 @@ link = ["flake8"]
 
 [virtualenv.git-cola]
 install = [
-    "git+https://github.com/git-cola/git-cola",
+    "git-cola",
 ]
 link = ["git-cola", "git-dag"]
 
@@ -54,6 +60,12 @@ link = ["cython"]
 
 [virtualenv.ccstudiodss]
 install = [
-    "git+https://github.com/altendky/ccstudiodss",
+    "ccstudiodss",
 ]
 link = ["dss"]
+
+[virtualenv.py2]
+python = "python2"
+
+[virtualenv.py3]
+python = "python3"

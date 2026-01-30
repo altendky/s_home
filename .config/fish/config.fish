@@ -27,3 +27,5 @@ function gaus
     gau $argv
     gs
 end
+
+set PATH ~/.local/bin $PATH
