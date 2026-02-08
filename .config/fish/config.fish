@@ -145,6 +145,8 @@ function journal-vac
     df -h /var/log/journal
     du -hs /var/log/journal
     sudo journalctl --vacuum-size=500M
+    df -h /var/log/journal
+    du -hs /var/log/journal
 end
 
 function target-vac
