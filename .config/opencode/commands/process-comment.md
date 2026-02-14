@@ -6,6 +6,10 @@ description: Process GitHub PR review comments
 
 **Input:** $1
 
+## User interaction convention
+
+When a step calls for presenting multiple independent choices to the user simultaneously, use the **question tool** with one question per item. This allows the user to review and decide on each item independently in a tabbed interface. Each question should have a short `header` (≤30 chars), a descriptive `question` with full context, and concise option labels. The recommended option should be listed first with `"(Recommended)"` appended to its label. The user always has the option to type a custom answer.
+
 ## Process
 
 1. **Validate and parse the input:**
@@ -80,29 +84,57 @@ description: Process GitHub PR review comments
 
    **Single-comment mode:**
    - Using the PR comments already fetched in step 2 and the resolved-status data from step 3, identify other unresolved comment threads on the same PR.
-   - If other unresolved threads exist, present them to the user (file path, line range, first line of comment body) and ask: "There are N other unresolved comment threads on this PR. Would you like to include any of them?"
-   - Offer "all" as the first option when there are multiple threads, followed by the individual threads, and "none" to continue with only the original thread.
-   - Merge selected threads into the working set alongside the original thread.
+   - The originally-targeted thread is always included (no question for it).
+   - If other unresolved threads exist, use the **question tool** with one question per additional unresolved thread:
+     - `header`: `file:line` (truncated to 30 chars, e.g., `src/lib.rs:42`)
+     - `question`: file path, line range, first line of comment body, author
+     - `options`: `"Include (Recommended)"`, `"Skip"`
+     - `multiple: false`
+   - Merge all threads the user selected "Include" for into the working set alongside the original thread.
+   - If only one unresolved thread exists (the original), skip the question tool entirely.
 
    **PR-wide mode:**
-   - Present all unresolved threads (file path, line range, first line of comment body, author).
-   - Default to all threads selected. Let the user confirm or deselect specific threads.
+   - Use the **question tool** with one question per unresolved thread:
+     - `header`: `file:line` (truncated to 30 chars)
+     - `question`: file path, line range, first line of comment body, author
+     - `options`: `"Include (Recommended)"`, `"Skip"`
+     - `multiple: false`
+   - Collect all threads the user selected "Include" for into the working set.
+   - If only one unresolved thread exists, skip the question tool and include it directly.
 
-   If the working set is empty (no unresolved comments), inform the user and **stop**.
+   If the working set is empty (no threads included), inform the user and **stop**.
 
 6. **Group comments:**
    - The default is **no grouping** — each thread gets its own commit. Only group threads when one of the following clearly applies:
      - **Same concrete issue in multiple places** — the comments describe the same specific change needed at multiple locations (e.g., "rename `get_val` to `get_value`" appearing in 3 files).
      - **Interleaved resolutions** — fixing one comment necessarily touches code that another comment also addresses, so they cannot be resolved independently without conflicts.
    - Do NOT group comments merely because they are in the same file, from the same reviewer, or about the same general topic.
-   - If any groups are proposed, present them with a suggested primary comment per group (the most substantive or earliest).
-   - Present all groups upfront before any implementation begins. For example: "Group 1: rename `get_val` → `get_value` (3 comments, primary: `src/lib.rs:42`). Group 2: add error context (1 comment, `src/api.rs:87`)."
-   - Let the user adjust groupings and primary comment selections.
    - If there is only a single comment/thread total, skip the grouping presentation and proceed directly.
+   - If any multi-thread groups are proposed, present them using the question tool in two rounds:
 
-7. **Process each group:**
+     **Round 1 — Group acceptance:** Use the **question tool** with one question per proposed group:
+     - `header`: brief group label (e.g., `Rename get_val`)
+     - `question`: which threads are in the group, why they're grouped, and the suggested primary comment
+     - `options`: `"Accept"`, `"Split into separate commits"`, `"Skip entire group"`
+     - `multiple: false`
 
-   For each group, perform the following steps sequentially. Complete one group before starting the next.
+     **Round 2 — Primary comment selection** (only for accepted groups that contain multiple threads): Use the **question tool** with one question per such group:
+     - `header`: same group label as round 1
+     - `question`: "Which thread should be the primary comment for this group?"
+     - `options`: one option per thread in the group — `label`: `file:line`, `description`: first line of comment body. The agent's suggested primary should be listed first with `"(Recommended)"` appended.
+     - `multiple: false`
+
+     Skip round 2 entirely if no accepted group has multiple threads.
+
+   - Groups the user accepted become the working groups for step 7. Groups the user chose to split become individual single-thread groups. Skipped groups are excluded from further processing.
+
+7. **Process groups:**
+
+   Processing is split into four phases: pre-analyze all groups, batch the approach confirmations, resolve any discussions, then implement sequentially.
+
+   **Phase 1 — Pre-analyze all groups:**
+
+   For each group in order, perform steps 7a and 7b:
 
    **7a. Understand the feedback:**
    - Read the entire thread(s) in the group to understand the full context of the discussion.
@@ -123,17 +155,30 @@ description: Process GitHub PR review comments
    - Read the relevant file(s) mentioned in the comments.
    - Understand the surrounding code and its purpose.
    - Assess whether the feedback is valid and applicable.
+   - Build the summary and intended approach for this group (to be presented in phase 2).
 
-   **7c. Present summary and confirm approach:**
-   - Summarize the feedback: a concise synthesis of what the comment thread(s) are about (e.g., "The reviewer requests that the error message include the file path for easier debugging").
-   - If code changes are needed: describe the intended resolution (e.g., "I will modify the `handle_error` function in `src/lib.rs` to include `path` in the formatted error string").
-   - If no code changes are needed: explain why (e.g., "This was addressed in commit `abc1234`" or "This is informational feedback that doesn't require a code change").
-   - Provide the original comment URL(s) for easy access to full context.
-   - **Pause and ask the user** if they would like to proceed, discuss the approach, redirect, or skip this group.
-   - If no code changes are needed and the user confirms, skip to the next group (a reply will be drafted in step 9).
+   **Phase 2 — Batch approach confirmation:**
+
+   After all groups have been pre-analyzed, use the **question tool** with one question per group:
+   - `header`: brief group label (e.g., `Error context`)
+   - `question`: summary of the feedback, intended resolution (or explanation of why no change is needed), and original comment URL(s) for full context
+   - `options`: `"Proceed (Recommended)"`, `"Skip"`, `"Discuss"`
+   - `multiple: false`
+
+   If there is only a single group, still use the question tool — the user should confirm the approach before implementation begins.
+
+   **Phase 3 — Resolve discussions:**
+
+   For any group the user marked "Discuss": engage in conversation with the user to clarify direction. Handle discussion groups in their original order. Once each discussion is resolved, the group becomes either "Proceed" (with an updated approach) or "Skip".
+
+   All discussions must be resolved before any implementation begins.
+
+   **Phase 4 — Implement sequentially:**
+
+   For each non-skipped group, in original order, perform steps 7d through 7g. Complete one group before starting the next.
 
    **7d. Implement the fix:**
-   - Make the requested changes following the comment's guidance.
+   - Make the requested changes following the comment's guidance and the confirmed approach.
    - Ensure changes are consistent with the codebase style and conventions.
 
    **7e. Verify changes:**
@@ -177,9 +222,22 @@ description: Process GitHub PR review comments
    - For each group, draft a **primary reply** for the primary comment's thread: a brief, conversational explanation of what changes were made (or why no change was needed), including a link to the commit if applicable.
    - For each group with multiple threads, draft **secondary replies** for the remaining threads: a shorter message linking to the commit. For example: "Addressed in [`abc1234`](commit-url)." (The primary reply URL will be added after the primary is posted.)
 
-   **9b. Present all drafts to the user:**
-   - List every draft reply with its target (group, thread, file:line), marking each as primary or secondary.
-   - Offer options: post all, skip individual replies (by number or reference), edit specific ones, or skip all.
+   **9b. Review and approve replies:**
+
+   Use an iterative multi-question cycle to review and refine all draft replies:
+
+   1. Use the **question tool** with one question per draft reply:
+      - `header`: `file:line` of the target thread (truncated to 30 chars)
+      - `question`: the full draft reply text, marked as primary or secondary, with target info (group, thread, file:line)
+      - `options`: `"Post as-is (Recommended)"`, `"Skip"`
+      - `multiple: false`
+      - The user may also type a custom answer as **guidance for revision** — instructions for how to change the reply (e.g., "make it shorter", "mention the performance impact", "don't link the commit"). This is guidance, not necessarily verbatim replacement text.
+
+   2. For any reply where the user provided revision guidance: revise the draft based on the guidance.
+
+   3. Present **only the revised replies** in another multi-question round with the same structure (`"Post as-is (Recommended)"` / `"Skip"` + custom guidance for further revision).
+
+   4. Repeat steps 2–3 until all remaining replies are either approved ("Post as-is") or skipped.
 
    **9c. Post replies in order:**
    - Post all approved **primary replies** first, each to the **root comment ID** of its thread:
