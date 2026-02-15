@@ -6,10 +6,16 @@ description: Research, assess, and address a GitHub issue
 
 **Issue reference (if provided):** $1
 
+## User interaction convention
+
+When presenting a list of issues for the user to select from:
+- **15 or fewer issues:** Use the **question tool** with a single question. Each issue is one selectable option. The user always has the option to type a custom answer.
+- **16 or more issues:** List the issues as plain text and ask the user which to process.
+
 ## Process
 
 1. **Identify the issue:**
-   - If no argument was provided, run `/issues` to list open issues and ask the user which to process
+   - If no argument was provided, run `/issues` to list open issues and present them for selection following the user interaction convention above
    - If an issue number was provided, fetch its details directly
    - If a URL was provided, fetch its details directly
    - If the argument is non-numeric, non-URL text, proceed to steps 2–3 for label-aware interpretation
@@ -27,7 +33,7 @@ description: Research, assess, and address a GitHub issue
    - When filtering by labels:
      - Multiple labels inferred together default to AND semantics (single `gh issue list` call with multiple `--label` flags)
      - If the interpretation requires OR across labels, make separate `gh issue list --label` queries and combine/deduplicate the results
-   - Present the resulting issues to the user and ask which to process, unless the argument clearly requests automatic selection of one
+    - Present the resulting issues for selection following the user interaction convention above, unless the argument clearly requests automatic selection of one
 
 4. **Validate input type:**
     - If the input contains `#discussion_r` or `#r` → **stop** and inform the user: "This appears to be a PR review comment URL. Use `/process-comment` instead."
