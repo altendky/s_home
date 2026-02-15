@@ -156,6 +156,11 @@ function target-vac
     df -h .
 end
 
+function opencode-import
+    opencode import $argv | awk '{print $NF}' | read -l sid
+    and opencode --session "$sid"
+end
+
 # https://github.com/xtendo-org/chips#gnulinux-x64
 alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
     https://github.com/xtendo-org/chips/releases/download/1.1.2/chips_gnulinux
