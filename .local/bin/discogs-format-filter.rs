@@ -85,6 +85,11 @@ struct Cli {
     #[arg(long, default_value_t = 0)]
     limit: usize,
 
+    /// Only include releases where the artist has a "Main" credit.
+    /// Excludes guest appearances, remixes, production credits, etc.
+    #[arg(long)]
+    main_only: bool,
+
     /// Add matching releases to your Discogs wantlist with a tagged note
     #[arg(long)]
     add_to_wantlist: bool,
@@ -636,6 +641,22 @@ fn run() -> Result<(), String> {
     // multiple times under different roles. Dedup, keeping the first
     // occurrence (preserving role info) and merging roles for display.
     let (deduped, dedup_saved) = dedup_releases(&all);
+
+    // ── --main-only: drop non-Main roles before any API calls ───
+    let deduped: Vec<DedupRelease> = if cli.main_only {
+        let before = deduped.len();
+        let kept: Vec<_> = deduped
+            .into_iter()
+            .filter(|r| r.role.as_deref().unwrap_or("Main") == "Main")
+            .collect();
+        let dropped = before - kept.len();
+        if dropped > 0 {
+            eprintln!("--main-only: dropped {dropped} non-Main releases");
+        }
+        kept
+    } else {
+        deduped
+    };
 
     let masters: Vec<_> = deduped.iter().filter(|r| r.kind == "master").collect();
     let singles: Vec<_> = deduped.iter().filter(|r| r.kind == "release").collect();
@@ -1227,11 +1248,44 @@ fn pick_artist(api: &Discogs, name: &str) -> Result<u64, String> {
             Ok(a.id)
         }
         _ => {
+            // Check for exactly one exact case-insensitive match
+            let name_lower = name.to_lowercase();
+            let exact_matches: Vec<usize> = resp
+                .results
+                .iter()
+                .enumerate()
+                .filter(|(_, a)| a.title.to_lowercase() == name_lower)
+                .map(|(i, _)| i)
+                .collect();
+            let auto_pick = if exact_matches.len() == 1 {
+                Some(exact_matches[0])
+            } else {
+                None
+            };
+
             eprintln!("\nMultiple matches:\n");
             for (i, a) in resp.results.iter().enumerate() {
-                let uri = a.uri.as_deref().unwrap_or("");
-                eprintln!("  {}: {} (id {})  {}", i + 1, a.title, a.id, uri);
+                let url = match a.uri.as_deref() {
+                    Some(u) if u.starts_with("http") => u.to_string(),
+                    Some(u) => format!("https://www.discogs.com{u}"),
+                    None => format!("https://www.discogs.com/artist/{}", a.id),
+                };
+                let marker = if auto_pick == Some(i) {
+                    "  ← exact match, auto-selected"
+                } else {
+                    ""
+                };
+                eprintln!("  {}: {} (id {}){marker}", i + 1, a.title, a.id);
+                eprintln!("     {url}");
             }
+
+            if let Some(idx) = auto_pick {
+                let a = &resp.results[idx];
+                eprintln!();
+                eprintln!("Auto-selected: {} (id {})", a.title, a.id);
+                return Ok(a.id);
+            }
+
             eprintln!();
             eprint!("Pick [1-{}]: ", resp.results.len());
             io::stderr().flush().unwrap();
