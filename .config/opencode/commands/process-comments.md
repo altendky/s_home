@@ -100,7 +100,6 @@ When a step calls for presenting multiple independent choices to the user simult
      - `options`: `"Include (Recommended)"`, `"Skip"`
      - `multiple: false`
    - Collect all threads the user selected "Include" for into the working set.
-   - If only one unresolved thread exists, skip the question tool and include it directly.
 
    If the working set is empty (no threads included), inform the user and **stop**.
 
