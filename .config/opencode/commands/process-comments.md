@@ -38,28 +38,43 @@ When a step calls for presenting multiple independent choices to the user simult
    - Fetch PR metadata: `gh pr view {pr_number} --json headRefName,headRefOid`
    - Fetch all review threads and their resolved status using:
 
-     ```bash
-     gh api graphql -f query='
-       query($owner: String!, $repo: String!, $pr: Int!) {
-         repository(owner: $owner, name: $repo) {
-           pullRequest(number: $pr) {
-             reviewThreads(first: 100) {
-               pageInfo { hasNextPage endCursor }
-               nodes {
-                 isResolved
-                 comments(first: 100) {
-                   nodes { databaseId body author { login } path line originalLine }
-                 }
-               }
-             }
-           }
-         }
-       }
-     ' -f owner={owner} -f repo={repo} -F pr={pr_number}
-     ```
+      ```bash
+      gh api graphql -f query='
+        query($owner: String!, $repo: String!, $pr: Int!) {
+          repository(owner: $owner, name: $repo) {
+            pullRequest(number: $pr) {
+              reviewThreads(first: 100) {
+                pageInfo { hasNextPage endCursor }
+                nodes {
+                  isResolved
+                  comments(first: 100) {
+                    nodes { databaseId body author { login } path line originalLine }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ' -f owner={owner} -f repo={repo} -F pr={pr_number} --jq '
+        .data.repository.pullRequest.reviewThreads as $rt
+        | {
+            pageInfo: $rt.pageInfo,
+            threads: [
+              $rt.nodes | to_entries[]
+              | select(.value.isResolved == false)
+              | {
+                  thread_index: .key,
+                  num_comments: (.value.comments.nodes | length),
+                  comments: .value.comments.nodes
+                }
+            ]
+          }
+      '
+      ```
 
-     If `pageInfo.hasNextPage` is `true`, re-run the query with an `after: "<endCursor>"` argument on `reviewThreads` to fetch the next page. Repeat until all threads have been fetched.
-   - Silently discard resolved threads (where `isResolved` is `true`)
+      The `--jq` filter discards resolved threads before output, which avoids token-bloating from long bot comments on resolved threads. Full comment bodies are preserved for unresolved threads so that structured AI agent instructions from automated reviewers (CodeRabbit, Copilot, etc.) are not lost.
+
+      If `pageInfo.hasNextPage` is `true`, re-run the query with an `after: "<endCursor>"` argument on `reviewThreads` to fetch the next page. Repeat until all threads have been fetched.
    - Collect all unresolved threads with their comments
 
 3. **Check thread status (single-comment mode only):**
