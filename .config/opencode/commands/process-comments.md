@@ -160,26 +160,45 @@ When a step calls for presenting multiple independent choices to the user simult
    - Note the file path and line range from each root comment's `path`, `line`, and `start_line` fields.
    - Check all comments in the threads for structured prompts from automated review tools (CodeRabbit, Copilot, etc.) — these often include an "AI agent" or machine-readable instruction section. Use them as additional context.
    - **Determine whether code changes are needed.** The feedback might be:
-     - A change request → proceed with implementation
+     - A valid change request supported by verification → proceed with implementation
      - Already addressed by a previous commit → no change needed
      - Informational, a question, or praise → no change needed
-     - Something the agent or user disagrees with → no change needed (explain rationale)
+     - A claim that doesn't hold up under verification → no change needed (present the contradicting evidence and explain rationale)
+     - A valid issue but with a flawed proposed solution → proceed with an alternative approach (explain why)
 
-   **7b. Research the context:**
+   **7b. Verify the feedback:**
+
+   Launch a subagent for each group in parallel to perform verification. Each subagent should:
+
    - Read the relevant file(s) mentioned in the comments.
    - Understand the surrounding code and its purpose.
-   - Assess whether the feedback is valid and applicable.
-   - Build the summary and intended approach for this group (to be presented in phase 2).
+   - **Verify the claimed issue exists:** If the reviewer claims something is a bug, incorrect, inefficient, or problematic — investigate whether that's actually true. Examine code behavior, not just code text. Look for tests that exercise the code path, trace the logic, and check actual behavior.
+   - **Verify the proposed fix is valid:** If the reviewer suggests a specific solution, assess whether it actually solves the identified problem. Check that it doesn't introduce new bugs, doesn't break the API contract, and handles edge cases.
+   - **Check for unintended side effects:** Identify callers, related code paths, and dependent logic. Assess whether the proposed change could break them.
+   - **Verify the reviewer understands the context:** Check if the reviewer might be missing information that changes the validity of their feedback — e.g., code in other files they didn't see, project constraints, or intentionally unusual behavior with a reason behind it.
+   - **Check consistency with codebase:** Verify the suggested approach aligns with existing patterns, conventions, and style in the project.
+
+   Build a **verification summary** for each group containing:
+   - Evidence supporting or contradicting the reviewer's claims
+   - Assessment of the proposed solution's validity
+   - Risks or concerns identified (e.g., potential breakage, edge cases)
+   - Confidence level: **high** (clear evidence either way), **medium** (reasonable assessment but some uncertainty), or **low** (insufficient information to verify)
+   - Recommended action: proceed as suggested, proceed with modifications, or decline with explanation
 
    **Phase 2 — Batch approach confirmation:**
 
-   After all groups have been pre-analyzed, use the **question tool** with one question per group:
+   After all groups have been verified, use the **question tool** with one question per group:
    - `header`: brief group label (e.g., `Error context`)
-   - `question`: summary of the feedback, intended resolution (or explanation of why no change is needed), and original comment URL(s) for full context
-   - `options`: `"Proceed (Recommended)"`, `"Skip"`, `"Discuss"`
+   - `question`: Include all of the following:
+     - **Reviewer's claim:** What the reviewer is asserting or requesting
+     - **Verification findings:** Evidence that supports or contradicts the claim. Be specific — cite code, test results, or logic that informed the assessment. If the reviewer appears to have misunderstood something, explain what they missed.
+     - **Confidence:** High, medium, or low
+     - **Recommendation:** Intended resolution (proceed as suggested, proceed with modifications, or decline) with rationale
+     - **Original comment URL(s)** for full context
+   - `options`: When verification supports the reviewer's claim, use `"Proceed (Recommended)"`, `"Skip"`, `"Discuss"`. When verification contradicts the claim, use `"Skip (Recommended)"`, `"Proceed anyway"`, `"Discuss"`.
    - `multiple: false`
 
-   If there is only a single group, still use the question tool — the user should confirm the approach before implementation begins.
+   If there is only a single group, still use the question tool — the user should review verification findings and confirm before implementation begins.
 
    **Phase 3 — Resolve discussions:**
 
@@ -217,9 +236,28 @@ When a step calls for presenting multiple independent choices to the user simult
      <primary-comment-url>
      ```
 
-   - Record the commit SHA for this group: `git rev-parse HEAD`. This will be used in steps 8 and 9.
+   - Record the commit SHA for this group: `git rev-parse HEAD`. This will be used in steps 9 and 10.
 
-8. **Push:**
+8. **Pre-push verification:**
+
+   Before pushing, run the project's automated checks to ensure the changes don't break anything:
+
+   - Run the project's test suite.
+   - Run the type checker if configured.
+   - Run the linter if configured.
+
+   If all checks pass, proceed to push.
+
+   If any checks fail:
+   - Show the failure output to the user.
+   - Identify which commit(s) likely caused the failure, if determinable.
+   - Ask the user how to proceed:
+     - `"Fix the issues"` — work with the user to resolve failures, then re-run checks
+     - `"Revert specific commit(s)"` — undo the problematic change(s) and re-run checks
+     - `"Push anyway (not recommended)"` — proceed despite failures, with a warning that CI will likely fail
+   - Do not proceed to push until checks pass or the user explicitly chooses to push anyway.
+
+9. **Push:**
 
    After all groups have been processed and committed, push once to the remote branch.
 
@@ -227,16 +265,16 @@ When a step calls for presenting multiple independent choices to the user simult
    - Push to the remote branch.
    - If the push is rejected, show the error output and ask the user how to proceed (e.g., pull and retry, force push, or stop).
 
-9. **Reply to comments:**
+10. **Reply to comments:**
 
    After the push, draft and post replies for all groups.
 
-   **9a. Draft all replies:**
+   **10a. Draft all replies:**
    - For each group, build the commit URL from the SHA recorded in step 7g: `https://github.com/${REPO}/commit/${COMMIT_SHA}`
    - For each group, draft a **primary reply** for the primary comment's thread: a brief, conversational explanation of what changes were made (or why no change was needed), including a link to the commit if applicable.
    - For each group with multiple threads, draft **secondary replies** for the remaining threads: a shorter message linking to the commit. For example: "Addressed in [`abc1234`](commit-url)." (The primary reply URL will be added after the primary is posted.)
 
-   **9b. Review and approve replies:**
+   **10b. Review and approve replies:**
 
    Use an iterative multi-question cycle to review and refine all draft replies:
 
@@ -253,7 +291,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
    4. Repeat steps 2–3 until all remaining replies are either approved ("Post as-is") or skipped.
 
-   **9c. Post replies in order:**
+   **10c. Post replies in order:**
    - Post all approved **primary replies** first, each to the **root comment ID** of its thread:
 
      ```bash
