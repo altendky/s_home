@@ -231,18 +231,18 @@ When a step calls for presenting multiple independent choices to the user simult
 
    For any group the user marked "Discuss": engage in conversation with the user to clarify direction. Handle discussion groups in their original order. Once each discussion is resolved, the group becomes either "Proceed" (with an updated approach), "Reject" (draft a rejection reply as in Phase 2b), or "Skip".
 
-   All discussions must be resolved before any implementation begins.
+   All discussions must be resolved before any implementation begins. The discussion phase may involve reading code, running experiments, or building context across multiple groups — after discussions conclude, return to Phase 4 and follow the sequential implementation protocol strictly. Resist the temptation to batch-implement based on accumulated cross-group context.
 
    **Phase 4 — Implement sequentially:**
 
-   For each group marked "Proceed", in original order, perform steps 7d through 7g. Complete one group before starting the next.
+   For each group marked "Proceed", in original order, perform steps 7d through 7g. **Implementation must be strictly sequential: complete 7d through 7g (including the commit) for each group before starting the next.** Do not begin implementing a subsequent group until the current group's changes are committed. This is especially important when multiple groups touch the same file — interleaving edits and trying to split them into separate commits after the fact is error-prone.
 
    **7d. Implement the fix:**
    - Make the requested changes following the comment's guidance and the confirmed approach.
    - Ensure changes are consistent with the codebase style and conventions.
 
    **7e. Verify changes:**
-   - Run `git diff --name-only` and confirm only the intended files were modified. If unexpected files appear, flag them to the user.
+   - Run `git diff` (full diff, not just `--name-only`) and confirm the changes correspond only to the current group's scope. Check for changes belonging to other groups that may have leaked into the working tree — especially when multiple groups touch the same file. If unrelated changes are present, stash or revert them before proceeding to commit. If unexpected files appear, flag them to the user.
    - Ask the user: "Would you like me to run any tests or checks before committing?"
    - If yes, run them. If failures occur, show results and let the user decide how to proceed.
 
