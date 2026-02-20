@@ -83,7 +83,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
    - Using the GraphQL query from step 2's PR-wide mode section (or a dedicated call), check whether the target thread is resolved. Match the root comment's ID against `databaseId` to find the thread. If the root comment's ID is not found among the returned threads, paginate as described in step 2 until found or all threads are checked.
    - If `isResolved` is `true`, inform the user: "This comment thread is marked as resolved. It may have already been addressed." Ask if they want to proceed anyway or stop.
-   - Check if the comment is outdated by comparing the comment's `commit_id` field (from step 2) against the PR's current head commit (`headRefOid` from `gh pr view {pr_number} --json headRefOid`). If they differ, inform the user: "This comment was made against commit `<short-sha>` but the PR head is now `<short-sha>` — the referenced code may have changed." Ask if they want to proceed.
+   - Check if the comment is outdated by comparing the comment's `commit_id` field (from step 2) against the PR's current head commit (`headRefOid` from `gh pr view {pr_number} --json headRefOid`). If they differ, inform the user: "This comment was made against commit `<short-sha>` but the PR head is now `<short-sha>` — the referenced code may have changed." Ask how they want to proceed with options: `"Proceed"`, `"Reject"`, `"Stop"`. If rejected, queue the targeted thread for a rejection reply and continue to step 5 so the user can still address other unresolved threads.
    - If neither condition applies, continue silently.
 
 4. **Verify branch:**
@@ -101,22 +101,31 @@ When a step calls for presenting multiple independent choices to the user simult
    - Using the PR comments already fetched in step 2 and the resolved-status data from step 3, identify other unresolved comment threads on the same PR.
    - The originally-targeted thread is always included (no question for it).
    - If other unresolved threads exist, use the **question tool** with one question per additional unresolved thread:
-     - `header`: `file:line` (truncated to 30 chars, e.g., `src/lib.rs:42`)
-     - `question`: file path, line range, first line of comment body, author
-     - `options`: `"Include (Recommended)"`, `"Skip"`
-     - `multiple: false`
-   - Merge all threads the user selected "Include" for into the working set alongside the original thread.
-   - If only one unresolved thread exists (the original), skip the question tool entirely.
+      - `header`: `file:line` (truncated to 30 chars, e.g., `src/lib.rs:42`)
+      - `question`: file path, line range, first line of comment body, author
+      - `options`: `"Include (Recommended)"`, `"Reject"`, `"Skip"`
+      - `multiple: false`
+    - Merge all threads the user selected "Include" for into the working set alongside the original thread.
+    - If only one unresolved thread exists (the original), skip the question tool entirely.
 
    **PR-wide mode:**
-   - Use the **question tool** with one question per unresolved thread:
-     - `header`: `file:line` (truncated to 30 chars)
-     - `question`: file path, line range, first line of comment body, author
-     - `options`: `"Include (Recommended)"`, `"Skip"`
-     - `multiple: false`
-   - Collect all threads the user selected "Include" for into the working set.
+    - Use the **question tool** with one question per unresolved thread:
+      - `header`: `file:line` (truncated to 30 chars)
+      - `question`: file path, line range, first line of comment body, author
+      - `options`: `"Include (Recommended)"`, `"Reject"`, `"Skip"`
+      - `multiple: false`
+    - Collect all threads the user selected "Include" for into the working set.
 
-   If the working set is empty (no threads included), inform the user and **stop**.
+   **Draft rejection replies:** After all selection choices have been collected, gather all rejected threads — both those rejected in this step and any queued for rejection from step 3. For each rejected thread, consider whether you have enough context to draft a suggested rejection reply. Use the **question tool** with one question per rejected thread:
+    - `header`: `file:line` (truncated to 30 chars)
+    - `question`: If a draft reply is available, present the full draft text and ask the user to accept or revise it. If no draft is possible, explain why (e.g., "I don't have enough context about why you want to reject this") and ask the user to provide the reply text.
+    - `options`: `"Accept draft (Recommended)"` (only if a draft was provided), `"Skip reply"`
+    - `multiple: false`
+    - The user may type a custom answer as the reply text or as revision guidance. If guidance is given, revise the draft and re-present in another round until accepted or skipped.
+
+   Rejected threads skip steps 6–9. Their approved rejection replies are queued for posting in step 10.
+
+   If the working set is empty and no threads were rejected, inform the user and **stop**. If the working set is empty but rejection replies were queued, skip to step 10 to post them.
 
 6. **Group comments:**
    - The default is **no grouping** — each thread gets its own commit. Only group threads when one of the following clearly applies:
@@ -127,20 +136,29 @@ When a step calls for presenting multiple independent choices to the user simult
    - If any multi-thread groups are proposed, present them using the question tool in two rounds:
 
      **Round 1 — Group acceptance:** Use the **question tool** with one question per proposed group:
-     - `header`: brief group label (e.g., `Rename get_val`)
-     - `question`: which threads are in the group, why they're grouped, and the suggested primary comment
-     - `options`: `"Accept"`, `"Split into separate commits"`, `"Skip entire group"`
-     - `multiple: false`
+      - `header`: brief group label (e.g., `Rename get_val`)
+      - `question`: which threads are in the group, why they're grouped, and the suggested primary comment
+      - `options`: `"Accept"`, `"Split into separate commits"`, `"Reject entire group"`, `"Skip entire group"`
+      - `multiple: false`
 
-     **Round 2 — Primary comment selection** (only for accepted groups that contain multiple threads): Use the **question tool** with one question per such group:
-     - `header`: same group label as round 1
-     - `question`: "Which thread should be the primary comment for this group?"
-     - `options`: one option per thread in the group — `label`: `file:line`, `description`: first line of comment body. The agent's suggested primary should be listed first with `"(Recommended)"` appended.
-     - `multiple: false`
+      **Round 1b — Draft rejection replies** (only if any groups were rejected): For each rejected group, draft a rejection reply for the group's primary thread using the same approach as step 5's rejection reply drafting. Use the **question tool** with one question per rejected group:
+      - `header`: same group label as round 1
+      - `question`: If a draft reply is available, present the full draft text. If not, explain why and ask the user to provide the reply text.
+      - `options`: `"Accept draft (Recommended)"` (only if a draft was provided), `"Skip reply"`
+      - `multiple: false`
+      - The user may type a custom answer as the reply text or as revision guidance. If guidance is given, revise the draft and re-present in another round until accepted or skipped.
 
-     Skip round 2 entirely if no accepted group has multiple threads.
+      Rejected groups skip steps 7–9. Their approved rejection replies are queued for posting in step 10. If a rejected group contains multiple threads, the rejection reply is posted to the primary thread and secondary replies linking to the primary are posted to the remaining threads (handled in step 10).
 
-   - Groups the user accepted become the working groups for step 7. Groups the user chose to split become individual single-thread groups. Skipped groups are excluded from further processing.
+      **Round 2 — Primary comment selection** (only for accepted groups that contain multiple threads): Use the **question tool** with one question per such group:
+      - `header`: same group label as round 1
+      - `question`: "Which thread should be the primary comment for this group?"
+      - `options`: one option per thread in the group — `label`: `file:line`, `description`: first line of comment body. The agent's suggested primary should be listed first with `"(Recommended)"` appended.
+      - `multiple: false`
+
+      Skip round 2 entirely if no accepted group has multiple threads.
+
+   - Groups the user accepted become the working groups for step 7. Groups the user chose to split become individual single-thread groups. Rejected groups are excluded from implementation but their rejection replies are queued for step 10. Skipped groups are excluded from further processing entirely.
 
 7. **Process groups:**
 
@@ -195,20 +213,29 @@ When a step calls for presenting multiple independent choices to the user simult
      - **Confidence:** High, medium, or low
      - **Recommendation:** Intended resolution (proceed as suggested, proceed with modifications, or decline) with rationale
      - **Original comment URL(s)** for full context
-   - `options`: When verification supports the reviewer's claim, use `"Proceed (Recommended)"`, `"Skip"`, `"Discuss"`. When verification contradicts the claim, use `"Skip (Recommended)"`, `"Proceed anyway"`, `"Discuss"`.
+   - `options`: When verification supports the reviewer's claim, use `"Proceed (Recommended)"`, `"Reject"`, `"Skip"`, `"Discuss"`. When verification contradicts the claim, use `"Reject (Recommended)"`, `"Skip"`, `"Proceed anyway"`, `"Discuss"`.
    - `multiple: false`
 
    If there is only a single group, still use the question tool — the user should review verification findings and confirm before implementation begins.
 
+   **Phase 2b — Draft rejection replies** (only if any groups were rejected): For each rejected group, draft a rejection reply using the verification findings as context. Use the **question tool** with one question per rejected group:
+   - `header`: brief group label
+   - `question`: Present the full draft rejection reply, which should reference the specific verification findings (e.g., contradicting evidence, why the proposed change is unnecessary, or why an alternative approach is preferred).
+   - `options`: `"Accept draft (Recommended)"`, `"Skip reply"`
+   - `multiple: false`
+   - The user may type a custom answer as the reply text or as revision guidance. If guidance is given, revise the draft and re-present in another round until accepted or skipped.
+
+   Rejected groups skip Phase 4 (implementation). Their approved rejection replies are queued for posting in step 10.
+
    **Phase 3 — Resolve discussions:**
 
-   For any group the user marked "Discuss": engage in conversation with the user to clarify direction. Handle discussion groups in their original order. Once each discussion is resolved, the group becomes either "Proceed" (with an updated approach) or "Skip".
+   For any group the user marked "Discuss": engage in conversation with the user to clarify direction. Handle discussion groups in their original order. Once each discussion is resolved, the group becomes either "Proceed" (with an updated approach), "Reject" (draft a rejection reply as in Phase 2b), or "Skip".
 
    All discussions must be resolved before any implementation begins.
 
    **Phase 4 — Implement sequentially:**
 
-   For each non-skipped group, in original order, perform steps 7d through 7g. Complete one group before starting the next.
+   For each group marked "Proceed", in original order, perform steps 7d through 7g. Complete one group before starting the next.
 
    **7d. Implement the fix:**
    - Make the requested changes following the comment's guidance and the confirmed approach.
@@ -267,20 +294,22 @@ When a step calls for presenting multiple independent choices to the user simult
 
 10. **Reply to comments:**
 
-   After the push, draft and post replies for all groups.
+   After the push, draft and post replies for all groups — both implementation replies (for groups that were implemented) and rejection replies (for groups/threads that were rejected at steps 5, 6, or 7).
 
-   **10a. Draft all replies:**
-   - For each group, build the commit URL from the SHA recorded in step 7g: `https://github.com/${REPO}/commit/${COMMIT_SHA}`
-   - For each group, draft a **primary reply** for the primary comment's thread: a brief, conversational explanation of what changes were made (or why no change was needed), including a link to the commit if applicable.
-   - For each group with multiple threads, draft **secondary replies** for the remaining threads: a shorter message linking to the commit. For example: "Addressed in [`abc1234`](commit-url)." (The primary reply URL will be added after the primary is posted.)
+   **10a. Draft all implementation replies:**
+   - For each implemented group, build the commit URL from the SHA recorded in step 7g: `https://github.com/${REPO}/commit/${COMMIT_SHA}`
+   - For each implemented group, draft a **primary reply** for the primary comment's thread: a brief, conversational explanation of what changes were made (or why no change was needed), including a link to the commit if applicable.
+   - For each implemented group with multiple threads, draft **secondary replies** for the remaining threads: a shorter message linking to the commit. For example: "Addressed in [`abc1234`](commit-url)." (The primary reply URL will be added after the primary is posted.)
+
+   Rejection replies were already drafted and approved at the point of rejection (steps 5, 6, or 7). They do not need to be re-drafted here.
 
    **10b. Review and approve replies:**
 
-   Use an iterative multi-question cycle to review and refine all draft replies:
+   Use an iterative multi-question cycle to review and refine all draft replies. This includes both implementation replies drafted in 10a **and** previously-approved rejection replies (giving the user a final unified view before posting).
 
    1. Use the **question tool** with one question per draft reply:
       - `header`: `file:line` of the target thread (truncated to 30 chars)
-      - `question`: the full draft reply text, marked as primary or secondary, with target info (group, thread, file:line)
+      - `question`: the full draft reply text, marked as primary, secondary, or rejection, with target info (group, thread, file:line)
       - `options`: `"Post as-is (Recommended)"`, `"Skip"`
       - `multiple: false`
       - The user may also type a custom answer as **guidance for revision** — instructions for how to change the reply (e.g., "make it shorter", "mention the performance impact", "don't link the commit"). This is guidance, not necessarily verbatim replacement text.
@@ -292,7 +321,7 @@ When a step calls for presenting multiple independent choices to the user simult
    4. Repeat steps 2–3 until all remaining replies are either approved ("Post as-is") or skipped.
 
    **10c. Post replies in order:**
-   - Post all approved **primary replies** first, each to the **root comment ID** of its thread:
+   - Post all approved **primary replies** (implementation) first, each to the **root comment ID** of its thread:
 
      ```bash
      gh api repos/{owner}/{repo}/pulls/{pull_number}/comments \
@@ -302,7 +331,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
      Extract each primary reply's URL from the API response (`html_url` field).
 
-   - Then post all approved **secondary replies**, updating each to include the now-available primary reply URL. For example: "Addressed in [`abc1234`](commit-url) — see [this reply](primary-reply-url) for details."
+   - Then post all approved **secondary replies** (implementation), updating each to include the now-available primary reply URL. For example: "Addressed in [`abc1234`](commit-url) — see [this reply](primary-reply-url) for details."
 
      ```bash
      gh api repos/{owner}/{repo}/pulls/{pull_number}/comments \
@@ -310,7 +339,9 @@ When a step calls for presenting multiple independent choices to the user simult
        -F in_reply_to={root_comment_id_of_this_thread}
      ```
 
-   - If a primary reply was skipped but its secondary replies were approved, post the secondary replies as standalone (with commit link only, no primary reply link).
+   - Then post all approved **rejection replies**, each to the **root comment ID** of its thread. Rejection replies have no commit link. For rejected groups with multiple threads, post the primary rejection reply first, then post secondary rejection replies to the remaining threads linking to the primary. For example: "See [this reply](primary-rejection-reply-url) for details on why we declined this change."
+
+   - If a primary reply was skipped but its secondary replies were approved, post the secondary replies as standalone (with commit link only for implementation replies, no primary reply link).
    - For any reply the user skipped, do not post it. The commits are already pushed; the user can reply manually.
 
 ## Error handling
