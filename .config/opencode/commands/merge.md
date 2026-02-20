@@ -169,10 +169,22 @@ Reason step-by-step where deep semantic reasoning is needed.
 
 ### Present verification results and get approval (GATE)
 
+Generate diff files so the user can review the final state with their preferred diff tool:
+
+1. Create a temporary directory: `mktemp -d --tmpdir merge-diff-XXXXXX`
+2. Save the before diff (current branch changes from merge-base): `git diff <source>...HEAD > $tmpdir/before.diff`
+3. Save the after diff (merged working tree vs source): `git diff <source> > $tmpdir/after.diff`
+
 Present a verification report:
 - What is preserved from each branch
 - Any discrepancies or regressions found
 - Any remaining TODOs or follow-ups needed
+- Diff file paths with proper shell quoting (using `printf '%q'`):
+  ```
+  Diff files saved:
+    <quoted-path>/before.diff
+    <quoted-path>/after.diff
+  ```
 
 Ask: "Accept the merged result as correct and complete? (yes/no)"
 - If no: address issues, re-run Phase 6 checks/tests if needed, then re-verify.
