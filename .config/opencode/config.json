@@ -105,6 +105,17 @@
         "@playwright/mcp@latest"
       ],
       "enabled": true
+    },
+    "mise": {
+      "type": "local",
+      "command": [
+        "mise",
+        "mcp"
+      ],
+      "environment": {
+        "MISE_EXPERIMENTAL": "1"
+      },
+      "enabled": true
     }
   },
   "$schema": "https://opencode.ai/config.json"
