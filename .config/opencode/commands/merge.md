@@ -80,8 +80,21 @@ Do not commit yet. The commit happens in Phase 8 after all verification.
 - List conflicted files: `git ls-files -u | awk '{print $4}' | sort -u`
 - Find all conflict marker locations: `grep -rn '^<<<<<<< \|^=======\|^>>>>>>> ' <files>`
 - List auto-merged files that were changed on both branches (overlapping files that are NOT in the unmerged list).
+- **Separate lock files**: Identify any conflicted files matching known lock file patterns (`Cargo.lock`, `poetry.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.json`, `composer.lock`, `Gemfile.lock`, `go.sum`, `packages.lock.json`, etc.). By default these files cannot be meaningfully hand-merged and will be checked out from a chosen branch instead. Present the list and ask the user how to handle them. First offer a single choice for all lock files:
+  - **Source branch (`<source>`)** (Recommended) — check out the source branch's version; typical when catching up (e.g., merging `main` into a feature branch)
+  - **Current branch (`HEAD`)** — check out the current branch's version; typical when the current branch has the more authoritative dependency state
+  - **Choose per file** — decide individually for each lock file
+
+  If the user selects "Choose per file", present each lock file with the options:
+  - **Source branch (`<source>`)**
+  - **Current branch (`HEAD`)**
+  - **Merge manually** — keep this file in the conflict set and resolve it through the normal conflict analysis and resolution process
+
+  Exclude lock files from the per-file conflict analysis in 4.2 unless the user opted to merge them manually.
 
 ### 4.2 Parallel conflict analysis (use subagents)
+
+(Lock files identified in 4.1 are excluded from this analysis unless the user opted to merge them manually.)
 
 For each conflicted file, spawn a subagent with:
 - The file contents including conflict markers with surrounding context
@@ -114,6 +127,7 @@ Once all subagent analyses are complete:
 Present a structured plan to the user:
 - For each conflict group: the files and regions involved, intent from each branch, compatibility assessment, and proposed resolution
 - Auto-merge bugs found with proposed fixes
+- **Lock file resolution**: the conflicted lock files and the chosen source branch for each. Note that regeneration is left to the user or repository tooling (e.g., pre-commit hooks). Any lock files the user opted to merge manually are included in the conflict groups above.
 - **Prominently flag any code that will be lost**: tests, helper functions, features, or other code that cannot be trivially preserved because it depends on APIs or infrastructure removed by the other branch. Explain why it can't be preserved and suggest follow-ups if appropriate.
 
 Ask: "Approve this merge resolution plan? (yes/no)"
@@ -122,9 +136,11 @@ Ask: "Approve this merge resolution plan? (yes/no)"
 
 ## Phase 5: Apply resolutions
 
-1. **Execute the approved plan**: edit files to resolve conflicts group by group. Apply fixes for auto-merge bugs. Stage resolved files with `git add`.
+1. **Execute the approved plan**: edit files to resolve conflicts group by group. Apply fixes for auto-merge bugs. Stage resolved files with `git add`. Lock files marked for manual merge are resolved as part of this step.
 
-2. **Verify completeness**:
+2. **Resolve lock files**: For each lock file not marked for manual merge, run `git checkout <chosen-branch> -- <lock-file>` then `git add <lock-file>`. Do not attempt to regenerate lock files — that is left to the user or repository tooling (e.g., pre-commit hooks).
+
+3. **Verify completeness**:
    - No conflict markers remain: `grep -rn '^<<<<<<< \|^=======\|^>>>>>>> '` should yield nothing.
    - No unmerged files: `git ls-files -u` should be empty.
    - If any remain, fix and re-check.
