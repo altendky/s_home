@@ -103,18 +103,18 @@ When a step calls for presenting multiple independent choices to the user simult
    - If other unresolved threads exist, use the **question tool** with one question per additional unresolved thread:
       - `header`: `file:line` (truncated to 30 chars, e.g., `src/lib.rs:42`)
       - `question`: file path, line range, first line of comment body, author
-      - `options`: `"Include (Recommended)"`, `"Reject"`, `"Skip"`
-      - `multiple: false`
-    - Merge all threads the user selected "Include" for into the working set alongside the original thread.
+      - `options`: `"Evaluate (Recommended)"`, `"Reject"`, `"Skip"`
+       - `multiple: false`
+     - Merge all threads the user selected "Evaluate" for into the working set alongside the original thread.
     - If only one unresolved thread exists (the original), skip the question tool entirely.
 
    **PR-wide mode:**
     - Use the **question tool** with one question per unresolved thread:
       - `header`: `file:line` (truncated to 30 chars)
       - `question`: file path, line range, first line of comment body, author
-      - `options`: `"Include (Recommended)"`, `"Reject"`, `"Skip"`
-      - `multiple: false`
-    - Collect all threads the user selected "Include" for into the working set.
+      - `options`: `"Evaluate (Recommended)"`, `"Reject"`, `"Skip"`
+       - `multiple: false`
+     - Collect all threads the user selected "Evaluate" for into the working set.
 
    **Draft rejection replies:** After all selection choices have been collected, gather all rejected threads — both those rejected in this step and any queued for rejection from step 3. For each rejected thread, consider whether you have enough context to draft a suggested rejection reply. Use the **question tool** with one question per rejected thread:
     - `header`: `file:line` (truncated to 30 chars)
