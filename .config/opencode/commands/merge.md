@@ -11,6 +11,7 @@ Merge the specified source branch into the current branch. This command is repo-
 ## Principles
 
 - Use the `task` tool aggressively to parallelize analysis work across files and branches.
+- The main agent is an orchestrator and user-facing decision-maker. Delegate data-heavy work (git output processing, file reading/editing, test execution, diff analysis) to subagents so that raw outputs stay out of the main context. Subagents return concise structured summaries.
 - Think carefully and reason step-by-step for complex or ambiguous decisions that benefit from deeper consideration.
 - Never assume project tooling. Discover check/test commands and confirm with the user.
 - Present plans before making changes that affect code content. Require explicit approval at gates.
@@ -19,50 +20,60 @@ Merge the specified source branch into the current branch. This command is repo-
 
 If $1 is not provided, ask the user to supply a branch name.
 
-## Phase 1: Pre-checks
+## Phase 1: Pre-checks (use subagent)
 
-1. **Verify Git repo**: `git rev-parse --show-toplevel`. Stop with a clear message if not in a repo.
+Spawn a subagent to run all pre-check commands and return a structured summary. The subagent performs:
+
+1. **Verify Git repo**: `git rev-parse --show-toplevel`. If not in a repo, return an error.
 
 2. **Resolve refs**:
    - Current branch: `git rev-parse --abbrev-ref HEAD`
-   - Source branch: verify $1 exists as a local branch, remote-tracking branch, or valid ref. If ambiguous or missing, ask the user to clarify.
+   - Source branch: verify $1 exists as a local branch, remote-tracking branch, or valid ref. Report if ambiguous or missing.
 
 3. **Check for in-progress operations**:
    - Check for ongoing merge (`git rev-parse -q --verify MERGE_HEAD`), rebase (`.git/rebase-apply`, `.git/rebase-merge`), cherry-pick (`.git/CHERRY_PICK_HEAD`), or revert (`.git/REVERT_HEAD`).
-   - If any found: ask the user whether to abort and restart, or bail out.
 
 4. **Verify clean working tree**:
    - `git status --porcelain`
-   - If not clean: ask the user to stash, commit, or stop.
 
 5. **Fetch and verify upstream freshness**:
    - `git fetch --all --prune --tags`
-   - For the current branch: check if it has an upstream and whether it is behind. If behind, ask the user to fast-forward first.
-   - For the source branch: check if it has an upstream and whether it is behind. If behind, offer to merge the upstream ref instead, update the local branch, or stop.
+   - For each branch (current and source): check if it has an upstream and whether it is behind.
 
-6. **Report**: state the current branch, the resolved source ref, and proceed.
+The subagent returns a structured report containing: repo root, current branch name, resolved source ref, working tree status (clean or list of dirty files), in-progress operations (if any), and upstream freshness for both branches (ahead/behind counts).
+
+The main agent reviews the summary and handles any user decisions:
+- If not in a repo: stop with a clear message.
+- If source ref is ambiguous or missing: ask the user to clarify.
+- If in-progress operations found: ask the user whether to abort and restart, or bail out.
+- If working tree not clean: ask the user to stash, commit, or stop.
+- If current branch is behind upstream: ask the user to fast-forward first.
+- If source branch is behind upstream: offer to merge the upstream ref instead, update the local branch, or stop.
+
+Once all issues are resolved, state the current branch, the resolved source ref, and proceed.
 
 ## Phase 2: Branch topology and initial research
 
 Goal: build a thorough understanding of both branches before merging.
 
-### Topology
+### Parallel research (use subagents)
 
-- **Merge base**: `git merge-base HEAD <source>`
-- **First common first-parent ancestor**: collect the first-parent history of one branch into a set (`git rev-list --first-parent`), then walk the other branch's first-parent history one commit at a time and return the first commit found in the set. This preserves chronological order and finds the most recent common first-parent commit. If none found distinct from merge base, use merge base.
-- **Commits on each side**: list non-merge commits since the first common first-parent for both branches.
-- **Files changed**: `git diff --name-only <merge-base>...<ref>` for each side. Compute the set of overlapping files (changed on both sides).
+Spawn all three concurrently:
 
-### Parallel branch analysis (use subagents)
-
-Spawn these concurrently:
+- **Topology analysis**: compute the full branch topology and return a concise structured summary. The subagent performs:
+  - **Merge base**: `git merge-base HEAD <source>`
+  - **First common first-parent ancestor**: collect the first-parent history of one branch into a set (`git rev-list --first-parent`), then walk the other branch's first-parent history one commit at a time and return the first commit found in the set. This preserves chronological order and finds the most recent common first-parent commit. If none found distinct from merge base, use merge base.
+  - **Commits on each side**: list non-merge commits since the first common first-parent for both branches.
+  - **Files changed**: `git diff --name-only <merge-base>...<ref>` for each side. Compute the set of overlapping files (changed on both sides).
+  - Return: merge base SHA, first common first-parent SHA, commit counts on each side, list of overlapping files, and a brief summary of the commit topics on each side. Do not return raw commit lists.
 
 - **Current branch analysis**: analyze the full diff of the current branch from the merge base. Infer: overall intent/purpose, key design decisions and patterns, data flow changes, important invariants/constraints, public API changes.
-- **Source branch overlap analysis**: analyze the source branch's changes to the overlapping files only. Identify: structural/architectural changes, renamed modules or changed module paths, changed function signatures and return types, removed or added APIs, new patterns or idioms introduced.
+
+- **Source branch overlap analysis**: analyze the source branch's changes to the overlapping files only (the topology subagent independently computes the overlapping file set; this subagent should also compute it). Identify: structural/architectural changes, renamed modules or changed module paths, changed function signatures and return types, removed or added APIs, new patterns or idioms introduced.
 
 ### Report to user
 
-Present a short topology summary: branch names, key commits, commit counts on each side, number of overlapping files. Note that in-depth analysis is running. No approval required yet.
+Present a short topology summary from the topology subagent's results: branch names, key commits, commit counts on each side, number of overlapping files. Note that in-depth analysis is running (or complete). No approval required yet.
 
 ## Phase 3: Initiate merge
 
@@ -116,27 +127,40 @@ Spawn a subagent to review auto-merged files that were changed on both branches.
 
 Cross-reference with the source branch overlap analysis from Phase 2.
 
-### 4.4 Group related conflicts
+### 4.4 Group related conflicts and synthesize plan (use subagent)
 
-Once all subagent analyses are complete:
-- Group related conflicts: multiple regions in the same file, cross-file conflicts affecting the same API or feature
-- Note any auto-merge bugs that relate to the same conflict groups
+Once all subagent analyses from 4.2 and 4.3 are complete, spawn a single **planner subagent** to synthesize the results. Pass it the raw outputs from all per-file conflict analyses (4.2) and the auto-merge sanity check (4.3). The planner subagent:
+
+- Groups related conflicts: multiple regions in the same file, cross-file conflicts affecting the same API or feature
+- Notes any auto-merge bugs that relate to the same conflict groups
+- Produces a structured resolution plan containing, for each conflict group:
+  - The files and regions involved
+  - Intent from each branch and compatibility assessment
+  - Proposed resolution
+  - Auto-merge bugs found with proposed fixes
+- **Prominently flags any code that will be lost**: tests, helper functions, features, or other code that cannot be trivially preserved because it depends on APIs or infrastructure removed by the other branch. Explains why it can't be preserved and suggests follow-ups if appropriate.
+
+The planner subagent returns the structured plan. The main agent does not process the raw per-file analyses directly.
 
 ### 4.5 Present plan and get approval (GATE)
 
-Present a structured plan to the user:
-- For each conflict group: the files and regions involved, intent from each branch, compatibility assessment, and proposed resolution
-- Auto-merge bugs found with proposed fixes
+Present the planner subagent's structured plan to the user, adding:
 - **Lock file resolution**: the conflicted lock files and the chosen source branch for each. Note that regeneration is left to the user or repository tooling (e.g., pre-commit hooks). Any lock files the user opted to merge manually are included in the conflict groups above.
-- **Prominently flag any code that will be lost**: tests, helper functions, features, or other code that cannot be trivially preserved because it depends on APIs or infrastructure removed by the other branch. Explain why it can't be preserved and suggest follow-ups if appropriate.
 
 Ask: "Approve this merge resolution plan? (yes/no)"
 - If no: ask for edits or constraints, update the plan, and re-present.
 - Do not proceed until approved.
 
-## Phase 5: Apply resolutions
+## Phase 5: Apply resolutions (use subagents)
 
-1. **Execute the approved plan**: edit files to resolve conflicts group by group. Apply fixes for auto-merge bugs. Stage resolved files with `git add`. Lock files marked for manual merge are resolved as part of this step.
+1. **Execute the approved plan in parallel**: for each conflict group in the approved plan, spawn a subagent to apply the resolution. Each subagent receives its group's resolution details (files, regions, proposed edits, auto-merge fixes) and:
+   - Edits the assigned files to resolve conflicts
+   - Applies fixes for auto-merge bugs in its group
+   - Stages resolved files with `git add`
+   - Lock files marked for manual merge that fall within the group are resolved as part of this step
+   - Returns a summary of changes made
+
+   Run independent conflict groups in parallel. If groups share files, run them sequentially.
 
 2. **Resolve lock files**: For each lock file not marked for manual merge, run `git checkout <chosen-branch> -- <lock-file>` then `git add <lock-file>`. Do not attempt to regenerate lock files — that is left to the user or repository tooling (e.g., pre-commit hooks).
 
@@ -147,23 +171,31 @@ Ask: "Approve this merge resolution plan? (yes/no)"
 
 ## Phase 6: Checks and tests
 
-### 6.1 Discover project tooling
+### 6.1 Discover project tooling (use subagent)
 
-Examine the repository for standard check and test commands. Look for:
+Spawn a subagent to examine the repository for standard check and test commands. The subagent scans for:
 - Justfiles, Makefiles, package.json scripts, pyproject.toml, Cargo.toml, go.mod, pom.xml, build.gradle, .csproj files, CMakeLists.txt, etc.
 - Common patterns: formatting, linting, type checking, static analysis, unit tests, integration tests.
 
-Present the discovered commands to the user and confirm before running.
+The subagent returns a categorized list of discovered commands (checks vs. tests) with brief descriptions. Present the discovered commands to the user and confirm before running.
 
-### 6.2 Run checks
+### 6.2 Run checks (use subagents)
 
-Execute the confirmed check commands. If issues arise:
-- Use subagents to analyze and propose minimal fixes consistent with the merge plan.
+For each confirmed check command, spawn a subagent to execute it. Each subagent:
+- Runs the command and captures full output
+- Returns a pass/fail status with only the relevant failure excerpts (not the full output)
+
+If issues arise:
+- Use subagents to analyze failures and propose minimal fixes consistent with the merge plan.
 - Apply fixes and re-run until clean.
 
-### 6.3 Run tests
+### 6.3 Run tests (use subagents)
 
-Execute the confirmed test commands. If failures:
+For each confirmed test command, spawn a subagent to execute it. Each subagent:
+- Runs the command and captures full output
+- Returns a pass/fail status with only the relevant failure excerpts (test names, error messages, stack traces) — not the full output
+
+If failures:
 - Use subagents to analyze failures and propose fixes.
 - Prefer localized changes that maintain both branches' intents.
 - If a fix requires significant changes, return to the user with options.
@@ -175,31 +207,26 @@ All fixes in this phase are part of the merge. Keep changes minimal and consiste
 
 Goal: ensure both original branch intents are preserved in the merged result.
 
-### Parallel verification (use subagents)
+### Parallel verification and diff generation (use subagents)
 
-Spawn concurrently:
-- **Verify current branch intent**: compare the merged result against the current branch analysis from Phase 2. Verify key invariants, data flows, APIs, and behaviors are preserved. Flag any discrepancies or removed functionality.
-- **Verify source branch intent**: compare the merged result against the source branch overlap analysis from Phase 2. Ensure structural changes, renamed modules, changed signatures, and new patterns are correctly integrated. Verify callers were updated and imports are correct.
+Spawn all three concurrently:
 
-Reason step-by-step where deep semantic reasoning is needed.
+- **Verify current branch intent**: compare the merged result against the current branch analysis from Phase 2. Verify key invariants, data flows, APIs, and behaviors are preserved. Flag any discrepancies or removed functionality. Reason step-by-step where deep semantic reasoning is needed.
+
+- **Verify source branch intent**: compare the merged result against the source branch overlap analysis from Phase 2. Ensure structural changes, renamed modules, changed signatures, and new patterns are correctly integrated. Verify callers were updated and imports are correct. Reason step-by-step where deep semantic reasoning is needed.
+
+- **Generate diff files**: create a temporary directory (`mktemp -d --tmpdir merge-diff-XXXXXX`), save the before diff (`git diff <source>...HEAD > $tmpdir/before.diff`), save the after diff (`git diff <source> > $tmpdir/after.diff`), and return the quoted paths (using `printf '%q'`).
 
 ### Present verification results and get approval (GATE)
 
-Generate diff files so the user can review the final state with their preferred diff tool:
-
-1. Create a temporary directory: `mktemp -d --tmpdir merge-diff-XXXXXX`
-2. Save the before diff (current branch changes from merge-base): `git diff <source>...HEAD > $tmpdir/before.diff`
-3. Save the after diff (merged working tree vs source): `git diff <source> > $tmpdir/after.diff`
-
-Present a verification report:
+Present a verification report combining the subagent results:
 - What is preserved from each branch
 - Any discrepancies or regressions found
 - Any remaining TODOs or follow-ups needed
-- Diff file paths with proper shell quoting (using `printf '%q'`):
+- Diff file paths from the diff generation subagent:
   ```
   Diff files saved:
-    <quoted-path>/before.diff
-    <quoted-path>/after.diff
+    <quoted-path>/before.diff <quoted-path>/after.diff
   ```
 
 Ask: "Accept the merged result as correct and complete? (yes/no)"
