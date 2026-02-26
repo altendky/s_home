@@ -15,12 +15,12 @@ When a step calls for presenting multiple independent choices to the user simult
 1. **Validate and parse the input:**
    - If no input is provided, attempt to identify the PR for the current branch: `gh pr view --json number --jq '.number'`. If this succeeds, use the returned PR number → **PR-wide mode**. If this fails (no PR associated with the current branch, or not on a branch), inform the user: "No input provided and no PR found for the current branch. Provide a comment URL, PR URL, or PR number." **Stop.**
    - If the input contains `/issues/` → **stop** and inform the user: "This appears to be an issue URL, not a PR review comment. Use `/process-issue` instead."
-   - If given a bare number, determine whether it refers to a PR or an issue: run `gh issue view <N> --json url --jq '.url'`. If the returned URL contains `/pull/`, treat the number as a PR number (PR-wide mode). If the command fails, inform the user and stop.
+   - If given a bare number, determine whether it refers to a PR: run `gh pr view <N> --json headRefName --jq '.headRefName'`. If the command succeeds, treat the number as a PR number (PR-wide mode). If the command fails, it is not a PR — inform the user and stop.
    - If given a URL like `https://github.com/owner/repo/pull/123#discussion_r1234567890` or `https://github.com/owner/repo/pull/123/files#r1234567890`, extract the comment ID (the number after `r`) → **single-comment mode**
    - If given a URL like `https://github.com/owner/repo/pull/123` (no comment fragment) or a bare number that resolved to a PR → **PR-wide mode**
    - If given just a comment ID number (and it is not a PR number), use it directly → **single-comment mode**
 
-2. **Fetch comment data:**
+2. **Fetch comment data and branch context:**
 
    Determine the repository owner/repo from the URL or from `gh repo view --json owner,name`.
 
@@ -28,15 +28,20 @@ When a step calls for presenting multiple independent choices to the user simult
    - Fetch the linked comment: `gh api repos/{owner}/{repo}/pulls/comments/{comment_id}`
    - If the API returns 404, inform the user: "Comment not found — check the URL or ID." **Stop.**
    - Extract the PR number from the comment's `pull_request_url` field
-   - Fetch all review comments for the PR: `gh api repos/{owner}/{repo}/pulls/{pull_number}/comments --paginate`
-   - Build the thread for the linked comment:
-     - If the linked comment has an `in_reply_to_id`, that value is the root comment's ID
-     - If the linked comment has no `in_reply_to_id`, it is the root
-     - Collect the root comment and all comments where `in_reply_to_id` equals the root's `id`
+   - Once the PR number is known, launch the following **in parallel**:
+     1. The GraphQL review-threads query (below) — this retrieves all threads with their resolved status and comment details, replacing the need for a separate REST "fetch all comments" call
+     2. PR metadata: `gh pr view {pr_number} --json headRefName,headRefOid`
+     3. Current local branch: `git branch --show-current`
+   - From the GraphQL results, identify the target thread by matching the linked comment's `databaseId` against the comment nodes. The GraphQL response groups comments by thread, replacing REST-based `in_reply_to_id` thread-building.
 
    **PR-wide mode:**
-   - Fetch PR metadata: `gh pr view {pr_number} --json headRefName,headRefOid`
-   - Fetch all review threads and their resolved status using:
+   - Launch the following **in parallel**:
+     1. The GraphQL review-threads query (below)
+     2. PR metadata: `gh pr view {pr_number} --json headRefName,headRefOid`
+     3. Current local branch: `git branch --show-current`
+   - Collect all unresolved threads with their comments
+
+   **GraphQL review-threads query** (used by both modes):
 
       ```bash
       gh api graphql -f query='
@@ -81,21 +86,26 @@ When a step calls for presenting multiple independent choices to the user simult
 
    In PR-wide mode, resolved threads were already filtered out in step 2 — skip this step.
 
-   - Using the GraphQL query from step 2's PR-wide mode section (or a dedicated call), check whether the target thread is resolved. Match the root comment's ID against `databaseId` to find the thread. If the root comment's ID is not found among the returned threads, paginate as described in step 2 until found or all threads are checked.
+   Using the GraphQL results and PR metadata already fetched in step 2:
+
+   - Check whether the target thread is resolved by examining `isResolved` on the matched thread. If the target comment's `databaseId` is not found among the returned threads, paginate as described in step 2 until found or all threads are checked.
    - If `isResolved` is `true`, inform the user: "This comment thread is marked as resolved. It may have already been addressed." Ask if they want to proceed anyway or stop.
-   - Check if the comment is outdated by comparing the comment's `commit_id` field (from step 2) against the PR's current head commit (`headRefOid` from `gh pr view {pr_number} --json headRefOid`). If they differ, inform the user: "This comment was made against commit `<short-sha>` but the PR head is now `<short-sha>` — the referenced code may have changed." Ask how they want to proceed with options: `"Proceed"`, `"Reject"`, `"Stop"`. If rejected, queue the targeted thread for a rejection reply and continue to step 5 so the user can still address other unresolved threads.
+   - Check if the comment is outdated by comparing the comment's `commit_id` field (from the REST response in step 2) against the PR's `headRefOid` (from step 2's PR metadata). If they differ, inform the user: "This comment was made against commit `<short-sha>` but the PR head is now `<short-sha>` — the referenced code may have changed." Ask how they want to proceed with options: `"Proceed"`, `"Reject"`, `"Stop"`. If rejected, queue the targeted thread for a rejection reply and continue to step 5 so the user can still address other unresolved threads.
    - If neither condition applies, continue silently.
 
 4. **Verify branch:**
-   - Get the PR's head branch: `HEAD_BRANCH=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')`
-   - Get current local branch: `CURRENT_BRANCH=$(git branch --show-current)`
-   - If `CURRENT_BRANCH` is empty (detached HEAD state), inform the user and **stop**.
-   - If `HEAD_BRANCH` and `CURRENT_BRANCH` don't match:
+
+   Using the PR's `headRefName` and the local branch name already fetched in step 2:
+
+   - If the local branch name is empty (detached HEAD state), inform the user and **stop**.
+   - If `headRefName` and the local branch don't match:
      - Check for uncommitted changes: `git status --porcelain`
      - If the working copy is clean: inform the user of the mismatch and offer to check out the correct branch.
      - If the working copy is dirty: inform the user of the mismatch **and** the uncommitted changes, and offer options: stash changes and switch, or stop so they can handle it manually.
 
 5. **Discover and select comments:**
+
+   **Prefetch optimization:** While presenting thread selections to the user (below), begin reading in the background the file contents referenced by all unresolved threads (using the `path` fields from the GraphQL results). These files will be needed for verification in step 7b regardless of which threads the user selects, and prefetching them during user decision-making overlaps I/O with wait time.
 
    **Single-comment mode:**
    - Using the PR comments already fetched in step 2 and the resolved-status data from step 3, identify other unresolved comment threads on the same PR.
@@ -267,11 +277,11 @@ When a step calls for presenting multiple independent choices to the user simult
 
 8. **Pre-push verification:**
 
-   Before pushing, run the project's automated checks to ensure the changes don't break anything:
+   Before pushing, run the project's automated checks to ensure the changes don't break anything. Launch all configured checks **in parallel** (they are independent):
 
-   - Run the project's test suite.
-   - Run the type checker if configured.
-   - Run the linter if configured.
+   - The project's test suite
+   - The type checker (if configured)
+   - The linter (if configured)
 
    If all checks pass, proceed to push.
 
@@ -320,8 +330,11 @@ When a step calls for presenting multiple independent choices to the user simult
 
    4. Repeat steps 2–3 until all remaining replies are either approved ("Post as-is") or skipped.
 
-   **10c. Post replies in order:**
-   - Post all approved **primary replies** (implementation) first, each to the **root comment ID** of its thread:
+   **10c. Post replies in batches:**
+
+   Post replies in three sequential batches. Within each batch, post all replies **in parallel** (each targets an independent thread):
+
+   - **Batch 1: Primary replies.** Post all approved **primary replies** (implementation), each to the **root comment ID** of its thread:
 
      ```bash
      gh api repos/{owner}/{repo}/pulls/{pull_number}/comments \
@@ -329,9 +342,9 @@ When a step calls for presenting multiple independent choices to the user simult
        -F in_reply_to={root_comment_id}
      ```
 
-     Extract each primary reply's URL from the API response (`html_url` field).
+     Extract each primary reply's URL from the API response (`html_url` field). Wait for all primary replies to complete before starting batch 2.
 
-   - Then post all approved **secondary replies** (implementation), updating each to include the now-available primary reply URL. For example: "Addressed in [`abc1234`](commit-url) — see [this reply](primary-reply-url) for details."
+   - **Batch 2: Secondary replies.** Post all approved **secondary replies** (implementation) in parallel, updating each to include the now-available primary reply URL. For example: "Addressed in [`abc1234`](commit-url) — see [this reply](primary-reply-url) for details."
 
      ```bash
      gh api repos/{owner}/{repo}/pulls/{pull_number}/comments \
@@ -339,7 +352,7 @@ When a step calls for presenting multiple independent choices to the user simult
        -F in_reply_to={root_comment_id_of_this_thread}
      ```
 
-   - Then post all approved **rejection replies**, each to the **root comment ID** of its thread. Rejection replies have no commit link. For rejected groups with multiple threads, post the primary rejection reply first, then post secondary rejection replies to the remaining threads linking to the primary. For example: "See [this reply](primary-rejection-reply-url) for details on why we declined this change."
+   - **Batch 3: Rejection replies.** Post all approved **rejection replies** in parallel, each to the **root comment ID** of its thread. Rejection replies have no commit link. For rejected groups with multiple threads, post the primary rejection reply first (as its own sub-batch), extract its URL, then post secondary rejection replies in parallel to the remaining threads linking to the primary. For example: "See [this reply](primary-rejection-reply-url) for details on why we declined this change."
 
    - If a primary reply was skipped but its secondary replies were approved, post the secondary replies as standalone (with commit link only for implementation replies, no primary reply link).
    - For any reply the user skipped, do not post it. The commits are already pushed; the user can reply manually.
