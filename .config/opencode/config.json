@@ -120,10 +120,12 @@
   },
   "permission": {
     "external_directory": {
-      "/tmp/opencode/**": "allow"
+      "/tmp/opencode/*": "allow",
+      "~/.cargo/registry/src/*": "allow"
     },
     "edit": {
-      "/tmp/opencode/**": "allow"
+      "/tmp/opencode/*": "allow",
+      "~/.cargo/registry/src/*": "deny"
     }
   },
   "$schema": "https://opencode.ai/config.json"
