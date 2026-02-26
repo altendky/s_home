@@ -118,5 +118,13 @@
       "enabled": true
     }
   },
+  "permission": {
+    "external_directory": {
+      "/tmp/opencode/**": "allow"
+    },
+    "edit": {
+      "/tmp/opencode/**": "allow"
+    }
+  },
   "$schema": "https://opencode.ai/config.json"
 }
