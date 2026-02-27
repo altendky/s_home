@@ -1,4 +1,5 @@
 {
+  "instructions": ["~/.config/opencode/instructions.md"],
   "default_agent": "plan",
   "keybinds": {
     "leader": "ctrl+x",
@@ -120,11 +121,11 @@
   },
   "permission": {
     "external_directory": {
-      "/tmp/opencode/*": "allow",
+      "/tmp/agents/*": "allow",
       "~/.cargo/registry/src/*": "allow"
     },
     "edit": {
-      "/tmp/opencode/*": "allow",
+      "/tmp/agents/*": "allow",
       "~/.cargo/registry/src/*": "deny"
     }
   },
