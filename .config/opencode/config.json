@@ -90,6 +90,7 @@
     "terminal_title_toggle": "none",
     "tips_toggle": "<leader>h"
   },
+  "plugin": ["@onshape-mcp/opencode-auth"],
   "mcp": {
     "onshape": {
       "type": "local",

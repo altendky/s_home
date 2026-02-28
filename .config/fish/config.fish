@@ -305,6 +305,8 @@ set --export PATH $N_PREFIX/bin $PATH
 #set --export PATH $PYENV_ROOT/bin $PATH
 set --export PATH $PATH /home/altendky/.local/bin/pipx
 
+mise activate fish | source
+
 # pnpm
 set -gx PNPM_HOME "/home/altendky/.local/share/pnpm"
 if not string match -q -- $PNPM_HOME $PATH
