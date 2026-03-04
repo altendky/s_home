@@ -90,7 +90,7 @@
     "terminal_title_toggle": "none",
     "tips_toggle": "<leader>h"
   },
-  "snapshot": true,
+  "snapshot": false,
   "plugin": ["@onshape-mcp/opencode-auth"],
   "mcp": {
     "onshape": {
@@ -123,10 +123,12 @@
   },
   "permission": {
     "external_directory": {
+      "*": "ask",
       "/tmp/agents/*": "allow",
       "~/.cargo/registry/src/*": "allow"
     },
     "edit": {
+      "*": "ask",
       "/tmp/agents/*": "allow",
       "~/.cargo/registry/src/*": "deny"
     }

@@ -1,0 +1,18 @@
+{
+  "tools": {
+    "question": true
+  },
+  "permission": {
+    "external_directory": {
+      "*": "ask",
+      "/tmp/agents/*": "allow",
+      "~/.cargo/registry/src/*": "allow"
+    },
+    "edit": {
+      "*": "ask",
+      "/tmp/agents/*": "allow",
+      "~/.cargo/registry/src/*": "deny"
+    }
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

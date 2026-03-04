@@ -161,6 +161,40 @@ function opencode-import
     and opencode --session "$sid"
 end
 
+function find_upward
+    set -l target $argv[1]
+    set -l dir (pwd)
+    while true
+        if test -e "$dir/$target"
+            echo "$dir/$target"
+            return 0
+        end
+        if test "$dir" = /
+            return 1
+        end
+        set dir (dirname $dir)
+    end
+end
+
+function o --wraps opencode
+    set -l overrides ~/.config/opencode/overrides.json
+    if set -l f (find_upward opencode.json)
+        jq -s '.[0] * .[1]' $f $overrides | read -z config
+    else
+        cat $overrides | read -z config
+    end
+    OPENCODE_CONFIG_CONTENT=$config command opencode $argv
+end
+
+#function opencode
+#    set -l config (find_upward opencode.json)
+#    and jq -s '.[0] * .[1]' "$config" ~/.config/opencode/overrides.json | command opencode --config /dev/stdin $argv
+#    or command opencode $argv
+#end
+
+#alias o 'OPENCODE_CONFIG_CONTENT=(cat ~/.config/opencode/overrides.json) opencode'
+#alias o 'OPENCODE_CONFIG_CONTENT=(cat (find_upward opencode.json)) opencode'
+
 # https://github.com/xtendo-org/chips#gnulinux-x64
 alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
     https://github.com/xtendo-org/chips/releases/download/1.1.2/chips_gnulinux
@@ -168,7 +202,6 @@ alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
 
 alias cdm 'cd ~/repos/gw/monorepo/'
 alias gfm "fish -c 'cdm && git pull'"
-alias o 'opencode'
 alias ai-cli 'opencode run'
 #alias aicli 'claude'
 alias oc 'ai-cli /commit'
