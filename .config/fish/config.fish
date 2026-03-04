@@ -179,7 +179,8 @@ end
 function o --wraps opencode
     set -l overrides ~/.config/opencode/overrides.json
     if set -l f (find_upward opencode.json)
-        jq -s '.[0] * .[1]' $f $overrides | read -z config
+        set -l config_dir (dirname $f)
+        jq -s --arg d "$config_dir" '.[0] * .[1] | walk(if type == "string" then gsub("{file:(?!/)" ; "{file:\($d)/") else . end)' $f $overrides | read -z config
     else
         cat $overrides | read -z config
     end
