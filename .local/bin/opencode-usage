@@ -135,6 +135,42 @@ def format_relative_time(iso_timestamp: str) -> str:
     return " ".join(parts) if parts else "<1m"
 
 
+def _total_seconds_for_key(key: str) -> int:
+    """Return the total period duration in seconds based on the section key."""
+    if key == "five_hour":
+        return 5 * 3600
+    # All seven_day* variants share a 7-day window.
+    return 7 * 86400
+
+
+def _compute_elapsed_pct(resets_at: str, total_seconds: int) -> float | None:
+    """Return the percentage of the period that has already elapsed."""
+    try:
+        reset_dt = datetime.fromisoformat(resets_at.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return None
+    remaining = (reset_dt - datetime.now(timezone.utc)).total_seconds()
+    if remaining < 0:
+        remaining = 0
+    elapsed = total_seconds - remaining
+    if total_seconds <= 0:
+        return None
+    return elapsed / total_seconds * 100
+
+
+def _pace_status(used_pct: float, elapsed_pct: float) -> str:
+    diff = used_pct - elapsed_pct
+    if abs(diff) <= 2:
+        return "On pace"
+    if diff < -20:
+        return "Way under pace"
+    if diff < 0:
+        return "Under pace"
+    if diff > 20:
+        return "Way over pace"
+    return "Over pace"
+
+
 def format_usage(data: dict) -> str:
     lines = []
 
@@ -154,16 +190,42 @@ def format_usage(data: dict) -> str:
         if data.get(key) is not None
     ]
 
-    max_label = max(len(label) for _, label in sections)
-
+    # Build rows: (label, used_str, elapsed_str, resets_str, status)
+    rows: list[tuple[str, str, str, str, str]] = []
     for key, label in sections:
-        section = data.get(key)
-        if section is None:
-            continue
+        section = data[key]
         utilization = section.get("utilization", 0)
         resets_at = section.get("resets_at", "")
-        relative = format_relative_time(resets_at) if resets_at else "unknown"
-        lines.append(f"  {label:<{max_label}}  {utilization:5.1f}%   resets in {relative}")
+        resets_rel = format_relative_time(resets_at) if resets_at else "unknown"
+
+        total_secs = _total_seconds_for_key(key)
+        elapsed_pct = _compute_elapsed_pct(resets_at, total_secs) if resets_at else None
+
+        used_str = f"{utilization:.1f}%"
+        elapsed_str = f"~{elapsed_pct:.1f}%" if elapsed_pct is not None else "?"
+        resets_str = f"~{resets_rel}"
+        status = _pace_status(utilization, elapsed_pct) if elapsed_pct is not None else "?"
+
+        rows.append((label, used_str, elapsed_str, resets_str, status))
+
+    if not rows:
+        return "  No usage data available."
+
+    # Compute column widths.
+    headers = ("Limit", "Used", "Time Elapsed", "Resets In", "Status")
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            widths[i] = max(widths[i], len(cell))
+
+    def fmt_row(cells: tuple[str, ...]) -> str:
+        parts = [cells[i].ljust(widths[i]) for i in range(len(cells))]
+        return "  " + "   ".join(parts)
+
+    lines.append(fmt_row(headers))
+    lines.append("  " + "   ".join("-" * w for w in widths))
+    for row in rows:
+        lines.append(fmt_row(row))
 
     extra = data.get("extra_usage")
     if extra is not None:
