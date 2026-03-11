@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+"""Query Anthropic subscription usage via OpenCode's stored OAuth credentials."""
+
+import json
+import os
+import sys
+import time
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
+
+
+def get_auth_path() -> Path:
+    data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+    return Path(data_home) / "opencode" / "auth.json"
+
+
+def load_auth() -> dict:
+    path = get_auth_path()
+    if not path.exists():
+        print(
+            "Error: No OpenCode auth file found.\n"
+            f"  Expected: {path}\n\n"
+            "Run `opencode auth login` and select "
+            '"Claude Pro/Max" to authenticate.',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    with open(path) as f:
+        data = json.load(f)
+
+    entry = data.get("anthropic")
+    if entry is None:
+        print(
+            "Error: No Anthropic credentials found in OpenCode auth.\n\n"
+            "Run `opencode auth login` and select "
+            '"Claude Pro/Max" to authenticate.',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if entry.get("type") != "oauth":
+        print(
+            "Error: Anthropic credentials are not OAuth (found "
+            f'type={entry.get("type")!r}).\n\n'
+            "This command requires a Claude Pro/Max subscription.\n"
+            'Run `opencode auth login` and select "Claude Pro/Max".',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    expires = entry.get("expires", 0)
+    if expires < time.time() * 1000:
+        print(
+            "Error: Anthropic OAuth access token is expired.\n\n"
+            "Run opencode and make any request to refresh the token\n"
+            "automatically, then try again.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    access = entry.get("access")
+    if not access:
+        print(
+            "Error: Anthropic OAuth entry has no access token.\n\n"
+            "Run opencode and make any request to refresh the token\n"
+            "automatically, then try again.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    return entry
+
+
+def fetch_usage(access_token: str) -> dict:
+    req = urllib.request.Request(
+        USAGE_URL,
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+            "anthropic-beta": "oauth-2025-04-20",
+            "User-Agent": "claude-cli/2.1.2 (external, cli)",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        print(
+            f"Error: Usage API returned HTTP {e.code}.\n"
+            f"  {body}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(
+            f"Error: Could not reach usage API.\n"
+            f"  {e.reason}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+def format_relative_time(iso_timestamp: str) -> str:
+    try:
+        reset_dt = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return iso_timestamp
+
+    now = datetime.now(timezone.utc)
+    delta = reset_dt - now
+    total_seconds = int(delta.total_seconds())
+
+    if total_seconds <= 0:
+        return "any moment"
+
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, _ = divmod(remainder, 60)
+
+    parts = []
+    if days:
+        parts.append(f"{days}d")
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+
+    return " ".join(parts) if parts else "<1m"
+
+
+def format_usage(data: dict) -> str:
+    lines = []
+
+    KNOWN_SECTIONS = [
+        ("five_hour", "Session (5h window)"),
+        ("seven_day", "Weekly (all models)"),
+        ("seven_day_opus", "Weekly (Opus)"),
+        ("seven_day_sonnet", "Weekly (Sonnet)"),
+        ("seven_day_oauth_apps", "Weekly (OAuth apps)"),
+        ("seven_day_cowork", "Weekly (Cowork)"),
+    ]
+
+    # Show known sections that are present and non-null, in defined order.
+    sections = [
+        (key, label)
+        for key, label in KNOWN_SECTIONS
+        if data.get(key) is not None
+    ]
+
+    max_label = max(len(label) for _, label in sections)
+
+    for key, label in sections:
+        section = data.get(key)
+        if section is None:
+            continue
+        utilization = section.get("utilization", 0)
+        resets_at = section.get("resets_at", "")
+        relative = format_relative_time(resets_at) if resets_at else "unknown"
+        lines.append(f"  {label:<{max_label}}  {utilization:5.1f}%   resets in {relative}")
+
+    extra = data.get("extra_usage")
+    if extra is not None:
+        lines.append("")
+        enabled = extra.get("is_enabled", False)
+        if not enabled:
+            lines.append("  Extra usage: disabled")
+        else:
+            used_cents = extra.get("used_credits", 0)
+            used_dollars = used_cents / 100
+            monthly_limit = extra.get("monthly_limit")
+            utilization = extra.get("utilization", 0)
+
+            if monthly_limit is None:
+                limit_str = "no limit"
+            else:
+                limit_str = f"${monthly_limit / 100:.2f} limit"
+
+            lines.append(
+                f"  Extra usage: ${used_dollars:.2f} used, "
+                f"{limit_str}, {utilization:.1f}% utilized"
+            )
+
+    return "\n".join(lines)
+
+
+def main():
+    raw_json = "--json" in sys.argv
+
+    auth = load_auth()
+    data = fetch_usage(auth["access"])
+
+    if raw_json:
+        json.dump(data, sys.stdout, indent=2)
+        sys.stdout.write("\n")
+    else:
+        print("Anthropic Usage")
+        print()
+        print(format_usage(data))
+
+
+if __name__ == "__main__":
+    main()
