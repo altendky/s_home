@@ -129,8 +129,7 @@
     },
     "edit": {
       "*": "ask",
-      "/tmp/agents/*": "allow",
-      "~/.cargo/registry/src/*": "deny"
+      "/tmp/agents/*": "allow"
     }
   },
   "$schema": "https://opencode.ai/config.json"

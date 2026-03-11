@@ -1,5 +1,6 @@
 {
   "tools": {
+    "bash": true,
     "question": true
   },
   "permission": {

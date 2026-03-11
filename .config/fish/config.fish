@@ -136,7 +136,7 @@ function renice-python
     end
 end
 
-function gwts
+function gwts --wraps 'gwt s'
     cdm
     gwt switch $argv
 end
@@ -184,7 +184,7 @@ function o --wraps opencode
     else
         cat $overrides | read -z config
     end
-    OPENCODE_CONFIG_CONTENT=$config command opencode $argv
+    OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT=$config command opencode $argv
 end
 
 #function opencode
