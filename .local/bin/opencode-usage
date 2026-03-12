@@ -124,12 +124,20 @@ def format_relative_time(iso_timestamp: str) -> str:
     hours, remainder = divmod(remainder, 3600)
     minutes, _ = divmod(remainder, 60)
 
+    round_to_hours = True
+    if round_to_hours and minutes > 30:
+        hours += 1
+        if hours >= 24:
+            days += 1
+            hours = 0
+
+
     parts = []
     if days:
         parts.append(f"{days}d")
     if hours:
         parts.append(f"{hours}h")
-    if minutes:
+    if minutes and not round_to_hours:
         parts.append(f"{minutes}m")
 
     return " ".join(parts) if parts else "<1m"
@@ -201,8 +209,8 @@ def format_usage(data: dict) -> str:
         total_secs = _total_seconds_for_key(key)
         elapsed_pct = _compute_elapsed_pct(resets_at, total_secs) if resets_at else None
 
-        used_str = f"{utilization:.1f}%"
-        elapsed_str = f"~{elapsed_pct:.1f}%" if elapsed_pct is not None else "?"
+        used_str = f"{utilization:.0f}%"
+        elapsed_str = f"~{elapsed_pct:.0f}%" if elapsed_pct is not None else "?"
         resets_str = f"~{resets_rel}"
         status = _pace_status(utilization, elapsed_pct) if elapsed_pct is not None else "?"
 
