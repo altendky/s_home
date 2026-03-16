@@ -335,8 +335,8 @@ set --export ALTENDKY_FISH_CONFIGURED "1"
 set --export PATH $BUN_INSTALL/bin $PATH
 set --export PATH $PYENV_ROOT/shims $PYENV_ROOT/bin $PATH
 #set --export PATH /epc/bin ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
-set --export PATH ~/.local/bin ~/.local/bin/pipx $PATH
 set --export PATH ~/.cargo/bin $PATH
+set --export PATH ~/.local/bin ~/.local/bin/pipx $PATH
 set --export PATH $N_PREFIX/bin $PATH
 #set --export PATH $PYENV_ROOT/bin $PATH
 set --export PATH $PATH /home/altendky/.local/bin/pipx

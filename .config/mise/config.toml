@@ -1,2 +1,2 @@
 [settings]
-trusted_config_paths = ["~/repos/gw"]
+trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]

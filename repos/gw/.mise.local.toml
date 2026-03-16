@@ -1,0 +1,4 @@
+[env]
+# Skip expensive Rust compilation hooks in pre-commit/pre-push.
+# Run `just check-rust` and `just test-rust` manually instead.
+SKIP = "rust-clippy,rust-test"

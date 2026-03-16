@@ -1,0 +1,5 @@
+[env]
+# Enable ~/.local/bin/cargo shim that routes cargo subcommands to separate
+# target dirs (e.g. target/check, target/test) to avoid incremental
+# compilation cache thrashing when switching between check/test/coverage.
+CARGO_TARGET_DIR_ROUTING = "1"

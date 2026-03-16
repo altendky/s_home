@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+debug() {
+  if [[ "${CARGO_WRAPPER_DEBUG:-}" == "1" ]]; then
+    echo "cargo-wrapper: $*" >&2
+  fi
+}
+
+# Find this shim's directory (resolve symlinks)
+self_dir="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd -P)"
+
+# Build PATH without this shim dir
+path_clean=""
+IFS=':' read -ra parts <<< "${PATH:-}"
+for p in "${parts[@]}"; do
+  [[ -z "$p" ]] && p="."
+  [[ "$p" == "$self_dir" ]] && continue
+  path_clean="${path_clean:+$path_clean:}$p"
+done
+
+real_cargo="$(PATH="$path_clean" command -v cargo || true)"
+if [[ -z "${real_cargo:-}" ]]; then
+  echo "cargo wrapper: could not find real cargo after removing '$self_dir' from PATH" >&2
+  exit 127
+fi
+
+# Only route when explicitly enabled and not a nested call.
+if [[ "${CARGO_TARGET_DIR_ROUTING:-}" != "1" || "${CARGO_WRAPPER_ACTIVE:-}" == "1" ]]; then
+  debug "passthrough (routing=${CARGO_TARGET_DIR_ROUTING:-unset} active=${CARGO_WRAPPER_ACTIVE:-0})"
+  PATH="$path_clean" exec "$real_cargo" "$@"
+fi
+
+# Find the rust workspace root by walking up from cwd
+rust_root=""
+check_dir="$PWD"
+while [[ "$check_dir" != "/" ]]; do
+  if [[ -f "$check_dir/Cargo.toml" ]] && grep -q '^\[workspace\]' "$check_dir/Cargo.toml" 2>/dev/null; then
+    rust_root="$check_dir"
+    break
+  fi
+  check_dir="$(dirname "$check_dir")"
+done
+
+# If not inside a cargo workspace, pass through
+if [[ -z "$rust_root" ]]; then
+  debug "not in a cargo workspace, passing through"
+  PATH="$path_clean" exec "$real_cargo" "$@"
+fi
+
+# Parse argv to find the subcommand
+args=("$@")
+i=0
+
+# Skip +toolchain
+if [[ ${#args[@]} -gt 0 && "${args[0]:-}" == +* ]]; then
+  i=1
+fi
+
+subcmd=""
+while [[ $i -lt ${#args[@]} ]]; do
+  a="${args[$i]}"
+  [[ "$a" == "--" ]] && break
+
+  case "$a" in
+    # Global flags that take a value
+    -C|--manifest-path|--target-dir|--config|-Z|--color)
+      i=$((i + 2))
+      ;;
+    --manifest-path=*|--target-dir=*|--config=*|-Z*|--color=*)
+      i=$((i + 1))
+      ;;
+    # Global flags without a value
+    -v|-vv|--verbose|-q|--quiet|--frozen|--locked|--offline)
+      i=$((i + 1))
+      ;;
+    -*)
+      i=$((i + 1))
+      ;;
+    *)
+      subcmd="$a"
+      break
+      ;;
+  esac
+done
+
+# Classify subcommand into a mode
+case "$subcmd" in
+  check)    mode="check" ;;
+  clippy)   mode="clippy" ;;
+  test)     mode="test" ;;
+  nextest)  mode="test" ;;
+  bench)    mode="bench" ;;
+  llvm-cov) mode="coverage" ;;
+  *)        mode="" ;;
+esac
+
+# No routing needed for build/run/clean/unknown
+if [[ -z "$mode" ]]; then
+  debug "subcmd=${subcmd:-<none>} mode=passthrough"
+  export CARGO_WRAPPER_ACTIVE=1
+  PATH="$path_clean" exec "$real_cargo" "$@"
+fi
+
+# Determine base target dir
+base_target="${CARGO_TARGET_DIR:-"$rust_root/target"}"
+if [[ "$base_target" != /* ]]; then
+  base_target="$PWD/$base_target"
+fi
+
+export CARGO_TARGET_DIR="$base_target/$mode"
+export CARGO_WRAPPER_ACTIVE=1
+debug "subcmd=$subcmd mode=$mode CARGO_TARGET_DIR=$CARGO_TARGET_DIR real=$real_cargo"
+PATH="$path_clean" exec "$real_cargo" "$@"
