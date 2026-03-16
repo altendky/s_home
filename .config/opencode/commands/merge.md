@@ -12,6 +12,7 @@ Merge the specified source branch into the current branch. This command is repo-
 
 - Use the `task` tool aggressively to parallelize analysis work across files and branches.
 - The main agent is an orchestrator and user-facing decision-maker. Delegate data-heavy work (git output processing, file reading/editing, test execution, diff analysis) to subagents so that raw outputs stay out of the main context. Subagents return concise structured summaries.
+- **Subagent branch awareness**: The main working tree reflects the **current branch** only. When a subagent needs to analyze source branch content, prefer subagents with bash/git access so they can run git commands directly. When choosing between subagent types, always prefer ones that support bash or git over ones that can only read files. A temporary checkout of the source branch (set up in Phase 2) provides a filesystem path that any subagent type can read, and ensures file-reading-only subagents see the correct branch's content.
 - Think carefully and reason step-by-step for complex or ambiguous decisions that benefit from deeper consideration.
 - Never assume project tooling. Discover check/test commands and confirm with the user.
 - Present plans before making changes that affect code content. Require explicit approval at gates.
@@ -56,6 +57,12 @@ Once all issues are resolved, state the current branch, the resolved source ref,
 
 Goal: build a thorough understanding of both branches before merging.
 
+### Set up source branch checkout
+
+Create a temporary directory containing a checkout of the source branch so that subagents can read the source branch's actual file contents (not the current branch's working tree). If the repository is inside a git worktree, use `git worktree add`; otherwise, use an alternative approach (e.g., `git clone --shared --branch <source>` into a temp directory).
+
+Record the path. Pass it to any subagent that needs to read source branch files. This checkout persists until cleanup in Phase 8.
+
 ### Parallel research (use subagents)
 
 Spawn all three concurrently:
@@ -69,7 +76,7 @@ Spawn all three concurrently:
 
 - **Current branch analysis**: analyze the full diff of the current branch from the merge base. Infer: overall intent/purpose, key design decisions and patterns, data flow changes, important invariants/constraints, public API changes.
 
-- **Source branch overlap analysis**: analyze the source branch's changes to the overlapping files only (the topology subagent independently computes the overlapping file set; this subagent should also compute it). Identify: structural/architectural changes, renamed modules or changed module paths, changed function signatures and return types, removed or added APIs, new patterns or idioms introduced.
+- **Source branch overlap analysis**: analyze the source branch's changes to the overlapping files only (the topology subagent independently computes the overlapping file set; this subagent should also compute it). **Direct the subagent to read files from the source branch checkout path** (not the main working tree, which contains the current branch). Identify: structural/architectural changes, renamed modules or changed module paths, changed function signatures and return types, removed or added APIs, new patterns or idioms introduced.
 
 ### Report to user
 
@@ -119,7 +126,7 @@ For each conflicted file, spawn a subagent with:
 
 ### 4.3 Auto-merge sanity check (parallel with 4.2)
 
-Spawn a subagent to review auto-merged files that were changed on both branches. Check for:
+Spawn a subagent to review auto-merged files that were changed on both branches. **Direct the subagent to read source branch files from the source checkout path** to compare against the merged result in the main working tree. Check for:
 - Stale imports or module paths (e.g., a module was renamed on one branch but the other branch added new references to the old path)
 - Changed function signatures where callers weren't updated (missing/extra parameters)
 - Changed return types affecting callers
@@ -237,7 +244,8 @@ Ask: "Accept the merged result as correct and complete? (yes/no)"
 
 1. **Stage**: `git add -A`
 2. **Commit**: `git commit -m "Merge branch '<source-branch>' into <current-branch>"`
-3. **Post-commit**:
+3. **Clean up source checkout**: Remove the temporary source branch checkout created in Phase 2 (e.g., `git worktree remove <path>` or `rm -rf <path>` depending on the method used).
+4. **Post-commit**:
    - If a stash was created in Phase 1, remind the user about it.
    - Do not push automatically. Ask if the user wants to push.
 
@@ -249,3 +257,4 @@ Ask: "Accept the merged result as correct and complete? (yes/no)"
   - Adjust the plan to selectively integrate parts
   - Postpone the merge and document follow-ups
   - Abort: `git merge --abort`
+- Always clean up the temporary source branch checkout on abort or early exit.

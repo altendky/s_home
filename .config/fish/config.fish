@@ -325,6 +325,8 @@ set -gx CARGO_INCREMENTAL 1
 
 set -gx CARGO_BUILD_JOBS (math (lscpu -p=CORE | grep -v '^#' | sort -u | wc -l) - 2)
 
+mise activate fish | source
+
 if [ "$ALTENDKY_FISH_CONFIGURED" = "1" ]
     exit 0
 end
@@ -338,8 +340,6 @@ set --export PATH ~/.cargo/bin $PATH
 set --export PATH $N_PREFIX/bin $PATH
 #set --export PATH $PYENV_ROOT/bin $PATH
 set --export PATH $PATH /home/altendky/.local/bin/pipx
-
-mise activate fish | source
 
 # pnpm
 set -gx PNPM_HOME "/home/altendky/.local/share/pnpm"
