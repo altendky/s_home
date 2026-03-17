@@ -10,16 +10,7 @@ debug() {
 # Find this shim's directory (resolve symlinks)
 self_dir="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd -P)"
 
-# Build PATH without this shim dir
-path_clean=""
-IFS=':' read -ra parts <<< "${PATH:-}"
-for p in "${parts[@]}"; do
-  [[ -z "$p" ]] && p="."
-  [[ "$p" == "$self_dir" ]] && continue
-  path_clean="${path_clean:+$path_clean:}$p"
-done
-
-real_cargo="$(PATH="$path_clean" command -v cargo || true)"
+real_cargo="$(next-in-path "$self_dir" cargo || true)"
 if [[ -z "${real_cargo:-}" ]]; then
   echo "cargo wrapper: could not find real cargo after removing '$self_dir' from PATH" >&2
   exit 127
@@ -28,7 +19,7 @@ fi
 # Only route when explicitly enabled and not a nested call.
 if [[ "${CARGO_TARGET_DIR_ROUTING:-}" != "1" || "${CARGO_WRAPPER_ACTIVE:-}" == "1" ]]; then
   debug "passthrough (routing=${CARGO_TARGET_DIR_ROUTING:-unset} active=${CARGO_WRAPPER_ACTIVE:-0})"
-  PATH="$path_clean" exec "$real_cargo" "$@"
+  exec "$real_cargo" "$@"
 fi
 
 # Find the rust workspace root by walking up from cwd
@@ -45,7 +36,7 @@ done
 # If not inside a cargo workspace, pass through
 if [[ -z "$rust_root" ]]; then
   debug "not in a cargo workspace, passing through"
-  PATH="$path_clean" exec "$real_cargo" "$@"
+  exec "$real_cargo" "$@"
 fi
 
 # Parse argv to find the subcommand
@@ -99,7 +90,7 @@ esac
 if [[ -z "$mode" ]]; then
   debug "subcmd=${subcmd:-<none>} mode=passthrough"
   export CARGO_WRAPPER_ACTIVE=1
-  PATH="$path_clean" exec "$real_cargo" "$@"
+  exec "$real_cargo" "$@"
 fi
 
 # Determine base target dir
@@ -111,4 +102,4 @@ fi
 export CARGO_TARGET_DIR="$base_target/$mode"
 export CARGO_WRAPPER_ACTIVE=1
 debug "subcmd=$subcmd mode=$mode CARGO_TARGET_DIR=$CARGO_TARGET_DIR real=$real_cargo"
-PATH="$path_clean" exec "$real_cargo" "$@"
+exec "$real_cargo" "$@"

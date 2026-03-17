@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Find the next occurrence of a command in PATH after a given directory.
+# Usage: next-in-path <dir-to-skip> <command>
+set -euo pipefail
+
+skip_dir="$1"
+cmd="$2"
+
+path_clean=""
+IFS=':' read -ra parts <<< "${PATH:-}"
+for p in "${parts[@]}"; do
+  [[ -z "$p" ]] && p="."
+  [[ "$p" == "$skip_dir" ]] && continue
+  path_clean="${path_clean:+$path_clean:}$p"
+done
+
+PATH="$path_clean" command -v "$cmd"

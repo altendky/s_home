@@ -107,7 +107,7 @@
         "npx",
         "@playwright/mcp@latest"
       ],
-      "enabled": true
+      "enabled": false
     },
     "mise": {
       "type": "local",
@@ -118,7 +118,7 @@
       "environment": {
         "MISE_EXPERIMENTAL": "1"
       },
-      "enabled": true
+      "enabled": false
     }
   },
   "permission": {

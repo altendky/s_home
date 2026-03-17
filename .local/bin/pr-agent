@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config=~/.config/stoat/anthropic.toml
+self_dir="$(cd "$(dirname "$(realpath "$0")")" && pwd -P)"
+real_pr_agent=$(next-in-path "$self_dir" pr-agent)
+tmpdir=$(mktemp -d)
+port_file="$tmpdir/port"
+
+cleanup() {
+    if [[ -n "${stoat_pid:-}" ]]; then
+        kill "$stoat_pid" 2>/dev/null || true
+        wait "$stoat_pid" 2>/dev/null || true
+    fi
+    rm -rf "$tmpdir"
+}
+trap cleanup EXIT
+
+stoat serve --config "$config" >"$port_file" 2>/dev/null &
+stoat_pid=$!
+
+deadline=$(( $(date +%s) + 5 ))
+while [[ ! -s "$port_file" ]]; do
+    if [[ $(date +%s) -ge $deadline ]]; then
+        echo "pr-agent: timed out waiting for stoat to start" >&2
+        exit 1
+    fi
+    sleep 0.1
+done
+
+port_line=$(<"$port_file")
+port=${port_line#port=}
+
+ANTHROPIC_API_KEY=via-stoat \
+ANTHROPIC_API_BASE="http://127.0.0.1:${port}" \
+    "$real_pr_agent" "$@"
