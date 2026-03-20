@@ -1,2 +1,6 @@
 [settings]
 trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
+
+[tools]
+bun = "latest"
+opencode = "latest"

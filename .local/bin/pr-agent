@@ -31,6 +31,8 @@ done
 port_line=$(<"$port_file")
 port=${port_line#port=}
 
-ANTHROPIC_API_KEY=via-stoat \
-ANTHROPIC_API_BASE="http://127.0.0.1:${port}" \
-    "$real_pr_agent" "$@"
+export GITHUB__USER_TOKEN=$(gh auth token)
+export CONFIG__MODEL=anthropic/claude-opus-4-6
+export ANTHROPIC_API_KEY=via-stoat
+export ANTHROPIC_API_BASE="http://127.0.0.1:${port}"
+"$real_pr_agent" "$@"
