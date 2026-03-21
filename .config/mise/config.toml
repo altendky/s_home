@@ -1,6 +1,13 @@
 [settings]
 trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
 
+[shell_alias]
+bs = "Bambu_Studio.AppImage"
+
+[tool_alias]
+bambustudio = "github:bambulab/BambuStudio"
+
 [tools]
 bun = "latest"
+"github:bambulab/BambuStudio" = "latest"
 opencode = "latest"

@@ -6,6 +6,15 @@ description: Catch up constituent branches and recreate a combined integration b
 
 **Arguments:** $ARGUMENTS
 
+## Pre-flight check
+
+This command executes git operations that modify local branches. Before
+proceeding, verify that your current mode permits running bash commands and
+making changes. If your system instructions indicate you are in a read-only
+or plan mode, stop immediately and ask the user to switch to the build agent
+(Tab key) and re-run the command. Do not proceed to Phase 1 until you can
+confirm you are able to take action.
+
 Recreate a combined integration branch by catching up all its constituent
 branches to the latest base branch, dropping any that have been fully merged
 upstream, and rebuilding the combined branch from scratch.

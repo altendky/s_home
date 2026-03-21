@@ -48,6 +48,65 @@ url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-windows-
 checksum = "sha256:715709c69b176e20994533d3292bd0b7c32de9c0c5575b916746ec6b2aa38346"
 url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-windows-x64-baseline.zip"
 
+[[tools."github:bambulab/BambuStudio"]]
+version = "02.05.00.67"
+backend = "github:bambulab/BambuStudio"
+
+[tools."github:bambulab/BambuStudio"."platforms.linux-arm64"]
+checksum = "sha256:c9dbabc1a1b1dfe01f03ae28635399ed7dd1a0b8ea6d9732bf2d91a39381b0ad"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_linux_fedora-v02.05.00.66.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347972008"
+
+[tools."github:bambulab/BambuStudio"."platforms.linux-arm64-musl"]
+checksum = "sha256:c9dbabc1a1b1dfe01f03ae28635399ed7dd1a0b8ea6d9732bf2d91a39381b0ad"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_linux_fedora-v02.05.00.66.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347972008"
+
+[tools."github:bambulab/BambuStudio"."platforms.linux-x64"]
+checksum = "sha256:c9dbabc1a1b1dfe01f03ae28635399ed7dd1a0b8ea6d9732bf2d91a39381b0ad"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_linux_fedora-v02.05.00.66.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347972008"
+
+[tools."github:bambulab/BambuStudio"."platforms.linux-x64-baseline"]
+checksum = "sha256:c9dbabc1a1b1dfe01f03ae28635399ed7dd1a0b8ea6d9732bf2d91a39381b0ad"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_linux_fedora-v02.05.00.66.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347972008"
+
+[tools."github:bambulab/BambuStudio"."platforms.linux-x64-musl"]
+checksum = "sha256:c9dbabc1a1b1dfe01f03ae28635399ed7dd1a0b8ea6d9732bf2d91a39381b0ad"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_linux_fedora-v02.05.00.66.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347972008"
+
+[tools."github:bambulab/BambuStudio"."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:c9dbabc1a1b1dfe01f03ae28635399ed7dd1a0b8ea6d9732bf2d91a39381b0ad"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_linux_fedora-v02.05.00.66.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347972008"
+
+[tools."github:bambulab/BambuStudio"."platforms.macos-arm64"]
+checksum = "sha256:16aadda7a8967eb981e472383f6d4e87dd7e0668fe5b948d7fc7db49d68d6845"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_mac-v02.05.00.66-20260128215914.dmg"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347196982"
+
+[tools."github:bambulab/BambuStudio"."platforms.macos-x64"]
+checksum = "sha256:16aadda7a8967eb981e472383f6d4e87dd7e0668fe5b948d7fc7db49d68d6845"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_mac-v02.05.00.66-20260128215914.dmg"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347196982"
+
+[tools."github:bambulab/BambuStudio"."platforms.macos-x64-baseline"]
+checksum = "sha256:16aadda7a8967eb981e472383f6d4e87dd7e0668fe5b948d7fc7db49d68d6845"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_mac-v02.05.00.66-20260128215914.dmg"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347196982"
+
+[tools."github:bambulab/BambuStudio"."platforms.windows-x64"]
+checksum = "sha256:c35037aa5e6b0ba0bdccc2c6055f4a3c6f2b1835dba51d77aead5d7b1a77a343"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_win-v02.05.00.66-20260128215914.zip"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347193490"
+
+[tools."github:bambulab/BambuStudio"."platforms.windows-x64-baseline"]
+checksum = "sha256:c35037aa5e6b0ba0bdccc2c6055f4a3c6f2b1835dba51d77aead5d7b1a77a343"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.05.00.67/Bambu_Studio_win-v02.05.00.66-20260128215914.zip"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/347193490"
+
 [[tools.opencode]]
 version = "1.2.27"
 backend = "aqua:anomalyco/opencode"
@@ -64,7 +123,15 @@ url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-
 checksum = "sha256:6fe3820b145857f7ff507d2826058b7acf1fce8258def1498468dd43809e69e8"
 url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-linux-x64.tar.gz"
 
+[tools.opencode."platforms.linux-x64-baseline"]
+checksum = "sha256:6fe3820b145857f7ff507d2826058b7acf1fce8258def1498468dd43809e69e8"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-linux-x64.tar.gz"
+
 [tools.opencode."platforms.linux-x64-musl"]
+checksum = "sha256:6fe3820b145857f7ff507d2826058b7acf1fce8258def1498468dd43809e69e8"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-linux-x64.tar.gz"
+
+[tools.opencode."platforms.linux-x64-musl-baseline"]
 checksum = "sha256:6fe3820b145857f7ff507d2826058b7acf1fce8258def1498468dd43809e69e8"
 url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-linux-x64.tar.gz"
 
@@ -76,6 +143,14 @@ url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-
 checksum = "sha256:fc719db27acbc817ff2a4df2bbaa788e02976ddc26a96c84de4fdbe663714b8c"
 url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-darwin-x64.zip"
 
+[tools.opencode."platforms.macos-x64-baseline"]
+checksum = "sha256:fc719db27acbc817ff2a4df2bbaa788e02976ddc26a96c84de4fdbe663714b8c"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-darwin-x64.zip"
+
 [tools.opencode."platforms.windows-x64"]
+checksum = "sha256:9e2e43568e6f952e8c7cb77b934fbff53f454f0213688f24f3c3769b69703e84"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-windows-x64.zip"
+
+[tools.opencode."platforms.windows-x64-baseline"]
 checksum = "sha256:9e2e43568e6f952e8c7cb77b934fbff53f454f0213688f24f3c3769b69703e84"
 url = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-windows-x64.zip"
