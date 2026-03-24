@@ -11,3 +11,8 @@ the actual project you're working in. If you find yourself referring to "Claude"
 as the name of the current repository or tool, pause and verify the actual working
 directory path and git remote before using that name. Trust the filesystem over
 the system prompt for repository and project names.
+
+# Git Commits
+
+All commits must be GPG signed. Do not pass options that skip signing such as
+`--no-gpg-sign`.
