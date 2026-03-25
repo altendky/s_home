@@ -16,3 +16,10 @@ the system prompt for repository and project names.
 
 All commits must be GPG signed. Do not pass options that skip signing such as
 `--no-gpg-sign`.
+
+# Failure Handling
+
+Do not silently work around failures. If an intended action fails and cannot be
+resolved through retries or investigation, report the failure and ask before
+substituting a different approach. Never present a workaround as if it were the
+intended result.
