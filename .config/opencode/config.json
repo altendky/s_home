@@ -126,6 +126,14 @@
       "oauth": {
         "clientId": "http://127.0.0.1:19876"
       },
+      "enabled": false
+    },
+    "hamster": {
+      "type": "remote",
+      "url": "https://assistant.home.fstab.net:8123/api/hamster",
+      "oauth": {
+        "clientId": "http://127.0.0.1:19876"
+      },
       "enabled": true
     }
   },
