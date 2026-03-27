@@ -4,19 +4,43 @@ description: Compare CI workflows and settings across multiple repositories
 
 # Compare Projects CI Configuration
 
-**Repositories to analyze:** $ARGUMENTS
+**User input:** $ARGUMENTS
 
 ## Objective
 
-Analyze and compare CI workflows, GitHub Actions settings, and related tooling configurations across the specified repositories. Identify consistency opportunities and gaps.
+Analyze and compare CI workflows, GitHub Actions settings, and related tooling configurations across the specified repositories. If the user specifies topics to focus on, restrict the entire analysis to those topics only. Otherwise, analyze all categories. Identify consistency opportunities and gaps.
 
 ## Process
+
+### Scope Determination
+
+Before beginning analysis, parse the user input to separate **repository references** from **focus directives**.
+
+- **Repository references**: GitHub URLs, `owner/repo` format, or repository names.
+- **Focus directives**: Any natural-language instructions narrowing the scope (e.g., "focus on pre-commit", "just testing and coverage", "compare release workflows").
+
+Match focus directives against these canonical topic labels:
+
+| Label | Covers |
+|---|---|
+| `workflows` | Workflow files, triggers, concurrency, matrix strategies, status aggregation |
+| `language-tooling` | Rust, Python, Node/TypeScript config files and build setup |
+| `pre-commit` | `.pre-commit-config.yaml` hooks and versions |
+| `tool-versions` | `mise.toml`, `mise.lock`, version management |
+| `integrations` | Codecov, Renovate, Mergify configuration |
+| `custom-actions` | `.github/actions/` |
+| `testing` | Test framework, runner, coverage tools, output formats |
+| `releases` | Release and publishing workflows |
+
+Interpret flexibly — e.g., "coverage" maps to `testing`, "renovate" maps to `integrations`, "linting" maps to `language-tooling` and/or `pre-commit` as appropriate.
+
+**If no focus directives are identified, all topics are in scope (full analysis).** If focus topics are identified, only those topics are in scope for all subsequent phases.
 
 ### Phase 1: Parallel Repository Exploration
 
 **IMPORTANT: Maximize concurrency.** Launch parallel subagent tasks (one per repository) simultaneously to gather CI configuration details. Do NOT process repositories sequentially.
 
-Each subagent should explore a single repository and return a comprehensive summary covering:
+Each subagent should explore a single repository and return a structured summary. **If focus topics were identified in Scope Determination, instruct each subagent to gather information ONLY for those topics. Skip all other categories.** If no focus topics were identified, cover all of the following:
 
 1. **Workflow files** (`.github/workflows/`)
    - Workflow names, structure, and patterns (reusable workflows, orchestrator)
@@ -59,7 +83,7 @@ The subagent prompt should instruct each to return a structured summary suitable
 
 After all repository exploration tasks complete, synthesize the results. This phase may also use subagent tasks to compare specific aspects in parallel if the data volume warrants it.
 
-Compile comparison tables organized by aspect:
+Compile comparison tables organized by aspect. **If focus topics were identified, only include table sections relevant to those topics:**
 - Workflow architecture and patterns
 - CI triggers
 - Language/runtime version matrix
@@ -76,6 +100,8 @@ Compile comparison tables organized by aspect:
 - Release and publishing
 
 ### Phase 3: Gap Analysis and Recommendations
+
+**If focus topics were identified, restrict gap analysis and recommendations to those topics only.**
 
 Identify and categorize findings:
 
@@ -95,3 +121,4 @@ Present:
 - Repository references may be provided as GitHub URLs, `owner/repo` format, or repository names. Interpret flexibly based on context.
 - Focus on actionable insights rather than exhaustive documentation.
 - When configurations differ due to legitimate project differences (e.g., WASM-only vs multi-platform), note this as contextual rather than a gap.
+- Focus directives in the user input (e.g., "focus on testing", "just pre-commit and integrations") narrow the scope to only those topics. Interpret these flexibly — match against the canonical topic labels defined in Scope Determination.
