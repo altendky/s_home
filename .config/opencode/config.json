@@ -1,5 +1,6 @@
 {
   "instructions": ["~/.config/opencode/instructions.md"],
+  "autoupdate": "notify",
   "default_agent": "plan",
   "keybinds": {
     "leader": "ctrl+x",
@@ -130,7 +131,7 @@
     },
     "hamster": {
       "type": "remote",
-      "url": "https://assistant.home.fstab.net:8123/api/hamster",
+      "url": "https://assistant.home.fstab.net:8123/api/hamster_mcp",
       "oauth": {
         "clientId": "http://127.0.0.1:19876"
       },

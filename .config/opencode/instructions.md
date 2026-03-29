@@ -71,3 +71,16 @@ In the TUI, `<leader>x` exports the current session as a Markdown transcript.
 The database contains tables `session`, `message`, and `part`. IDs are prefixed
 `ses_`, `msg_`, and `prt_` respectively. Message and part content is stored as
 JSON in their `data` columns.
+
+# Quoting Code on GitHub
+
+When writing content for GitHub (issues, PRs, discussions, review comments) that
+references code in the same repository, do not copy code inline. Instead, paste a
+GitHub permalink on its own line. GitHub renders these as both a clickable link
+and an inline code snippet automatically.
+
+Use the full commit hash to keep the link stable. Default to the latest commit;
+use a different ref only when the context specifically calls for it. Include the
+line range when referencing a specific section.
+
+Format: `https://github.com/{owner}/{repo}/blob/{commit_hash}/{path}#L{start}-L{end}`

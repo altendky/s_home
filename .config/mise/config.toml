@@ -6,8 +6,10 @@ bs = "Bambu_Studio.AppImage"
 
 [tool_alias]
 bambustudio = "github:bambulab/BambuStudio"
+grip = "pipx:grip"
 
 [tools]
 bun = "latest"
 "github:bambulab/BambuStudio" = "latest"
 opencode = "latest"
+"pipx:grip" = "latest"
