@@ -84,3 +84,16 @@ use a different ref only when the context specifically calls for it. Include the
 line range when referencing a specific section.
 
 Format: `https://github.com/{owner}/{repo}/blob/{commit_hash}/{path}#L{start}-L{end}`
+
+# Pull Requests
+
+Before creating a pull request with `gh pr create`, check if the repository has a
+PR template. GitHub supports templates at these paths:
+
+- `pull_request_template.md`
+- `.github/pull_request_template.md`
+- `docs/pull_request_template.md`
+- `.github/PULL_REQUEST_TEMPLATE/` (for multiple templates)
+
+If a template exists, read it and use its exact section structure in the PR body.
+Fill in all sections; mark N/A where not applicable.
