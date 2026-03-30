@@ -99,9 +99,9 @@ function cg
 end
 
 function confish
-    eval $EDITOR ~/.config/fish/config.fish
+    eval $EDITOR ~/.config/fish/conf.d/altendky.fish
 end
-alias fource 'source ~/.config/fish/config.fish'
+alias fource 'source ~/.config/fish/conf.d/altendky.fish'
 
 function dmesgrun
     sudo bash -c "echo about to run: $argv > /dev/kmsg"
