@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+dir="$PWD"
+cd ~/repos/opencode
+exec bun dev -- --project "$dir" "$@"
