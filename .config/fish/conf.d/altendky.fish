@@ -4,7 +4,7 @@
 #     bash -c "source ~/.nvm/nvm.sh; nvm $argv"
 # end
 # https://gist.github.com/calle2010/b3f0054c1d4b72394d0fda7f22d47b38
-function load_nvm --on-variable PWD
+function load_nvm --on-variable disabled_PWD
   set -l default_node_version (nvm version default)
   set -l node_version (nvm version)
   set -l nvmrc_path (nvm_find_nvmrc)
