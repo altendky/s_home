@@ -18,7 +18,6 @@ cargo-modules = "cargo:cargo-modules"
 [tools]
 bun = "latest"
 "github:bambulab/BambuStudio" = "latest"
-opencode = "latest"
 "pipx:grip" = "latest"
 
 # for gw
@@ -35,3 +34,9 @@ trivy = "latest"
 "cargo:cargo-audit" = "latest"
 "aqua:taiki-e/cargo-llvm-cov" = "0.6.14"
 "cargo:cargo-modules" = "latest"
+"pipx:playwright" = "latest"
+node = "latest"
+npm = "latest"
+gh = "latest"
+claude-code = "latest"
+"pipx:pre-commit" = "latest"
