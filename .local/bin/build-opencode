@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ~/repos/opencode/
+git clean -ffdx
+bun install
+cd packages/opencode
+OPENCODE_CHANNEL=dev bun run build --single

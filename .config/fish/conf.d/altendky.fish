@@ -193,7 +193,6 @@ end
 #    or command opencode $argv
 #end
 
-alias build-opencode 'cd ~/repos/opencode/ && git clean -ffdx && bun install && bash -c \'cd packages/opencode && OPENCODE_CHANNEL=dev bun run build --single\''
 #alias o 'OPENCODE_CONFIG_CONTENT=(cat ~/.config/opencode/overrides.json) opencode'
 #alias o 'OPENCODE_CONFIG_CONTENT=(cat (find_upward opencode.json)) opencode'
 
