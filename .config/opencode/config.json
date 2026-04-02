@@ -2,6 +2,7 @@
   "instructions": ["~/.config/opencode/instructions.md"],
   "autoupdate": "notify",
   "default_agent": "plan",
+  "formatter": false,
   "keybinds": {
     "leader": "ctrl+x",
     "app_exit": "ctrl+c,ctrl+d,<leader>q",

@@ -63,8 +63,8 @@ function fix-mouse
     # xinput disable "Synaptics TM3512-010"
     # sleep 2
     # xinput enable "Synaptics TM3512-010"
-    sleep 2
-    xinput set-prop "Synaptics TM3512-010" "libinput Tapping Enabled" 1
+    #sleep 2
+    #xinput set-prop "Synaptics TM3512-010" "libinput Tapping Enabled" 1
     # sleep 2
     # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.reloadSettings
     # sleep 2
@@ -239,7 +239,21 @@ alias gb "git reflog show --grep-reflog='checkout: moving' --format='%gs' |
   sed -n 's/.*to //p' |
   awk '!seen[\$0]++'"
 
-alias xcs 'sed -z '"'"'$ s/\n$//'"'"' | xclip -selection clipboard'
+function xcs
+    if test "$XDG_SESSION_TYPE" = wayland
+        if not command -q wl-copy
+            echo "xcs: wl-copy not found (install wl-clipboard)" >&2
+            return 1
+        end
+        sed -z '$ s/\n$//' | wl-copy
+    else
+        if not command -q xclip
+            echo "xcs: xclip not found" >&2
+            return 1
+        end
+        sed -z '$ s/\n$//' | xclip -selection clipboard
+    end
+end
 
 alias h heroku
 alias sr 'ssh ubuntu@pi'

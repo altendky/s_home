@@ -2,10 +2,10 @@
 trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
 
 [shell_alias]
-bs = "Bambu_Studio.AppImage"
+#bs = "Bambu_Studio.AppImage"
 
 [tool_alias]
-bambustudio = "github:bambulab/BambuStudio"
+bs = "github:bambulab/BambuStudio"
 grip = "pipx:grip"
 
 # for gw
@@ -17,12 +17,12 @@ cargo-modules = "cargo:cargo-modules"
 
 [tools]
 bun = "latest"
-"github:bambulab/BambuStudio" = "latest"
+"github:bambulab/BambuStudio" = { version = "02.05.02.51", bin = "bs", asset_pattern = "*ubuntu-24.04*.AppImage" }
 "pipx:grip" = "latest"
 
 # for gw
 opentofu = "latest"
-rust = { version = "stable", components = "llvm-tools" }
+# rust = { version = "stable", components = "llvm-tools" }
 uv = "latest"
 shfmt = "3.8.0"
 shellcheck = "0.11.0"
@@ -40,3 +40,10 @@ npm = "latest"
 gh = "latest"
 claude-code = "latest"
 "pipx:pre-commit" = "latest"
+just = "latest"
+mold = "latest"
+
+"cargo:thoughts-bin" = "latest"
+"cargo:agentic-mcp" = "latest"
+"cargo:opencode-orchestrator-mcp" = "latest"
+bitwarden = "latest"
