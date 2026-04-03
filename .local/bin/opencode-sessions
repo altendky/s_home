@@ -1,0 +1,486 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SNAPSHOT_DIR="${HOME}/.local/share/opencode-sessions"
+OPENCODE_DATA_DIR="${HOME}/.local/share/opencode"
+
+# --- Helpers ---
+
+die() {
+    echo "error: $*" >&2
+    exit 1
+}
+
+warn() {
+    echo "warning: $*" >&2
+}
+
+check_deps() {
+    local missing=()
+    command -v sqlite3 &>/dev/null || missing+=(sqlite3)
+    command -v jq &>/dev/null || missing+=(jq)
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        die "missing required dependencies: ${missing[*]}"
+    fi
+}
+
+detect_terminal() {
+    # 1. Flag (passed as $1 if provided)
+    if [[ -n "${1:-}" ]]; then
+        echo "$1"
+        return
+    fi
+
+    # 2. Environment variable
+    if [[ -n "${OPENCODE_SESSIONS_TERMINAL:-}" ]]; then
+        echo "$OPENCODE_SESSIONS_TERMINAL"
+        return
+    fi
+
+    # 3. Auto-detect from desktop environment and running processes
+    case "${XDG_CURRENT_DESKTOP:-}" in
+        KDE*)
+            if command -v konsole &>/dev/null; then
+                echo "konsole"
+                return
+            fi
+            ;;
+        GNOME*)
+            if command -v gnome-terminal &>/dev/null; then
+                echo "gnome-terminal"
+                return
+            fi
+            ;;
+    esac
+
+    # Check for common terminals
+    for term in konsole gnome-terminal kitty alacritty wezterm xterm; do
+        if command -v "$term" &>/dev/null; then
+            echo "$term"
+            return
+        fi
+    done
+
+    # 4. Fallback
+    if command -v x-terminal-emulator &>/dev/null; then
+        echo "x-terminal-emulator"
+        return
+    fi
+
+    die "could not detect terminal emulator; use --terminal or set OPENCODE_SESSIONS_TERMINAL"
+}
+
+launch_terminal() {
+    local terminal="$1"
+    local title="$2"
+    local cmd="$3"
+
+    case "$terminal" in
+        konsole)
+            konsole --new-tab -p tabtitle="$title" -e bash -c "$cmd; exec bash" &
+            ;;
+        gnome-terminal)
+            gnome-terminal --title="$title" -- bash -c "$cmd; exec bash" &
+            ;;
+        kitty)
+            kitty --title "$title" bash -c "$cmd; exec bash" &
+            ;;
+        alacritty)
+            alacritty --title "$title" -e bash -c "$cmd; exec bash" &
+            ;;
+        wezterm)
+            wezterm start --cwd "$(pwd)" -- bash -c "$cmd; exec bash" &
+            ;;
+        xterm|x-terminal-emulator)
+            "$terminal" -title "$title" -e bash -c "$cmd; exec bash" &
+            ;;
+        *)
+            # Generic fallback
+            "$terminal" -e bash -c "$cmd; exec bash" &
+            ;;
+    esac
+}
+
+get_opencode_command() {
+    local flag_value="${1:-}"
+    if [[ -n "$flag_value" ]]; then
+        echo "$flag_value"
+    elif [[ -n "${OPENCODE_SESSIONS_OPENCODE:-}" ]]; then
+        echo "$OPENCODE_SESSIONS_OPENCODE"
+    else
+        echo "opencode"
+    fi
+}
+
+# --- Commands ---
+
+cmd_dump() {
+    check_deps
+    mkdir -p "$SNAPSHOT_DIR"
+
+    local timestamp
+    timestamp=$(date -u +%Y-%m-%dT%H%M%SZ)
+    local outfile="${SNAPSHOT_DIR}/${timestamp}.json"
+
+    local sessions=()
+    local errors=0
+
+    # Find opencode TUI PIDs (exclude orchestrator-mcp and mergerfs)
+    local pids
+    pids=$(ps aux | grep '[o]pencode' | grep -v 'opencode-orchestrator-mcp' | grep -v 'mergerfs' | awk '{print $2}')
+
+    if [[ -z "$pids" ]]; then
+        die "no opencode TUI sessions found"
+    fi
+
+    for pid in $pids; do
+        local cwd tty session_id database title
+
+        # Get cwd
+        cwd=$(readlink "/proc/${pid}/cwd" 2>/dev/null) || {
+            warn "PID $pid: could not read cwd"
+            ((errors++)) || true
+            continue
+        }
+
+        # Get tty
+        tty=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ') || tty="?"
+
+        # Get session_id from log fds
+        session_id=""
+        for fd_path in /proc/${pid}/fd/*; do
+            local target
+            target=$(readlink "$fd_path" 2>/dev/null) || continue
+            if [[ "$target" == *".log"* ]]; then
+                local found
+                found=$(grep -ao 'ses_[A-Za-z0-9]\{20,\}' "$fd_path" 2>/dev/null | tail -1) || true
+                if [[ -n "$found" ]]; then
+                    session_id="$found"
+                fi
+            fi
+        done
+
+        if [[ -z "$session_id" ]]; then
+            warn "PID $pid: could not determine session ID"
+            ((errors++)) || true
+            continue
+        fi
+
+        # Get database from fd
+        database=""
+        for fd_path in /proc/${pid}/fd/*; do
+            local target
+            target=$(readlink "$fd_path" 2>/dev/null) || continue
+            if [[ "$target" == *"opencode"*".db" && "$target" != *"-wal" && "$target" != *"-shm" ]]; then
+                database=$(basename "$target")
+                break
+            fi
+        done
+
+        if [[ -z "$database" ]]; then
+            warn "PID $pid: could not determine database"
+            ((errors++)) || true
+            continue
+        fi
+
+        # Query title from database
+        local db_path="${OPENCODE_DATA_DIR}/${database}"
+        if [[ ! -f "$db_path" ]]; then
+            warn "PID $pid: database not found: $db_path"
+            ((errors++)) || true
+            continue
+        fi
+
+        title=$(sqlite3 "$db_path" "SELECT title FROM session WHERE id='${session_id}';" 2>/dev/null) || {
+            warn "PID $pid: could not query title for session $session_id"
+            ((errors++)) || true
+            continue
+        }
+
+        if [[ -z "$title" ]]; then
+            title="(untitled)"
+        fi
+
+        # Build JSON object for this session
+        local session_json
+        session_json=$(jq -n \
+            --argjson pid "$pid" \
+            --arg tty "$tty" \
+            --arg session_id "$session_id" \
+            --arg title "$title" \
+            --arg directory "$cwd" \
+            --arg database "$database" \
+            '{pid: $pid, tty: $tty, session_id: $session_id, title: $title, directory: $directory, database: $database}')
+        sessions+=("$session_json")
+    done
+
+    if [[ ${#sessions[@]} -eq 0 ]]; then
+        die "no sessions could be resolved"
+    fi
+
+    # Build final JSON
+    local sessions_array
+    sessions_array=$(printf '%s\n' "${sessions[@]}" | jq -s '.')
+
+    local final_json
+    final_json=$(jq -n \
+        --arg timestamp "$timestamp" \
+        --argjson sessions "$sessions_array" \
+        '{timestamp: $timestamp, sessions: $sessions}')
+
+    echo "$final_json" > "$outfile"
+
+    echo "saved ${#sessions[@]} sessions to $outfile" >&2
+    echo >&2
+
+    # Output captured sessions as a table
+    echo "$final_json" | jq -r '
+        .sessions[] |
+        [.session_id, .title, .directory] |
+        @tsv
+    ' | column -t -s $'\t' -N "SESSION_ID,TITLE,DIRECTORY" >&2
+
+    if [[ $errors -gt 0 ]]; then
+        echo >&2
+        echo "warning: $errors session(s) could not be resolved" >&2
+        exit 1
+    fi
+}
+
+cmd_list() {
+    check_deps
+
+    local snapshot=""
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                die "unknown option: $1"
+                ;;
+            *)
+                if [[ -z "$snapshot" ]]; then
+                    snapshot="$1"
+                else
+                    die "unexpected argument: $1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    snapshot=$(resolve_snapshot "$snapshot")
+
+    jq -r '
+        .sessions[] |
+        [.session_id, .title, .directory] |
+        @tsv
+    ' "$snapshot" | column -t -s $'\t' -N "SESSION_ID,TITLE,DIRECTORY"
+}
+
+resolve_snapshot() {
+    local snapshot="$1"
+
+    if [[ ! -d "$SNAPSHOT_DIR" ]]; then
+        die "no snapshots directory: $SNAPSHOT_DIR"
+    fi
+
+    # Default to latest snapshot
+    if [[ -z "$snapshot" ]]; then
+        snapshot=$(ls -1 "$SNAPSHOT_DIR"/*.json 2>/dev/null | sort -r | head -1) || true
+        if [[ -z "$snapshot" ]]; then
+            die "no snapshots found"
+        fi
+    elif [[ ! "$snapshot" = /* ]]; then
+        # Relative path or just filename — look in snapshot dir
+        if [[ -f "${SNAPSHOT_DIR}/${snapshot}" ]]; then
+            snapshot="${SNAPSHOT_DIR}/${snapshot}"
+        elif [[ ! -f "$snapshot" ]]; then
+            die "snapshot not found: $snapshot"
+        fi
+    fi
+
+    if [[ ! -f "$snapshot" ]]; then
+        die "snapshot not found: $snapshot"
+    fi
+
+    echo "$snapshot"
+}
+
+cmd_commands() {
+    check_deps
+
+    local snapshot=""
+    local opencode_override=""
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --opencode)
+                opencode_override="$2"
+                shift 2
+                ;;
+            -*)
+                die "unknown option: $1"
+                ;;
+            *)
+                if [[ -z "$snapshot" ]]; then
+                    snapshot="$1"
+                else
+                    die "unexpected argument: $1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    snapshot=$(resolve_snapshot "$snapshot")
+
+    local opencode_cmd
+    opencode_cmd=$(get_opencode_command "$opencode_override")
+
+    local sessions
+    sessions=$(jq -c '.sessions[]' "$snapshot")
+
+    if [[ -z "$sessions" ]]; then
+        die "no sessions in snapshot"
+    fi
+
+    local first=true
+    while IFS= read -r session; do
+        local dir session_id title
+        dir=$(echo "$session" | jq -r '.directory')
+        session_id=$(echo "$session" | jq -r '.session_id')
+        title=$(echo "$session" | jq -r '.title')
+        if $first; then
+            first=false
+        else
+            echo
+        fi
+        echo "# $title"
+        echo "cd $(printf '%q' "$dir") && $opencode_cmd -s $session_id"
+    done <<< "$sessions"
+}
+
+cmd_restore() {
+    check_deps
+
+    local snapshot=""
+    local terminal_override=""
+    local opencode_override=""
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --terminal)
+                terminal_override="$2"
+                shift 2
+                ;;
+            --opencode)
+                opencode_override="$2"
+                shift 2
+                ;;
+            -*)
+                die "unknown option: $1"
+                ;;
+            *)
+                if [[ -z "$snapshot" ]]; then
+                    snapshot="$1"
+                else
+                    die "unexpected argument: $1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    snapshot=$(resolve_snapshot "$snapshot")
+
+    local opencode_cmd
+    opencode_cmd=$(get_opencode_command "$opencode_override")
+
+    local sessions
+    sessions=$(jq -c '.sessions[]' "$snapshot")
+
+    if [[ -z "$sessions" ]]; then
+        die "no sessions in snapshot"
+    fi
+
+    local terminal
+    terminal=$(detect_terminal "$terminal_override")
+    echo "launching with terminal: $terminal" >&2
+
+    while IFS= read -r session; do
+        local dir session_id title cmd
+        dir=$(echo "$session" | jq -r '.directory')
+        session_id=$(echo "$session" | jq -r '.session_id')
+        title=$(echo "$session" | jq -r '.title')
+        cmd="cd $(printf '%q' "$dir") && $opencode_cmd -s $session_id"
+
+        launch_terminal "$terminal" "$title" "$cmd"
+        echo "launched: $title" >&2
+    done <<< "$sessions"
+}
+
+cmd_help() {
+    cat <<EOF
+opencode-sessions - snapshot and restore opencode TUI sessions
+
+Usage:
+    opencode-sessions dump
+        Snapshot all running opencode TUI sessions.
+
+    opencode-sessions list [SNAPSHOT]
+        List sessions from a snapshot (default: latest).
+
+    opencode-sessions commands [SNAPSHOT] [OPTIONS]
+        Print shell commands to restore sessions (default: latest snapshot).
+
+        Options:
+            --opencode COMMAND    Command to use instead of 'opencode' (or set OPENCODE_SESSIONS_OPENCODE)
+
+    opencode-sessions restore [SNAPSHOT] [OPTIONS]
+        Launch terminal windows to restore sessions (default: latest snapshot).
+
+        Options:
+            --terminal TERMINAL   Terminal emulator to use (or set OPENCODE_SESSIONS_TERMINAL)
+            --opencode COMMAND    Command to use instead of 'opencode' (or set OPENCODE_SESSIONS_OPENCODE)
+
+Environment variables:
+    OPENCODE_SESSIONS_TERMINAL   Default terminal emulator for restore
+    OPENCODE_SESSIONS_OPENCODE   Default opencode command (e.g., 'o' for a wrapper script)
+
+Snapshots are stored in: ~/.local/share/opencode-sessions/
+EOF
+}
+
+# --- Main ---
+
+case "${1:-}" in
+    dump)
+        shift
+        cmd_dump "$@"
+        ;;
+    list)
+        shift
+        cmd_list "$@"
+        ;;
+    commands)
+        shift
+        cmd_commands "$@"
+        ;;
+    restore)
+        shift
+        cmd_restore "$@"
+        ;;
+    help|--help|-h)
+        cmd_help
+        ;;
+    "")
+        cmd_help
+        exit 1
+        ;;
+    *)
+        die "unknown command: $1 (try 'opencode-sessions help')"
+        ;;
+esac
