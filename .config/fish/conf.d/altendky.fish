@@ -79,11 +79,34 @@ function fix-kde
 end
 
 function fix-fiio
-    bluetoothctl disconnect 40:ED:98:1A:99:B4
+    set -l mac 40:ED:98:1A:99:B4
+    echo "==> Disconnecting BTR5..."
+    bluetoothctl disconnect $mac 2>/dev/null
+    
+    echo "==> Restarting bluetooth service..."
     systemctl restart bluetooth
-    fuser -v /dev/snd/*
-    bluetoothctl connect 40:ED:98:1A:99:B4
-    pactl list cards
+    
+    echo "==> Restarting PipeWire/WirePlumber..."
+    systemctl --user restart wireplumber pipewire pipewire-pulse
+    
+    echo "==> Waiting for services to settle..."
+    sleep 3
+    
+    echo "==> Connecting to BTR5..."
+    bluetoothctl connect $mac
+    
+    sleep 2
+    echo ""
+    echo "==> Connection status:"
+    bluetoothctl info $mac | grep -E 'Name:|Connected:|Paired:|Trusted:'
+    
+    echo ""
+    echo "==> Audio sinks:"
+    wpctl status | grep -A 10 'Sinks:' | head -8
+    
+    echo ""
+    echo "==> BTR5 profile:"
+    pactl list cards 2>/dev/null | grep -A 2 'bluez_card' | grep -E 'Name:|Active Profile:'
 end
 
 function cr
