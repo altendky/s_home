@@ -200,14 +200,7 @@ function find_upward
 end
 
 function o --wraps opencode
-    set -l overrides ~/.config/opencode/overrides.json
-    if set -l f (find_upward opencode.json)
-        set -l config_dir (dirname $f)
-        jq -s --arg d "$config_dir" '.[0] * .[1] | walk(if type == "string" then gsub("{file:(?!/)" ; "{file:\($d)/") else . end)' $f $overrides | read -z config
-    else
-        cat $overrides | read -z config
-    end
-    OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT=$config command opencode $argv
+    ~/.local/bin/o $argv
 end
 
 #function opencode

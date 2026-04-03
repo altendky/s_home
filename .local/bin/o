@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+find_upward() {
+    local target="$1"
+    local dir="$PWD"
+    while true; do
+        if [[ -e "$dir/$target" ]]; then
+            echo "$dir/$target"
+            return 0
+        fi
+        if [[ "$dir" == "/" ]]; then
+            return 1
+        fi
+        dir="$(dirname "$dir")"
+    done
+}
+
+overrides="$HOME/.config/opencode/overrides.json"
+
+if f="$(find_upward opencode.json)"; then
+    config_dir="$(dirname "$f")"
+    config="$(jq -s --arg d "$config_dir" \
+        '.[0] * .[1] | walk(if type == "string" then gsub("{file:(?!/)" ; "{file:\($d)/") else . end)' \
+        "$f" "$overrides")"
+else
+    config="$(cat "$overrides")"
+fi
+
+OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT="$config" exec opencode "$@"
