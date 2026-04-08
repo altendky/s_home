@@ -1,0 +1,5 @@
+[repos."/home/altendky/repos/gw/monorepo/.git"]
+post_create_commands = [
+  "just setup",
+  "thoughts init"
+]

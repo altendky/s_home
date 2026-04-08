@@ -10,6 +10,34 @@ Use a temporary directory under `${TMPDIR:-/tmp}/agents/`. Create it on first ne
 using `mkdir -p "${TMPDIR:-/tmp}/agents" && mktemp -d "${TMPDIR:-/tmp}/agents/XXXXXXXXXX"`
 and reuse the same path for the remainder of the session.
 
+# Standalone Python Scripts
+
+When writing standalone Python scripts (single-file scripts not part of a larger
+project), use PEP 723 inline script metadata to declare dependencies. Run with
+`uv run script.py`.
+
+Use this shebang for direct executability:
+
+    #!/usr/bin/env -S uv run
+
+Example:
+
+    #!/usr/bin/env -S uv run
+    # /// script
+    # requires-python = ">=3.12"
+    # dependencies = [
+    #     "httpx",
+    #     "rich",
+    # ]
+    # ///
+
+    import httpx
+    from rich import print
+    ...
+
+If unsure whether a script should be standalone (with inline metadata) or part of
+an existing project (using project dependencies), ask.
+
 # Working Directory Verification
 
 The system prompt may contain substituted product or tool names that don't match
