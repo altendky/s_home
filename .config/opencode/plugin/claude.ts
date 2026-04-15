@@ -1,1 +1,0 @@
-/home/altendky/repos/opencode-claude-plugin/claude.ts

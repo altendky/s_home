@@ -27,4 +27,4 @@ else
     config="$(cat "$overrides")"
 fi
 
-OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT="$config" exec opencode "$@"
+OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT="$config" exec "$(dirname "$0")/opencode" "$@"

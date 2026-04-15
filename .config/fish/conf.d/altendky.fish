@@ -358,33 +358,18 @@ set -gx CARGO_BUILD_JOBS (math (lscpu -p=CORE | grep -v '^#' | sort -u | wc -l) 
 if [ "$ALTENDKY_FISH_CONFIGURED" != "1" ]
     set --export ALTENDKY_FISH_CONFIGURED "1"
 
-    #set --export PATH /epc/bin ~/.local/bin ~/.local/bin_pipx ~/.local/phabricator/arcanist/bin $PATH
-    #set --export PATH $PYENV_ROOT/bin $PATH
-
-    # set --export PATH $BUN_INSTALL/bin $PATH
-    # set --export PATH $PYENV_ROOT/shims $PYENV_ROOT/bin $PATH
-    # set --export PATH ~/.cargo/bin $PATH
-    # set --export PATH ~/.local/bin/pipx $PATH
-    # set --export PATH $N_PREFIX/bin $PATH
-    # set --export PATH $PATH /home/altendky/.local/bin/pipx
-    # set --export PATH ~/.local/bin $PATH
-
-    set --export PATH \
-        ~/.local/bin \
-        $N_PREFIX/bin \
-        ~/.local/bin/pipx \
-        ~/.cargo/bin \
-        $PYENV_ROOT/shims \
-        $PYENV_ROOT/bin \
-        $BUN_INSTALL/bin \
-        $PATH
-
-    # pnpm
     set -gx PNPM_HOME "/home/altendky/.local/share/pnpm"
-    if not string match -q -- $PNPM_HOME $PATH
-      set -gx PATH "$PNPM_HOME" $PATH
-    end
-    # pnpm end
+
+    fish_add_path \
+        $BUN_INSTALL/bin \
+        $PYENV_ROOT/bin \
+        $PYENV_ROOT/shims \
+        ~/.local/bin/pipx \
+        $N_PREFIX/bin \
+        $PNPM_HOME
 end
 
 mise activate fish | source
+
+# Paths added after mise activation go to 'pre' section (before mise tools)
+fish_add_path --move ~/.local/bin
