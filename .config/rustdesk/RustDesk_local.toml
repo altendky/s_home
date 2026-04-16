@@ -12,3 +12,4 @@ fav = []
 
 [ui_flutter]
 peer-sorting = 'Remote ID'
+wm_Main = '{"width":800.0,"height":600.0,"offsetWidth":0.0,"offsetHeight":0.0,"isMaximized":false,"isFullscreen":false}'

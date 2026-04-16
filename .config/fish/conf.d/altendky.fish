@@ -302,6 +302,7 @@ function gaus
 end
 
 set --export _INTELLIJ_FORCE_PREPEND_PATH ''
+set -gx SSH_AUTH_SOCK ~/.1password/agent.sock
 set --export PIPX_BIN_DIR ~/.local/bin/pipx
 set --export PYTHONDONTWRITEBYTECODE 1
 set --export PYTHON_CONFIGURE_OPTS --enable-shared

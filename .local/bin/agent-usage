@@ -14,13 +14,48 @@ from pathlib import Path
 USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 
 
-def get_auth_path() -> Path:
+def get_claude_code_auth_path() -> Path:
+    return Path.home() / ".claude" / ".credentials.json"
+
+
+def load_claude_code_auth() -> dict | None:
+    """Try to load valid OAuth credentials from Claude Code. Returns None if unavailable."""
+    path = get_claude_code_auth_path()
+    if not path.exists():
+        return None
+
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+    entry = data.get("claudeAiOauth")
+    if not entry:
+        return None
+
+    access = entry.get("accessToken")
+    expires = entry.get("expiresAt", 0)
+
+    if not access or expires < time.time() * 1000:
+        return None
+
+    return {"access": access, "expires": expires}
+
+
+def get_opencode_auth_path() -> Path:
     data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
     return Path(data_home) / "opencode" / "auth.json"
 
 
 def load_auth() -> dict:
-    path = get_auth_path()
+    # Try Claude Code first
+    auth = load_claude_code_auth()
+    if auth:
+        return auth
+
+    # Fall back to opencode
+    path = get_opencode_auth_path()
     if not path.exists():
         print(
             "Error: No OpenCode auth file found.\n"
