@@ -159,20 +159,21 @@ def format_relative_time(iso_timestamp: str) -> str:
     hours, remainder = divmod(remainder, 3600)
     minutes, _ = divmod(remainder, 60)
 
-    round_to_hours = True
-    if round_to_hours and minutes > 30:
-        hours += 1
-        if hours >= 24:
-            days += 1
-            hours = 0
-
+    # Round to hours unless under 1 hour remaining, then show minutes
+    if days or hours:
+        if minutes > 30:
+            hours += 1
+            if hours >= 24:
+                days += 1
+                hours = 0
+        minutes = 0
 
     parts = []
     if days:
         parts.append(f"{days}d")
     if hours:
         parts.append(f"{hours}h")
-    if minutes and not round_to_hours:
+    if minutes:
         parts.append(f"{minutes}m")
 
     return " ".join(parts) if parts else "<1m"

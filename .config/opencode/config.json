@@ -1,4 +1,7 @@
 {
+  "tui": {
+    "disabled_animations": ["spinner", "status_background"]
+  },
   "instructions": ["~/.config/opencode/instructions.md"],
   "autoupdate": "notify",
   "default_agent": "plan",

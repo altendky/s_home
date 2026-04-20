@@ -75,14 +75,19 @@ If this fails (local base has diverged), stop and ask the user.
 ### 1.5 Identify constituent branches
 
 Find all local branches that are constituent parts of the combined branch.
-A branch qualifies if **both**:
+A branch qualifies if **any** of its unique non-merge commits are reachable
+from the combined branch. This correctly identifies branches even if they have
+been updated (e.g., had the base branch merged in) since the combined branch
+was created.
 
-- Its tip is an ancestor of the combined branch
-  (`git merge-base --is-ancestor <branch> <combined>`).
-- It has non-merge commits not present in the base branch
-  (`git log --oneline <base>..<branch> --no-merges` is non-empty).
+For each local branch (excluding the base and combined branches):
 
-Skip the base branch and the combined branch themselves.
+1. Get the non-merge commits unique to that branch (not in base):
+   `git log --oneline --no-merges <base>..<branch> --format=%H`
+2. If empty, skip (branch has no unique work).
+3. For each of those commits, check if it is an ancestor of combined:
+   `git merge-base --is-ancestor <commit> <combined>`
+4. If any commit matches, the branch is a constituent.
 
 Present the discovered list to the user for confirmation. Allow them to add or
 remove branches before proceeding.

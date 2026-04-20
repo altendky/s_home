@@ -352,6 +352,8 @@ set -gx OPENCODE_DISABLE_AUTOCOMPACT 1
 
 source ~/.secrets.env
 
+set -gx GITHUB_TOKEN (gh auth token)
+
 set -gx CARGO_INCREMENTAL 1
 
 set -gx CARGO_BUILD_JOBS (math (lscpu -p=CORE | grep -v '^#' | sort -u | wc -l) - 2)
