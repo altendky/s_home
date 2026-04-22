@@ -56,6 +56,11 @@ requested by the user. If a situation arises where you believe a force push is
 necessary (e.g., after a rebase or amend), ask the user before making the commits
 that would require forcing.
 
+Git commits may involve manual approval from the user. When a commit fails due
+to GPG signing or manual approval, the user may have been distracted. Note the
+failure clearly, inform the user, and ask if they would like you to retry with a
+simple yes/no question.
+
 # Failure Handling
 
 Do not silently work around failures. If an intended action fails and cannot be
