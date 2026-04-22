@@ -6,18 +6,21 @@ description: Catch up constituent branches and recreate a combined integration b
 
 **Arguments:** $ARGUMENTS
 
+**Execute this workflow on the current repository.** Follow each phase in order,
+run the git commands shown, and prompt the user at every decision point. Do not
+treat this as documentation — it is a runbook to be carried out interactively.
+
 ## Pre-flight check
 
-This command executes git operations that modify local branches. Before
-proceeding, verify that your current mode permits running bash commands and
-making changes. If your system instructions indicate you are in a read-only
-or plan mode, stop immediately and ask the user to switch to the build agent
-(Tab key) and re-run the command. Do not proceed to Phase 1 until you can
+This workflow modifies local branches. Before proceeding, verify that your
+current mode permits running bash commands and making changes. If you are in
+read-only or plan mode, stop immediately and ask the user to switch to the build
+agent (Tab key) and re-run this command. Do not proceed to Phase 1 until you can
 confirm you are able to take action.
 
-Recreate a combined integration branch by catching up all its constituent
-branches to the latest base branch, dropping any that have been fully merged
-upstream, and rebuilding the combined branch from scratch.
+**Goal:** Recreate the combined integration branch by catching up all its
+constituent branches to the latest base branch, dropping any that have been
+fully merged upstream, and rebuilding the combined branch from scratch.
 
 ## Principles
 
@@ -35,6 +38,9 @@ upstream, and rebuilding the combined branch from scratch.
   old branches beyond those identified as fully merged).
 
 ## Phase 1: Identify context
+
+> **Workflow note:** Execute these phases sequentially. Run the exact git
+> commands provided and stop for user confirmation at every decision point.
 
 ### 1.1 Parse arguments
 
