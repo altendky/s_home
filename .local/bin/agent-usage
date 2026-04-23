@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Query Anthropic subscription usage via OpenCode's stored OAuth credentials."""
+"""Query Anthropic and OpenAI subscription usage via stored OAuth credentials."""
 
 import json
 import os
@@ -11,7 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
+ANTHROPIC_USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
+OPENAI_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage"
+
+
+class UsageError(RuntimeError):
+    pass
 
 
 def get_claude_code_auth_path() -> Path:
@@ -37,7 +42,7 @@ def load_claude_code_auth() -> dict | None:
     access = entry.get("accessToken")
     expires = entry.get("expiresAt", 0)
 
-    if not access or expires < time.time() * 1000:
+    if not access or _is_expired(expires):
         return None
 
     return {"access": access, "expires": expires}
@@ -48,73 +53,154 @@ def get_opencode_auth_path() -> Path:
     return Path(data_home) / "opencode" / "auth.json"
 
 
-def load_auth() -> dict:
-    # Try Claude Code first
-    auth = load_claude_code_auth()
-    if auth:
-        return auth
-
-    # Fall back to opencode
+def load_opencode_auth_file() -> dict | None:
     path = get_opencode_auth_path()
     if not path.exists():
-        print(
-            "Error: No OpenCode auth file found.\n"
-            f"  Expected: {path}\n\n"
-            "Run `opencode auth login` and select "
-            '"Claude Pro/Max" to authenticate.',
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        return None
 
-    with open(path) as f:
-        data = json.load(f)
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _is_expired(expires_ms: int | float | None) -> bool:
+    return not expires_ms or expires_ms < time.time() * 1000
+
+
+def _safe_int(value) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_float(value, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def load_anthropic_auth() -> tuple[dict | None, str | None]:
+    # Try Claude Code first.
+    auth = load_claude_code_auth()
+    if auth:
+        return auth, None
+
+    path = get_opencode_auth_path()
+    data = load_opencode_auth_file()
+    if data is None:
+        return (
+            None,
+            "No OpenCode auth file found.\n"
+            f"  Expected: {path}\n\n"
+            "Run `opencode auth login` and select \"Claude Pro/Max\" to authenticate.",
+        )
 
     entry = data.get("anthropic")
     if entry is None:
-        print(
-            "Error: No Anthropic credentials found in OpenCode auth.\n\n"
-            "Run `opencode auth login` and select "
-            '"Claude Pro/Max" to authenticate.',
-            file=sys.stderr,
+        return (
+            None,
+            "No Anthropic credentials found in OpenCode auth.\n\n"
+            "Run `opencode auth login` and select \"Claude Pro/Max\" to authenticate.",
         )
-        sys.exit(1)
 
     if entry.get("type") != "oauth":
-        print(
-            "Error: Anthropic credentials are not OAuth (found "
-            f'type={entry.get("type")!r}).\n\n'
+        return (
+            None,
+            "Anthropic credentials are not OAuth "
+            f"(found type={entry.get('type')!r}).\n\n"
             "This command requires a Claude Pro/Max subscription.\n"
             'Run `opencode auth login` and select "Claude Pro/Max".',
-            file=sys.stderr,
         )
-        sys.exit(1)
 
     expires = entry.get("expires", 0)
-    if expires < time.time() * 1000:
-        print(
-            "Error: Anthropic OAuth access token is expired.\n\n"
+    if _is_expired(expires):
+        return (
+            None,
+            "Anthropic OAuth access token is expired.\n\n"
             "Run opencode and make any request to refresh the token\n"
             "automatically, then try again.",
-            file=sys.stderr,
         )
-        sys.exit(1)
 
     access = entry.get("access")
     if not access:
-        print(
-            "Error: Anthropic OAuth entry has no access token.\n\n"
+        return (
+            None,
+            "Anthropic OAuth entry has no access token.\n\n"
             "Run opencode and make any request to refresh the token\n"
             "automatically, then try again.",
-            file=sys.stderr,
         )
-        sys.exit(1)
 
-    return entry
+    return {"access": access, "expires": expires}, None
 
 
-def fetch_usage(access_token: str) -> dict:
+def load_openai_auth() -> tuple[dict | None, str | None]:
+    path = get_opencode_auth_path()
+    data = load_opencode_auth_file()
+    if data is None:
+        return (
+            None,
+            "No OpenCode auth file found.\n"
+            f"  Expected: {path}\n\n"
+            "Run `opencode auth login --provider openai` to authenticate.",
+        )
+
+    entry = data.get("openai")
+    if entry is None:
+        return (
+            None,
+            "No OpenAI credentials found in OpenCode auth.\n\n"
+            "Run `opencode auth login --provider openai` to authenticate.",
+        )
+
+    if entry.get("type") != "oauth":
+        return (
+            None,
+            "OpenAI credentials are not OAuth "
+            f"(found type={entry.get('type')!r}).\n\n"
+            "This command requires a ChatGPT subscription login.\n"
+            "Run `opencode auth login --provider openai`.",
+        )
+
+    expires = entry.get("expires", 0)
+    if _is_expired(expires):
+        return (
+            None,
+            "OpenAI OAuth access token is expired.\n\n"
+            "Run opencode and make any OpenAI-backed request to refresh the token\n"
+            "automatically, then try again.",
+        )
+
+    access = entry.get("access")
+    if not access:
+        return (
+            None,
+            "OpenAI OAuth entry has no access token.\n\n"
+            "Run opencode and make any OpenAI-backed request to refresh the token\n"
+            "automatically, then try again.",
+        )
+
+    account_id = entry.get("accountId")
+    if not account_id:
+        return (
+            None,
+            "OpenAI OAuth entry has no ChatGPT account ID.\n\n"
+            "Run `opencode auth login --provider openai` again.",
+        )
+
+    return {
+        "access": access,
+        "account_id": account_id,
+        "expires": expires,
+    }, None
+
+
+def fetch_anthropic_usage(access_token: str) -> dict:
     req = urllib.request.Request(
-        USAGE_URL,
+        ANTHROPIC_USAGE_URL,
         headers={
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json",
@@ -127,27 +213,39 @@ def fetch_usage(access_token: str) -> dict:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
-        print(
-            f"Error: Usage API returned HTTP {e.code}.\n"
-            f"  {body}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        raise UsageError(
+            f"Anthropic usage API returned HTTP {e.code}.\n"
+            f"  {body}"
+        ) from e
     except urllib.error.URLError as e:
-        print(
-            f"Error: Could not reach usage API.\n"
-            f"  {e.reason}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        raise UsageError(f"Could not reach Anthropic usage API.\n  {e.reason}") from e
 
 
-def format_relative_time(iso_timestamp: str) -> str:
+def fetch_openai_usage(access_token: str, account_id: str) -> dict:
+    req = urllib.request.Request(
+        OPENAI_USAGE_URL,
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "ChatGPT-Account-Id": account_id,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "codex-cli",
+        },
+    )
     try:
-        reset_dt = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
-    except (ValueError, AttributeError):
-        return iso_timestamp
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        raise UsageError(
+            f"OpenAI usage API returned HTTP {e.code}.\n"
+            f"  {body}"
+        ) from e
+    except urllib.error.URLError as e:
+        raise UsageError(f"Could not reach OpenAI usage API.\n  {e.reason}") from e
 
+
+def _format_relative_reset_dt(reset_dt: datetime) -> str:
     now = datetime.now(timezone.utc)
     delta = reset_dt - now
     total_seconds = int(delta.total_seconds())
@@ -159,7 +257,7 @@ def format_relative_time(iso_timestamp: str) -> str:
     hours, remainder = divmod(remainder, 3600)
     minutes, _ = divmod(remainder, 60)
 
-    # Round to hours unless under 1 hour remaining, then show minutes
+    # Round to hours unless under 1 hour remaining, then show minutes.
     if days or hours:
         if minutes > 30:
             hours += 1
@@ -179,6 +277,36 @@ def format_relative_time(iso_timestamp: str) -> str:
     return " ".join(parts) if parts else "<1m"
 
 
+def format_relative_time(iso_timestamp: str) -> str:
+    try:
+        reset_dt = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return iso_timestamp
+    return _format_relative_reset_dt(reset_dt)
+
+
+def format_relative_unix_timestamp(epoch_seconds: int | float | None) -> str:
+    if epoch_seconds is None:
+        return "unknown"
+    try:
+        reset_dt = datetime.fromtimestamp(epoch_seconds, tz=timezone.utc)
+    except (OSError, OverflowError, TypeError, ValueError):
+        return str(epoch_seconds)
+    return _format_relative_reset_dt(reset_dt)
+
+
+def _compute_elapsed_pct_from_reset_dt(
+    reset_dt: datetime, total_seconds: int | float
+) -> float | None:
+    remaining = (reset_dt - datetime.now(timezone.utc)).total_seconds()
+    if remaining < 0:
+        remaining = 0
+    elapsed = float(total_seconds) - remaining
+    if total_seconds <= 0:
+        return None
+    return elapsed / float(total_seconds) * 100
+
+
 def _total_seconds_for_key(key: str) -> int:
     """Return the total period duration in seconds based on the section key."""
     if key == "five_hour":
@@ -187,19 +315,25 @@ def _total_seconds_for_key(key: str) -> int:
     return 7 * 86400
 
 
-def _compute_elapsed_pct(resets_at: str, total_seconds: int) -> float | None:
+def _compute_elapsed_pct(resets_at: str, total_seconds: int | float) -> float | None:
     """Return the percentage of the period that has already elapsed."""
     try:
         reset_dt = datetime.fromisoformat(resets_at.replace("Z", "+00:00"))
     except (ValueError, AttributeError):
         return None
-    remaining = (reset_dt - datetime.now(timezone.utc)).total_seconds()
-    if remaining < 0:
-        remaining = 0
-    elapsed = total_seconds - remaining
-    if total_seconds <= 0:
+    return _compute_elapsed_pct_from_reset_dt(reset_dt, total_seconds)
+
+
+def _compute_elapsed_pct_unix(
+    epoch_seconds: int | float | None, total_seconds: int | float
+) -> float | None:
+    if epoch_seconds is None:
         return None
-    return elapsed / total_seconds * 100
+    try:
+        reset_dt = datetime.fromtimestamp(epoch_seconds, tz=timezone.utc)
+    except (OSError, OverflowError, TypeError, ValueError):
+        return None
+    return _compute_elapsed_pct_from_reset_dt(reset_dt, total_seconds)
 
 
 def _pace_status(used_pct: float, elapsed_pct: float) -> str:
@@ -215,10 +349,40 @@ def _pace_status(used_pct: float, elapsed_pct: float) -> str:
     return "Over pace"
 
 
-def format_usage(data: dict) -> str:
-    lines = []
+def _format_usage_table(
+    rows: list[tuple[str, str, str, str, str]], extra_lines: list[str] | None = None
+) -> str:
+    if not rows and not extra_lines:
+        return "  No usage data available."
 
-    KNOWN_SECTIONS = [
+    lines = []
+    if rows:
+        headers = ("Limit", "Used", "Time Elapsed", "Resets In", "Status")
+        widths = [len(h) for h in headers]
+        for row in rows:
+            for i, cell in enumerate(row):
+                widths[i] = max(widths[i], len(cell))
+
+        def fmt_row(cells: tuple[str, ...]) -> str:
+            parts = [cells[i].ljust(widths[i]) for i in range(len(cells))]
+            return "  " + "   ".join(parts)
+
+        lines.append(fmt_row(headers))
+        lines.append("  " + "   ".join("-" * w for w in widths))
+        for row in rows:
+            lines.append(fmt_row(row))
+
+    if extra_lines:
+        if lines:
+            lines.append("")
+        for line in extra_lines:
+            lines.append(f"  {line}" if line else "")
+
+    return "\n".join(lines)
+
+
+def format_anthropic_usage(data: dict) -> str:
+    known_sections = [
         ("five_hour", "Session (5h window)"),
         ("seven_day", "Weekly (all models)"),
         ("seven_day_opus", "Weekly (Opus)"),
@@ -227,18 +391,14 @@ def format_usage(data: dict) -> str:
         ("seven_day_cowork", "Weekly (Cowork)"),
     ]
 
-    # Show known sections that are present and non-null, in defined order.
     sections = [
-        (key, label)
-        for key, label in KNOWN_SECTIONS
-        if data.get(key) is not None
+        (key, label) for key, label in known_sections if data.get(key) is not None
     ]
 
-    # Build rows: (label, used_str, elapsed_str, resets_str, status)
     rows: list[tuple[str, str, str, str, str]] = []
     for key, label in sections:
         section = data[key]
-        utilization = section.get("utilization", 0)
+        utilization = _safe_float(section.get("utilization"), 0)
         resets_at = section.get("resets_at", "")
         resets_rel = format_relative_time(resets_at) if resets_at else "unknown"
 
@@ -252,63 +412,227 @@ def format_usage(data: dict) -> str:
 
         rows.append((label, used_str, elapsed_str, resets_str, status))
 
-    if not rows:
-        return "  No usage data available."
-
-    # Compute column widths.
-    headers = ("Limit", "Used", "Time Elapsed", "Resets In", "Status")
-    widths = [len(h) for h in headers]
-    for row in rows:
-        for i, cell in enumerate(row):
-            widths[i] = max(widths[i], len(cell))
-
-    def fmt_row(cells: tuple[str, ...]) -> str:
-        parts = [cells[i].ljust(widths[i]) for i in range(len(cells))]
-        return "  " + "   ".join(parts)
-
-    lines.append(fmt_row(headers))
-    lines.append("  " + "   ".join("-" * w for w in widths))
-    for row in rows:
-        lines.append(fmt_row(row))
-
+    extra_lines = []
     extra = data.get("extra_usage")
     if extra is not None:
-        lines.append("")
         enabled = extra.get("is_enabled", False)
         if not enabled:
-            lines.append("  Extra usage: disabled")
+            extra_lines.append("Extra usage: disabled")
         else:
-            used_cents = extra.get("used_credits", 0)
+            used_cents = _safe_float(extra.get("used_credits"), 0)
             used_dollars = used_cents / 100
             monthly_limit = extra.get("monthly_limit")
-            utilization = extra.get("utilization", 0)
+            utilization = _safe_float(extra.get("utilization"), 0)
 
             if monthly_limit is None:
                 limit_str = "no limit"
             else:
-                limit_str = f"${monthly_limit / 100:.2f} limit"
+                limit_str = f"${_safe_float(monthly_limit) / 100:.2f} limit"
 
-            lines.append(
-                f"  Extra usage: ${used_dollars:.2f} used, "
+            extra_lines.append(
+                f"Extra usage: ${used_dollars:.2f} used, "
                 f"{limit_str}, {utilization:.1f}% utilized"
             )
 
-    return "\n".join(lines)
+    return _format_usage_table(rows, extra_lines)
+
+
+def _capitalize(text: str) -> str:
+    if not text:
+        return text
+    return text[0].upper() + text[1:]
+
+
+def _humanize_value(value: str | None) -> str | None:
+    if not value:
+        return None
+    return _capitalize(value.replace("_", " ").replace("-", " "))
+
+
+def _seconds_to_minutes(total_seconds: int | None) -> int | None:
+    if total_seconds is None or total_seconds <= 0:
+        return None
+    return (total_seconds + 59) // 60
+
+
+def _describe_window(window_minutes: int | None, fallback: str) -> str:
+    if window_minutes is None:
+        return fallback
+    if window_minutes == 7 * 24 * 60:
+        return "weekly"
+    if window_minutes == 24 * 60:
+        return "daily"
+    if window_minutes % (24 * 60) == 0:
+        return f"{window_minutes // (24 * 60)}d"
+    if window_minutes % 60 == 0:
+        return f"{window_minutes // 60}h"
+    return f"{window_minutes}m"
+
+
+def _display_limit_name(name: str | None) -> str:
+    if not name or name == "codex":
+        return "Codex"
+    return name.replace("_", "-")
+
+
+def _openai_window_label(
+    limit_name: str | None, window_minutes: int | None, fallback: str
+) -> str:
+    duration = _capitalize(_describe_window(window_minutes, fallback))
+    display_name = _display_limit_name(limit_name)
+    if display_name == "Codex":
+        return f"{duration} limit"
+    return f"{display_name} {duration} limit"
+
+
+def _format_openai_credits(credits: dict | None) -> str | None:
+    if not isinstance(credits, dict) or not credits.get("has_credits"):
+        return None
+    if credits.get("unlimited"):
+        return "Credits: unlimited"
+
+    balance = credits.get("balance")
+    if balance is None:
+        return "Credits: enabled"
+
+    balance_text = str(balance).strip()
+    if not balance_text:
+        return "Credits: enabled"
+    return f"Credits: {balance_text}"
+
+
+def format_openai_usage(data: dict) -> str:
+    rows: list[tuple[str, str, str, str, str]] = []
+
+    def append_window_rows(limit_name: str | None, rate_limit: dict | None) -> None:
+        if not isinstance(rate_limit, dict):
+            return
+
+        for window_key, fallback in (
+            ("primary_window", "primary"),
+            ("secondary_window", "secondary"),
+        ):
+            window = rate_limit.get(window_key)
+            if not isinstance(window, dict):
+                continue
+
+            used_pct = _safe_float(window.get("used_percent"), 0)
+            reset_at = _safe_int(window.get("reset_at"))
+            window_seconds = _safe_int(window.get("limit_window_seconds"))
+            window_minutes = _seconds_to_minutes(window_seconds)
+
+            label = _openai_window_label(limit_name, window_minutes, fallback)
+            resets_rel = format_relative_unix_timestamp(reset_at)
+            elapsed_pct = (
+                _compute_elapsed_pct_unix(reset_at, window_seconds)
+                if reset_at is not None and window_seconds is not None
+                else None
+            )
+
+            used_str = f"{used_pct:.0f}%"
+            elapsed_str = f"~{elapsed_pct:.0f}%" if elapsed_pct is not None else "?"
+            resets_str = f"~{resets_rel}"
+            status = _pace_status(used_pct, elapsed_pct) if elapsed_pct is not None else "?"
+
+            rows.append((label, used_str, elapsed_str, resets_str, status))
+
+    append_window_rows("codex", data.get("rate_limit"))
+
+    additional_limits = data.get("additional_rate_limits")
+    if isinstance(additional_limits, list):
+        for item in additional_limits:
+            if not isinstance(item, dict):
+                continue
+            append_window_rows(
+                item.get("limit_name") or item.get("metered_feature"),
+                item.get("rate_limit"),
+            )
+
+    extra_lines = []
+    plan_type = _humanize_value(data.get("plan_type"))
+    if plan_type:
+        extra_lines.append(f"Plan: {plan_type}")
+
+    credits_line = _format_openai_credits(data.get("credits"))
+    if credits_line:
+        extra_lines.append(credits_line)
+
+    reached_type = data.get("rate_limit_reached_type")
+    if isinstance(reached_type, dict):
+        reached_type = reached_type.get("type")
+    reached_text = _humanize_value(reached_type)
+    if reached_text:
+        extra_lines.append(f"Limit state: {reached_text}")
+
+    return _format_usage_table(rows, extra_lines)
+
+
+def format_message_block(message: str) -> str:
+    return "\n".join(f"  {line}" if line else "" for line in message.splitlines())
 
 
 def main():
     raw_json = "--json" in sys.argv
 
-    auth = load_auth()
-    data = fetch_usage(auth["access"])
+    anthropic_data = None
+    openai_data = None
+    errors = {}
+
+    anthropic_auth, anthropic_error = load_anthropic_auth()
+    if anthropic_auth:
+        try:
+            anthropic_data = fetch_anthropic_usage(anthropic_auth["access"])
+        except UsageError as e:
+            errors["anthropic"] = str(e)
+    elif anthropic_error:
+        errors["anthropic"] = anthropic_error
+
+    openai_auth, openai_error = load_openai_auth()
+    if openai_auth:
+        try:
+            openai_data = fetch_openai_usage(
+                openai_auth["access"], openai_auth["account_id"]
+            )
+        except UsageError as e:
+            errors["openai"] = str(e)
+    elif openai_error:
+        errors["openai"] = openai_error
 
     if raw_json:
-        json.dump(data, sys.stdout, indent=2)
+        payload = {}
+        if anthropic_data is not None:
+            payload["anthropic"] = anthropic_data
+        if openai_data is not None:
+            payload["openai"] = openai_data
+        if errors:
+            payload["errors"] = errors
+        json.dump(payload, sys.stdout, indent=2)
         sys.stdout.write("\n")
     else:
-        print("Anthropic Usage")
-        print()
-        print(format_usage(data))
+        sections = [
+            (
+                "Anthropic Usage",
+                format_anthropic_usage(anthropic_data)
+                if anthropic_data is not None
+                else format_message_block(errors.get("anthropic", "No data available.")),
+            ),
+            (
+                "OpenAI Usage",
+                format_openai_usage(openai_data)
+                if openai_data is not None
+                else format_message_block(errors.get("openai", "No data available.")),
+            ),
+        ]
+
+        for index, (title, body) in enumerate(sections):
+            if index:
+                print()
+            print(title)
+            print()
+            print(body)
+
+    if anthropic_data is None and openai_data is None:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,61 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export PATH="$PATH:$(mise bin-paths | grep -E '/(node|npm-node-gyp)/' | paste -sd: -)"
+
+link_tui=false
+build_args=()
+
+for arg in "$@"; do
+  if [[ "$arg" == "--tui" ]]; then
+    link_tui=true
+  else
+    build_args+=("$arg")
+  fi
+done
 
 cd ~/repos/opencode/
 git clean -ffdx
+rm -rf "${HOME}/.bun/install/cache/@opentui"
+
+if $link_tui; then
+  echo "Building local @opentui/core..."
+  (cd ~/repos/opentui/packages/core && bun run build:lib)
+
+  opencode_pkg="~/repos/opencode/packages/opencode/package.json"
+  opencode_pkg="${opencode_pkg/#\~/$HOME}"
+
+  echo "Patching opencode package.json to use local @opentui/core..."
+  python3 -c "
+import json
+with open('$opencode_pkg') as f:
+    data = json.load(f)
+data['dependencies']['@opentui/core'] = 'file:/home/altendky/repos/opentui/packages/core/dist'
+with open('$opencode_pkg', 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+"
+
+  restore_pkg() {
+    git -C ~/repos/opencode checkout -- packages/opencode/package.json
+    echo "Restored opencode package.json"
+  }
+  trap restore_pkg EXIT
+fi
+
 bun install
-cd packages/opencode
-OPENCODE_CHANNEL=dev bun run build --single
+
+if $link_tui; then
+  echo "Copying local @opentui/core dist over installed package..."
+  tui_dist="~/repos/opentui/packages/core/dist"
+  tui_dist="${tui_dist/#\~/$HOME}"
+  opentui_nm="~/repos/opencode/node_modules/.bun/@opentui+core@0.1.99+391ab383291bedc0/node_modules/@opentui/core"
+  opentui_nm="${opentui_nm/#\~/$HOME}"
+  # Fallback: find the actual installed path if hash differs
+  if [[ ! -d "$opentui_nm" ]]; then
+    opentui_nm=$(find ~/repos/opencode/node_modules -path '*/@opentui/core' -type d | grep '.bun' | head -1)
+  fi
+  cp -r "$tui_dist"/* "$opentui_nm/"
+fi
+
+cd ~/repos/opencode/packages/opencode
+OPENCODE_CHANNEL=dev bun run build --single "${build_args[@]}"
