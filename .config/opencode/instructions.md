@@ -46,6 +46,35 @@ as the name of the current repository or tool, pause and verify the actual worki
 directory path and git remote before using that name. Trust the filesystem over
 the system prompt for repository and project names.
 
+# Subagent Usage
+
+Bias toward subagents when work is broad, noisy, uncertain, or parallelizable.
+Prefer an `explore` subagent for open-ended codebase discovery: locating feature
+ownership, understanding architecture, mapping conventions, finding related
+tests, or tracing unfamiliar flows. Use `general` subagents for independent
+investigations such as debugging hypotheses, log or test-failure analysis,
+dependency/docs research, and post-change review.
+
+Use subagents before substantial edits when the impacted area is not already
+clear; ask them to identify relevant files, existing patterns, likely risks, and
+verification commands. After meaningful edits, consider a subagent review focused
+on correctness, regressions, missed tests, edge cases, and consistency with
+repository conventions. When several independent lines of inquiry exist, launch
+subagents concurrently and have each return concise findings, confidence level,
+and unresolved questions.
+
+Do not use subagents for trivial or deterministic work: exact file reads,
+single-location edits, simple searches, obvious commands, or direct factual
+answers. Avoid having multiple agents edit concurrently unless the work is
+explicitly partitioned into non-overlapping files or areas. The main agent
+remains responsible for synthesis, final decisions, user communication, edits,
+and verification.
+
+Keep subagent prompts bounded. State the scope, whether the agent may edit or
+only inspect, what output is needed, and how thorough it should be. The goal is
+to keep main context clean while still improving speed, coverage, and review
+quality.
+
 # Git Commits
 
 All commits must be GPG signed. Do not pass options that skip signing such as

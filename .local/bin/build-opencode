@@ -4,6 +4,11 @@ export PATH="$PATH:$(mise bin-paths | grep -E '/(node|npm-node-gyp)/' | paste -s
 
 link_tui=false
 build_args=()
+opencode_root="${OPENCODE_ROOT:-$HOME/repos/opencode}"
+opentui_core_root="${OPENTUI_CORE_ROOT:-$HOME/repos/opentui/packages/core}"
+opentui_core_dist="$opentui_core_root/dist"
+opentui_core_relative_dist=$(python3 -c 'import os, sys; print(os.path.relpath(os.path.abspath(sys.argv[2]), os.path.abspath(sys.argv[1])))' "$opencode_root" "$opentui_core_dist")
+opentui_core_spec="file:$opentui_core_relative_dist"
 
 for arg in "$@"; do
   if [[ "$arg" == "--tui" ]]; then
@@ -13,49 +18,105 @@ for arg in "$@"; do
   fi
 done
 
-cd ~/repos/opencode/
+if $link_tui; then
+  has_skip_install=false
+  for arg in "${build_args[@]}"; do
+    if [[ "$arg" == "--skip-install" ]]; then
+      has_skip_install=true
+      break
+    fi
+  done
+  if ! $has_skip_install; then
+    build_args+=("--skip-install")
+  fi
+fi
+
+cd "$opencode_root"
 git clean -ffdx
 rm -rf "${HOME}/.bun/install/cache/@opentui"
 
 if $link_tui; then
   echo "Building local @opentui/core..."
-  (cd ~/repos/opentui/packages/core && bun run build:lib)
+  (cd "$opentui_core_root" && bun run build:lib)
 
-  opencode_pkg="~/repos/opencode/packages/opencode/package.json"
-  opencode_pkg="${opencode_pkg/#\~/$HOME}"
-
-  echo "Patching opencode package.json to use local @opentui/core..."
-  python3 -c "
-import json
-with open('$opencode_pkg') as f:
-    data = json.load(f)
-data['dependencies']['@opentui/core'] = 'file:/home/altendky/repos/opentui/packages/core/dist'
-with open('$opencode_pkg', 'w') as f:
-    json.dump(data, f, indent=2)
-    f.write('\n')
-"
+  root_pkg="$opencode_root/package.json"
+  opencode_pkg="$opencode_root/packages/opencode/package.json"
+  restore_dir=$(mktemp -d "${TMPDIR:-/tmp}/build-opencode.XXXXXXXXXX")
+  cp "$root_pkg" "$restore_dir/root.package.json"
+  cp "$opencode_pkg" "$restore_dir/opencode.package.json"
+  cp "$opencode_root/bun.lock" "$restore_dir/bun.lock"
 
   restore_pkg() {
-    git -C ~/repos/opencode checkout -- packages/opencode/package.json
-    echo "Restored opencode package.json"
+    cp "$restore_dir/root.package.json" "$root_pkg"
+    cp "$restore_dir/opencode.package.json" "$opencode_pkg"
+    cp "$restore_dir/bun.lock" "$opencode_root/bun.lock"
+    rm -rf "$restore_dir"
+    echo "Restored opencode package manifests and lockfile"
   }
   trap restore_pkg EXIT
+
+  echo "Using clean bun.lock for temporary local @opentui/core install..."
+  git checkout -- bun.lock
+
+  echo "Patching opencode package manifests to use local @opentui/core..."
+  OPENTUI_CORE_SPEC="$opentui_core_spec" python3 - "$root_pkg" <<'PY'
+import json
+import os
+import sys
+
+spec = os.environ["OPENTUI_CORE_SPEC"]
+root_pkg = sys.argv[1]
+
+with open(root_pkg) as f:
+    data = json.load(f)
+data["workspaces"]["catalog"]["@opentui/core"] = spec
+data.setdefault("overrides", {})["@opentui/core"] = spec
+with open(root_pkg, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
 fi
 
 bun install
 
 if $link_tui; then
-  echo "Copying local @opentui/core dist over installed package..."
-  tui_dist="~/repos/opentui/packages/core/dist"
-  tui_dist="${tui_dist/#\~/$HOME}"
-  opentui_nm="~/repos/opencode/node_modules/.bun/@opentui+core@0.1.99+391ab383291bedc0/node_modules/@opentui/core"
-  opentui_nm="${opentui_nm/#\~/$HOME}"
-  # Fallback: find the actual installed path if hash differs
-  if [[ ! -d "$opentui_nm" ]]; then
-    opentui_nm=$(find ~/repos/opencode/node_modules -path '*/@opentui/core' -type d | grep '.bun' | head -1)
+  echo "Validating local @opentui/core resolution..."
+  resolve_core_from() {
+    local package_root="$1"
+    (cd "$package_root" && bun --conditions=browser -e 'const { fileURLToPath } = await import("url"); const { dirname } = await import("path"); console.log(dirname(fileURLToPath(import.meta.resolve("@opentui/core"))))')
+  }
+
+  direct_core_root=$(resolve_core_from "$opencode_root/packages/opencode")
+  solid_pkg_root=$(readlink -f "$opencode_root/packages/opencode/node_modules/@opentui/solid")
+  solid_core_root=$(resolve_core_from "$solid_pkg_root")
+
+  if [[ "$direct_core_root" != "$solid_core_root" ]]; then
+    echo "Normalizing duplicate local @opentui/core file: installs..."
+    rm -f "$opencode_root/packages/opencode/node_modules/@opentui/core"
+    ln -s "$solid_core_root" "$opencode_root/packages/opencode/node_modules/@opentui/core"
+    direct_core_root=$(resolve_core_from "$opencode_root/packages/opencode")
+
+    if [[ "$direct_core_root" != "$solid_core_root" ]]; then
+      echo "@opentui/core resolved differently for opencode and @opentui/solid:" >&2
+      echo "  opencode:       $direct_core_root" >&2
+      echo "  @opentui/solid: $solid_core_root" >&2
+      exit 1
+    fi
   fi
-  cp -r "$tui_dist"/* "$opentui_nm/"
+
+  if [[ "$direct_core_root" != *"@opentui+core@file+"* ]]; then
+    echo "@opentui/core did not resolve to the local file: package:" >&2
+    echo "  $direct_core_root" >&2
+    exit 1
+  fi
+
+  if ! (cd "$opencode_root/packages/opencode" && bun --conditions=browser -e 'const core = await import("@opentui/core"); const resume = core.CliRenderer.prototype.resume.toString(); if (!resume.includes("forceFullRepaintRequested") || resume.includes("currentRenderBuffer.clear")) process.exit(1)'); then
+    echo "Local @opentui/core install does not contain the force-only resume repaint fix" >&2
+    exit 1
+  fi
+
+  echo "Validated @opentui/core: $direct_core_root"
 fi
 
-cd ~/repos/opencode/packages/opencode
+cd "$opencode_root/packages/opencode"
 OPENCODE_CHANNEL=dev bun run build --single "${build_args[@]}"

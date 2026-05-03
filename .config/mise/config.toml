@@ -1,4 +1,7 @@
 [settings]
+lockfile = true
+locked = true
+status = { missing_tools = "always" }
 trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
 
 [shell_alias]
@@ -17,7 +20,7 @@ cargo-modules = "cargo:cargo-modules"
 
 [tools]
 bun = "latest"
-"github:bambulab/BambuStudio" = { version = "02.06.00.51", bin = "bs", asset_pattern = "*ubuntu-24.04*.AppImage" }
+"github:bambulab/BambuStudio" = { version = "02.06.01.55", bin = "bs", asset_pattern = "*ubuntu24.04*.AppImage" }
 "pipx:grip" = "latest"
 
 # for gw
@@ -47,7 +50,6 @@ mold = "latest"
 "cargo:agentic-mcp" = "latest"
 "cargo:opencode-orchestrator-mcp" = "latest"
 "cargo:thoughts-bin" = "latest"
-"opencode" = "latest"
 bitwarden = "latest"
 mitmproxy = "latest"
 "cargo:rust-script" = "latest"
