@@ -4,6 +4,9 @@
 !.config/opencode/
 !.config/opencode/**/*
 
+!.config/wezterm/
+!.config/wezterm/**/*
+
 !.opencode/
 !.opencode/plans/
 !.opencode/plans/**/*
