@@ -59,3 +59,5 @@ zig = "latest"
 ripgrep = "latest"
 cmake = "latest"
 ninja = "latest"
+aws = { version = "latest", symlink_bins = "true" }
+python = "latest"

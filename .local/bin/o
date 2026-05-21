@@ -27,4 +27,5 @@ else
     config="$(cat "$overrides")"
 fi
 
+#export PATH="/home/altendky/repos/aac-target/release:$PATH"
 OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT="$config" exec "$(dirname "$0")/opencode" "$@"

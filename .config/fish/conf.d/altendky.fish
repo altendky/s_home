@@ -54,23 +54,6 @@ function tun
     sudo tailscale up --reset --accept-routes --shields-up --exit-node 100.96.223.31
 end
 
-function fix-mouse
-    # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.disable
-    sudo rmmod psmouse
-    sudo modprobe psmouse
-    sleep 5
-    sudo udevadm trigger -s input
-    # xinput disable "Synaptics TM3512-010"
-    # sleep 2
-    # xinput enable "Synaptics TM3512-010"
-    #sleep 2
-    #xinput set-prop "Synaptics TM3512-010" "libinput Tapping Enabled" 1
-    # sleep 2
-    # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.reloadSettings
-    # sleep 2
-    # qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.enable
-end
-
 function fix-kde
     killall plasmashell kwin
     kstart5 kwin
@@ -352,7 +335,7 @@ set -gx OPENCODE_DISABLE_PRUNE 1
 
 source ~/.secrets.env
 
-set -gx GITHUB_TOKEN (gh auth token)
+set -gx MISE_GITHUB_TOKEN (gh auth token)
 
 set -gx CARGO_INCREMENTAL 1
 
@@ -373,6 +356,7 @@ if [ "$ALTENDKY_FISH_CONFIGURED" != "1" ]
 end
 
 mise activate fish | source
+JUST_COMPLETE=fish just | source
 
 # Paths added after mise activation go to 'pre' section (before mise tools)
 fish_add_path --move ~/.local/bin

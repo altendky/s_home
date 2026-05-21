@@ -4,7 +4,7 @@ description: Process GitHub PR review comments
 
 # Process GitHub PR Review Comments
 
-**Input:** $1
+**Arguments:** $ARGUMENTS
 
 ## User interaction convention
 
@@ -13,26 +13,35 @@ When a step calls for presenting multiple independent choices to the user simult
 ## Process
 
 1. **Validate and parse the input:**
-   - If no input is provided, attempt to identify the PR for the current branch: `gh pr view --json number --jq '.number'`. If this succeeds, use the returned PR number → **PR-wide mode**. If this fails (no PR associated with the current branch, or not on a branch), inform the user: "No input provided and no PR found for the current branch. Provide a comment URL, PR URL, or PR number." **Stop.**
+   - Parse all input from `$ARGUMENTS`, not just the first token. Supported forms include:
+     - No input: infer the PR for the current branch.
+     - PR reference: PR URL or bare PR number → **PR-wide mode**.
+     - Comment reference: PR review comment URL containing `#discussion_r123`, `#r123`, or `/files#r123`, or an `r1234567890` token with PR context → **selected-comments mode**.
+     - Multiple comment references: pasted comment URLs separated by whitespace → **selected-comments mode**.
+     - Mixed PR and comment references: PR URL/number plus one or more comment URLs → **selected-comments mode**, with the PR reference used only to disambiguate repository/PR context.
+   - If no input is provided, attempt to identify the PR for the current branch: `gh pr view --json number --jq '.number'`. If this succeeds, use the returned PR number → **PR-wide mode**. If this fails (no PR associated with the current branch, or not on a branch), inform the user: "No input provided and no PR found for the current branch. Provide a comment URL, PR URL, PR number, or one or more PR review comment URLs." **Stop.**
    - If the input contains `/issues/` → **stop** and inform the user: "This appears to be an issue URL, not a PR review comment. Use `/process-issue` instead."
-   - If given a bare number, determine whether it refers to a PR: run `gh pr view <N> --json headRefName --jq '.headRefName'`. If the command succeeds, treat the number as a PR number (PR-wide mode). If the command fails, it is not a PR — inform the user and stop.
-   - If given a URL like `https://github.com/owner/repo/pull/123#discussion_r1234567890` or `https://github.com/owner/repo/pull/123/files#r1234567890`, extract the comment ID (the number after `r`) → **single-comment mode**
-   - If given a URL like `https://github.com/owner/repo/pull/123` (no comment fragment) or a bare number that resolved to a PR → **PR-wide mode**
-   - If given just a comment ID number (and it is not a PR number), use it directly → **single-comment mode**
+   - Extract all PR URLs and review comment URLs from the input. For each comment URL like `https://github.com/owner/repo/pull/123#discussion_r1234567890` or `https://github.com/owner/repo/pull/123/files#r1234567890`, extract the repository owner/name, PR number, and comment ID (the number after `r`).
+   - If any comment references are present, enter **selected-comments mode**. Require all comment URLs and any explicit PR reference to point to the same repository and PR. If they do not, inform the user which references conflict and **stop**.
+   - If no comment references are present and a PR URL like `https://github.com/owner/repo/pull/123` is provided, extract the repository owner/name and PR number → **PR-wide mode**.
+   - If no comment references are present and a single bare number is provided, determine whether it refers to a PR: run `gh pr view <N> --json headRefName --jq '.headRefName'`. If the command succeeds, treat the number as a PR number → **PR-wide mode**. If the command fails, it is not a PR — inform the user and stop.
+   - Do not interpret bare numeric tokens as comment IDs when more than one token is provided; ask the user to provide PR review comment URLs or `r<comment-id>` references to avoid ambiguity.
+   - If a token like `r1234567890` is provided, treat it as a comment ID only when repository and PR context are available from another argument or from the current branch PR. Otherwise, ask the user for a PR review comment URL and **stop**.
 
 2. **Fetch comment data and branch context:**
 
    Determine the repository owner/repo from the URL or from `gh repo view --json owner,name`.
 
-   **Single-comment mode:**
-   - Fetch the linked comment: `gh api repos/{owner}/{repo}/pulls/comments/{comment_id}`
-   - If the API returns 404, inform the user: "Comment not found — check the URL or ID." **Stop.**
-   - Extract the PR number from the comment's `pull_request_url` field
+   **Selected-comments mode:**
+   - Fetch each selected comment: `gh api repos/{owner}/{repo}/pulls/comments/{comment_id}`
+   - If any API call returns 404, inform the user: "Comment not found — check the URL or ID." Include the missing comment ID and **stop**.
+   - Extract the PR number from each comment's `pull_request_url` field and verify all selected comments belong to the same PR. If they do not, inform the user and **stop**.
    - Once the PR number is known, launch the following **in parallel**:
-     1. The GraphQL review-threads query (below) — this retrieves all threads with their resolved status and comment details, replacing the need for a separate REST "fetch all comments" call
-     2. PR metadata: `gh pr view {pr_number} --json headRefName,headRefOid`
-     3. Current local branch: `git branch --show-current`
-   - From the GraphQL results, identify the target thread by matching the linked comment's `databaseId` against the comment nodes. The GraphQL response groups comments by thread, replacing REST-based `in_reply_to_id` thread-building.
+      1. The GraphQL review-threads query (below), using the **include resolved threads** variant — this retrieves all threads with their resolved status and comment details, replacing the need for a separate REST "fetch all comments" call
+      2. PR metadata: `gh pr view {pr_number} --json headRefName,headRefOid`
+      3. Current local branch: `git branch --show-current`
+   - From the GraphQL results, identify the target thread for each selected comment by matching the selected comment's REST `id` against the comment nodes' GraphQL `databaseId`. The GraphQL response groups comments by thread, replacing REST-based `in_reply_to_id` thread-building.
+   - Deduplicate selected comments that belong to the same thread; the thread should only appear once in later steps.
 
    **PR-wide mode:**
    - Launch the following **in parallel**:
@@ -69,6 +78,7 @@ When a step calls for presenting multiple independent choices to the user simult
               | select(.value.isResolved == false)
               | {
                   thread_index: .key,
+                  isResolved: .value.isResolved,
                   num_comments: (.value.comments.nodes | length),
                   comments: .value.comments.nodes
                 }
@@ -77,21 +87,22 @@ When a step calls for presenting multiple independent choices to the user simult
       '
       ```
 
-      The `--jq` filter discards resolved threads before output, which avoids token-bloating from long bot comments on resolved threads. Full comment bodies are preserved for unresolved threads so that structured AI agent instructions from automated reviewers (CodeRabbit, Copilot, etc.) are not lost.
+      The `--jq` filter shown above is the **PR-wide mode** variant: it discards resolved threads before output, which avoids token-bloating from long bot comments on resolved threads. Full comment bodies are preserved for unresolved threads so that structured AI agent instructions from automated reviewers (CodeRabbit, Copilot, etc.) are not lost.
+
+      In **selected-comments mode**, use the same query but do **not** apply `select(.value.isResolved == false)`. Selected comments may be in resolved threads; those must still be matched so step 3 can warn the user and ask whether to proceed.
 
       If `pageInfo.hasNextPage` is `true`, re-run the query with an `after: "<endCursor>"` argument on `reviewThreads` to fetch the next page. Repeat until all threads have been fetched.
-   - Collect all unresolved threads with their comments
 
-3. **Check thread status (single-comment mode only):**
+3. **Check thread status (selected-comments mode only):**
 
    In PR-wide mode, resolved threads were already filtered out in step 2 — skip this step.
 
    Using the GraphQL results and PR metadata already fetched in step 2:
 
-   - Check whether the target thread is resolved by examining `isResolved` on the matched thread. If the target comment's `databaseId` is not found among the returned threads, paginate as described in step 2 until found or all threads are checked.
-   - If `isResolved` is `true`, inform the user: "This comment thread is marked as resolved. It may have already been addressed." Ask if they want to proceed anyway or stop.
-   - Check if the comment is outdated by comparing the comment's `commit_id` field (from the REST response in step 2) against the PR's `headRefOid` (from step 2's PR metadata). If they differ, inform the user: "This comment was made against commit `<short-sha>` but the PR head is now `<short-sha>` — the referenced code may have changed." Ask how they want to proceed with options: `"Proceed"`, `"Reject"`, `"Stop"`. If rejected, queue the targeted thread for a rejection reply and continue to step 5 so the user can still address other unresolved threads.
-   - If neither condition applies, continue silently.
+   - For each selected thread, check whether it is resolved by examining `isResolved` on the matched thread. If a selected comment's REST `id` is not found among the returned threads' GraphQL `databaseId` fields, paginate as described in step 2 until found or all threads are checked.
+   - If any selected thread is resolved, inform the user: "This comment thread is marked as resolved. It may have already been addressed." Ask if they want to proceed anyway or stop for each resolved selected thread.
+   - Check if each selected comment is outdated by comparing the comment's `commit_id` field (from the REST response in step 2) against the PR's `headRefOid` (from step 2's PR metadata). If they differ, inform the user: "This comment was made against commit `<short-sha>` but the PR head is now `<short-sha>` — the referenced code may have changed." Ask how they want to proceed with options: `"Proceed"`, `"Reject"`, `"Stop"`. If rejected, queue that thread for a rejection reply and continue to step 5 so the user can still address other selected threads.
+   - If no selected thread needs special handling, continue silently.
 
 4. **Verify branch:**
 
@@ -105,18 +116,12 @@ When a step calls for presenting multiple independent choices to the user simult
 
 5. **Discover and select comments:**
 
-   **Prefetch optimization:** While presenting thread selections to the user (below), begin reading in the background the file contents referenced by all unresolved threads (using the `path` fields from the GraphQL results). These files will be needed for verification in step 7b regardless of which threads the user selects, and prefetching them during user decision-making overlaps I/O with wait time.
+   **Prefetch optimization:** While presenting thread selections to the user (below), begin reading in the background the file contents referenced by candidate threads (using the `path` fields from the GraphQL results). These files will be needed for verification in step 7b regardless of which threads the user selects, and prefetching them during user decision-making overlaps I/O with wait time.
 
-   **Single-comment mode:**
-   - Using the PR comments already fetched in step 2 and the resolved-status data from step 3, identify other unresolved comment threads on the same PR.
-   - The originally-targeted thread is always included (no question for it).
-   - If other unresolved threads exist, use the **question tool** with one question per additional unresolved thread:
-      - `header`: `file:line` (truncated to 30 chars, e.g., `src/lib.rs:42`)
-      - `question`: file path, line range, first line of comment body, author
-      - `options`: `"Evaluate (Recommended)"`, `"Reject"`, `"Skip"`
-       - `multiple: false`
-     - Merge all threads the user selected "Evaluate" for into the working set alongside the original thread.
-    - If only one unresolved thread exists (the original), skip the question tool entirely.
+   **Selected-comments mode:**
+   - Use only the selected threads that remain active after step 3; do not automatically ask about other unresolved threads on the PR.
+   - The selected threads are included in the working set without a selection question.
+   - If the user selected a comment in a thread with multiple comments, process the full thread context, not just the selected comment body.
 
    **PR-wide mode:**
     - Use the **question tool** with one question per unresolved thread:
