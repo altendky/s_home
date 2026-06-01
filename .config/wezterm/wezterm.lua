@@ -2,6 +2,8 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config.font_size = 10.0
+config.initial_cols = 120
+config.initial_rows = 42
 
 -- Session resurrection: save/restore windows, tabs, panes, cwd, and scrollback.
 -- Plugin is auto-cloned by wezterm on first launch.
