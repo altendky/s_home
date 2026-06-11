@@ -43,6 +43,7 @@ npm = "latest"
 gh = "latest"
 claude-code = "latest"
 "pipx:pre-commit" = "latest"
+"pipx:mergify-cli" = "latest"
 just = "latest"
 mold = "latest"
 
@@ -61,3 +62,4 @@ cmake = "latest"
 ninja = "latest"
 aws = { version = "latest", symlink_bins = "true" }
 python = "latest"
+markdownlint-cli2 = "latest"

@@ -1,7 +1,3 @@
-# Temporary Resume Note For `/home/altendky/repos/onshape-export`
-
-Remove this entire section after processing it. The prior session created planning docs only; no app code yet. The repo has untracked `README.md` and `docs/` files capturing decisions for a Rust-based Onshape export website: curated catalog, document versions only, Part Studios and Assemblies, anonymous users with server-owned Onshape credentials, STEP/STL/3MF downloads, GLB/glTF preview as its own cached Onshape export, Cloudflare R2 cache with manifests/jobs/failures/parameter metadata, no DB initially, and no public API initially. The last active discussion was runtime boundary: current lean is Rust-only first vertical slice to prove Onshape parameters, GLB preview export, STEP/STL/3MF exports, and R2 cache/manifests, while keeping route/object boundaries compatible with adding a thin Cloudflare Worker/Pages layer later. Next useful topic: finalize runtime/job orchestration, then catalog schema.
-
 # About This File
 
 This file is loaded as custom instructions from `~/.config/opencode/instructions.md`.
