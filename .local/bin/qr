@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [[ $# -gt 0 ]]; then
+    qrencode -t ansi -o - -- "$*"
+else
+    qrencode -t ansi -o -
+fi

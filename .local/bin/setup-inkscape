@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Run this script with sudo." >&2
+    exit 1
+fi
+
+add-apt-repository -y universe
+add-apt-repository -y ppa:inkscape.dev/stable
+apt-get update
+apt-get install -y inkscape
+
+echo "Inkscape installed."

@@ -1,0 +1,167 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
+
+"""Find opencode-related process IDs whose cwd matches a directory."""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+
+def read_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8", errors="replace").strip()
+
+
+def read_cmdline(path: Path) -> str:
+    raw = path.read_bytes()
+    return raw.replace(b"\0", b" ").decode("utf-8", errors="replace").strip()
+
+
+def is_main_opencode_process(comm: str, cmd: str) -> bool:
+    executable = Path(cmd.split(maxsplit=1)[0]).name if cmd else comm
+    return comm in {"opencode", ".opencode"} or executable in {"opencode", ".opencode"}
+
+
+def process_info(pid: int, clock_ticks: int, uptime: float) -> dict[str, object] | None:
+    base = Path("/proc") / str(pid)
+    try:
+        comm = read_text(base / "comm")
+        cmd = read_cmdline(base / "cmdline") or f"[{comm}]"
+        if not is_main_opencode_process(comm, cmd):
+            return None
+
+        cwd = os.readlink(base / "cwd")
+        stat = read_text(base / "stat")
+        close_paren = stat.rfind(")")
+        parts = stat[close_paren + 2 :].split()
+        state = parts[0]
+        ppid = int(parts[1])
+        pgrp = int(parts[2])
+        sid = int(parts[3])
+        utime = int(parts[11])
+        stime = int(parts[12])
+        start_ticks = int(parts[19])
+        elapsed = max(0.0, uptime - (start_ticks / clock_ticks))
+
+        return {
+            "pid": pid,
+            "ppid": ppid,
+            "pgrp": pgrp,
+            "sid": sid,
+            "state": state,
+            "comm": comm,
+            "cmd": cmd,
+            "cwd": cwd,
+            "elapsed": elapsed,
+            "cpu_seconds": (utime + stime) / clock_ticks,
+        }
+    except (FileNotFoundError, ProcessLookupError, PermissionError, OSError, ValueError):
+        return None
+
+
+def format_elapsed(seconds: float) -> str:
+    seconds = int(seconds)
+    days, seconds = divmod(seconds, 86_400)
+    hours, seconds = divmod(seconds, 3_600)
+    minutes, seconds = divmod(seconds, 60)
+    if days:
+        return f"{days}d{hours:02}h{minutes:02}m"
+    if hours:
+        return f"{hours}h{minutes:02}m{seconds:02}s"
+    if minutes:
+        return f"{minutes}m{seconds:02}s"
+    return f"{seconds}s"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Find opencode-related PIDs whose current working directory matches DIR."
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=".",
+        help="directory to match exactly after resolving symlinks (default: current directory)",
+    )
+    parser.add_argument(
+        "--pids-only",
+        action="store_true",
+        help="print only matching PIDs, one per line",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    target = Path(args.directory).expanduser().resolve()
+    if not target.is_dir():
+        print(f"foc: not a directory: {target}", file=sys.stderr)
+        return 2
+
+    clock_ticks = os.sysconf(os.sysconf_names["SC_CLK_TCK"])
+    uptime = float(Path("/proc/uptime").read_text(encoding="utf-8").split()[0])
+
+    matches = []
+    for entry in Path("/proc").iterdir():
+        if not entry.name.isdigit():
+            continue
+        info = process_info(int(entry.name), clock_ticks, uptime)
+        if info is not None and Path(str(info["cwd"])).resolve() == target:
+            matches.append(info)
+
+    matches.sort(key=lambda item: float(item["elapsed"]), reverse=True)
+
+    if args.pids_only:
+        for match in matches:
+            print(match["pid"])
+        return 0 if matches else 1
+
+    print(f"target={target}")
+    if not matches:
+        print("no matching opencode processes")
+        return 1
+
+    if len(matches) == 1:
+        pid = matches[0]["pid"]
+        prompt = f"/check-session-process {pid}"
+        try:
+            return subprocess.run(["o", "--prompt", prompt], check=False).returncode
+        except FileNotFoundError:
+            print("foc: command not found: o", file=sys.stderr)
+            return 127
+
+    now = time.time()
+    for match in matches:
+        started = dt.datetime.fromtimestamp(now - float(match["elapsed"])).isoformat(
+            timespec="seconds"
+        )
+        print(
+            "pid={pid} ppid={ppid} pgrp={pgrp} sid={sid} state={state} "
+            "elapsed={elapsed} cpu={cpu:.2f}s start={started} comm={comm}".format(
+                pid=match["pid"],
+                ppid=match["ppid"],
+                pgrp=match["pgrp"],
+                sid=match["sid"],
+                state=match["state"],
+                elapsed=format_elapsed(float(match["elapsed"])),
+                cpu=float(match["cpu_seconds"]),
+                started=started,
+                comm=match["comm"],
+            )
+        )
+        print(f"  cmd={match['cmd']}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

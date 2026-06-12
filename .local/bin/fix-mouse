@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.disable
+sudo rmmod psmouse
+sudo modprobe psmouse
+sleep 5
+sudo udevadm trigger -s input
+# xinput disable "Synaptics TM3512-010"
+# sleep 2
+# xinput enable "Synaptics TM3512-010"
+#sleep 2
+#xinput set-prop "Synaptics TM3512-010" "libinput Tapping Enabled" 1
+# sleep 2
+# qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.reloadSettings
+# sleep 2
+# qdbus org.kde.kded5 /modules/kded_touchpad org.kde.touchpad.enable
