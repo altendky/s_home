@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# osup - update the OS: apt update, full-upgrade, autoremove, plus firmware report.
+
+set -euo pipefail
+
+header() {
+    printf '\n=== %s ===\n' "$1"
+}
+
+have_fwupdmgr=0
+if command -v fwupdmgr >/dev/null 2>&1; then
+    have_fwupdmgr=1
+fi
+
+sudo -v
+
+# Step 1: refresh firmware metadata from LVFS.
+# Special-cased: fwupdmgr refresh has a ~24h cooldown and can fail offline.
+# A failure here is not fatal.
+if (( have_fwupdmgr )); then
+    header "fwupdmgr refresh"
+    if ! sudo fwupdmgr refresh; then
+        echo "(fwupdmgr refresh failed; continuing — likely cooldown or offline)"
+    fi
+else
+    echo "(fwupdmgr not installed; skipping firmware steps)"
+fi
+
+# Step 2-4: apt. These run under plain set -e and abort on failure.
+header "apt update"
+sudo apt update -y
+
+header "apt full-upgrade"
+sudo apt full-upgrade -y
+
+header "apt autoremove"
+sudo apt autoremove -y
+
+# Step 5: firmware update report.
+# Special-cased: fwupdmgr get-updates exits 2 when there are no updates.
+if (( have_fwupdmgr )); then
+    header "fwupdmgr get-updates"
+    set +e
+    sudo fwupdmgr get-updates
+    rc=$?
+    set -e
+    case "$rc" in
+        0)
+            updates_available=1
+            ;;
+        2)
+            updates_available=0
+            echo "No firmware updates available."
+            ;;
+        *)
+            echo "fwupdmgr get-updates failed with exit code $rc" >&2
+            exit "$rc"
+            ;;
+    esac
+
+    # Step 6: prompt to apply firmware updates (default No).
+    if (( updates_available )); then
+        printf '\nApply firmware updates now? [y/N] '
+        read -r reply
+        case "$reply" in
+            [yY]|[yY][eE][sS])
+                header "fwupdmgr update"
+                sudo fwupdmgr update
+                ;;
+            *)
+                echo "Skipping firmware update. Run 'sudo fwupdmgr update' when ready."
+                ;;
+        esac
+    fi
+fi
+
+# Step 7: reboot-required notice.
+header "reboot check"
+if [[ -f /var/run/reboot-required ]]; then
+    echo "*** Reboot required ***"
+    if [[ -f /var/run/reboot-required.pkgs ]]; then
+        echo "Triggered by:"
+        sort -u /var/run/reboot-required.pkgs | sed 's/^/  /'
+    fi
+else
+    echo "No reboot required."
+fi
