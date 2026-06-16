@@ -147,6 +147,21 @@ line range when referencing a specific section.
 
 Format: `https://github.com/{owner}/{repo}/blob/{commit_hash}/{path}#L{start}-L{end}`
 
+When passing Markdown, code, issue bodies, PR bodies, review comments, or other
+user-provided text to `gh`, prefer body files over inline shell arguments. This
+avoids shell expansion of backticks, `$`, quotes, backslashes, and other special
+characters before `gh` receives the text.
+
+- Use `gh issue create --body-file <file>`
+- Use `gh pr create --body-file <file>`
+- Use `gh issue comment --body-file <file>`
+- Use `gh pr comment --body-file <file>`
+
+Create the body file with `apply_patch`, not `echo`, `cat`, heredocs, or inline
+shell strings. Do not use inline `--body "..."` for Markdown or code content.
+Single-quoted shell arguments are acceptable only for short, simple literals that
+contain no single quotes and no complex Markdown.
+
 # Pull Requests
 
 Before creating a pull request with `gh pr create`, check if the repository has a
