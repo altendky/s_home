@@ -20,7 +20,7 @@ cargo-modules = "cargo:cargo-modules"
 
 [tools]
 bun = "latest"
-"github:bambulab/BambuStudio" = { version = "02.07.00.55", bin = "bs", asset_pattern = "*ubuntu-24.04*.AppImage" }
+bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubuntu*24.04*.AppImage" }
 "pipx:grip" = "latest"
 
 # for gw
@@ -34,13 +34,15 @@ hadolint = "2.12.0"
 "github:reteps/dockerfmt" = "0.3.9"
 trivy = "latest"
 "github:nextest-rs/nextest" = { version = "0.9.72", version_prefix = "cargo-nextest-" }
+cargo-binstall = "latest"
 "cargo:cargo-audit" = "latest"
 "aqua:taiki-e/cargo-llvm-cov" = "0.6.14"
 "cargo:cargo-modules" = "latest"
-"pipx:playwright" = "latest"
+"npm:playwright" = "latest"
 node = "latest"
 npm = "latest"
 gh = "latest"
+"conda:git" = "latest"
 claude-code = "latest"
 "pipx:pre-commit" = "latest"
 "pipx:mergify-cli" = "latest"

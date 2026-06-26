@@ -82,9 +82,30 @@ List conflicted files and inspect the conflict markers in those files.
 Handle conflicts according to complexity:
 
 - For obvious, localized conflicts, resolve them directly with minimal edits.
-- For lock files (`Cargo.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`,
-  `poetry.lock`, `go.sum`, `Gemfile.lock`, etc.), ask whether to take current,
-  take source, or leave for manual/tool regeneration.
+- **Separate lock files first**: identify conflicted lock files (`Cargo.lock`,
+  `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `poetry.lock`, `go.sum`,
+  `Gemfile.lock`, etc.) before editing anything else. By default, do not
+  hand-merge generated lock files.
+- For lock files, present the list and ask the user how to handle them. First
+  offer a single choice for all lock files:
+  - **Source branch (`<source>`)** (Recommended) — check out the source branch's
+    version; typical when catching up (for example, merging `main` into a
+    feature branch)
+  - **Current branch (`HEAD`)** — check out the current branch's version; use
+    this when the current branch has the authoritative dependency state
+  - **Choose per file** — decide individually for each lock file
+
+  If the user selects "Choose per file", present each lock file with these
+  options:
+  - **Source branch (`<source>`)**
+  - **Current branch (`HEAD`)**
+  - **Leave for manual/tool regeneration** — do not hand-edit the file in the
+    merge workflow; let the user or repository tooling regenerate it later
+  - **Merge manually** — keep this file in the conflict set and resolve it like
+    a normal file only if the user explicitly chooses that path
+
+  Exclude lock files from direct conflict editing unless the user explicitly
+  chooses manual merge for a specific file.
 - For ambiguous semantic conflicts, explain the trade-off and ask the user before
   editing.
 - If conflicts span many files, changed APIs, renamed modules, or architectural
@@ -92,10 +113,13 @@ Handle conflicts according to complexity:
 
 After resolving conflicts:
 
-1. Stage resolved files with `git add <files>`.
-2. Verify no unmerged files remain:
+1. For each lock file not left for manual/tool regeneration and not manually
+   merged, resolve it by checking out the chosen branch's version, then stage
+   it with `git add <lock-file>`.
+2. Stage other resolved files with `git add <files>`.
+3. Verify no unmerged files remain:
    `git ls-files -u`
-3. Verify no conflict markers remain in edited files. Search for:
+4. Verify no conflict markers remain in edited files. Search for:
    `<<<<<<<`, `=======`, and `>>>>>>>`.
 
 If conflict markers or unmerged entries remain, fix them before continuing.

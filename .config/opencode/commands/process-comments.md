@@ -258,13 +258,14 @@ When a step calls for presenting multiple independent choices to the user simult
 
    **7e. Verify changes:**
    - Run `git diff` (full diff, not just `--name-only`) and confirm the changes correspond only to the current group's scope. Check for changes belonging to other groups that may have leaked into the working tree — especially when multiple groups touch the same file. If unrelated changes are present, stash or revert them before proceeding to commit. If unexpected files appear, flag them to the user.
-   - Ask the user: "Would you like me to run any tests or checks before committing?"
-   - If yes, run them. If failures occur, show results and let the user decide how to proceed.
+   - Determine the appropriate targeted verification for this group without asking the user. Use the repository's existing tooling and the changed files to decide what to run, preferring the smallest checks that provide meaningful confidence (for example: focused tests for touched code, type checks for typed code, lint/format checks when configured and relevant).
+   - Run the selected tests/checks before committing. If no meaningful targeted verification is available, state that briefly and continue after reviewing the diff.
+   - If failures occur, investigate whether they are caused by the current group's changes. Fix failures caused by the current group and re-run the relevant checks. If the failure appears unrelated, pre-existing, flaky, or requires a product/design tradeoff, show the relevant output and ask the user how to proceed.
 
    **7f. Confirm changes:**
-   - Show the changes: run `git diff` to display all modifications.
-   - Ask if the user is satisfied and ready to commit.
-   - If no, leave the changes in the working directory for manual review or further editing. The user may ask for adjustments or choose to skip this group.
+   - Review the final `git diff` yourself and confirm the changes are complete, in scope for the current group, and safe to commit.
+   - Do not ask the user whether to commit. Commit automatically when the diff is in scope and verification is acceptable.
+   - If the diff contains unexpected files, unrelated changes, leaked work from another group, or unresolved verification failures, stop and ask the user how to proceed before committing.
 
    **7g. Commit (skip if no code changes):**
    - Stage the changed files.

@@ -1,122 +1,474 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
 export PATH="$PATH:$(mise bin-paths | grep -E '/(node|npm-node-gyp)/' | paste -sd: -)"
 
 link_tui=false
+keep_temp=false
+rebuild_native=false
+skip_smoke_test=false
 build_args=()
+
 opencode_root="${OPENCODE_ROOT:-$HOME/repos/opencode}"
-opentui_core_root="${OPENTUI_CORE_ROOT:-$HOME/repos/opentui/packages/core}"
-opentui_core_dist="$opentui_core_root/dist"
-opentui_core_relative_dist=$(python3 -c 'import os, sys; print(os.path.relpath(os.path.abspath(sys.argv[2]), os.path.abspath(sys.argv[1])))' "$opencode_root" "$opentui_core_dist")
-opentui_core_spec="file:$opentui_core_relative_dist"
+opentui_root="${OPENTUI_ROOT:-}"
+if [[ -z "$opentui_root" ]]; then
+  opentui_core_root_default="${OPENTUI_CORE_ROOT:-$HOME/repos/opentui/packages/core}"
+  opentui_root="$(python3 -c 'import os, sys; print(os.path.abspath(os.path.join(sys.argv[1], "../..")))' "$opentui_core_root_default")"
+fi
+opentui_core_root="$opentui_root/packages/core"
+opentui_solid_root="$opentui_root/packages/solid"
+opentui_keymap_root="$opentui_root/packages/keymap"
+build_channel="${OPENCODE_CHANNEL:-dev}"
+preferred_zig_bin_dir="${OPENTUI_ZIG_BIN_DIR:-}"
+
+temp_root=""
+keep_temp_on_exit=false
+restore_map=""
+lock_restore_map=()
+
+cleanup() {
+  if [[ -n "$restore_map" && -f "$restore_map" ]]; then
+    tac "$restore_map" | while IFS=$'\t' read -r target backup; do
+      rm -rf "$target"
+      mkdir -p "$(dirname "$target")"
+      cp -a "$backup" "$target"
+    done
+  fi
+
+  local item target backup
+  for item in "${lock_restore_map[@]:-}"; do
+    target="${item%%:*}"
+    backup="${item#*:}"
+    if [[ -f "$backup" ]]; then
+      cp "$backup" "$target"
+    fi
+  done
+
+  if [[ -n "$temp_root" && $keep_temp_on_exit == false ]]; then
+    rm -rf "$temp_root"
+  fi
+}
+
+trap cleanup EXIT
+
+host_platform() {
+  case "$(uname -s)" in
+    Linux) printf 'linux\n' ;;
+    Darwin) printf 'darwin\n' ;;
+    MINGW*|MSYS*|CYGWIN*) printf 'win32\n' ;;
+    *)
+      printf 'Unsupported platform: %s\n' "$(uname -s)" >&2
+      exit 1
+      ;;
+  esac
+}
+
+host_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64) printf 'x64\n' ;;
+    arm64|aarch64) printf 'arm64\n' ;;
+    *)
+      printf 'Unsupported architecture: %s\n' "$(uname -m)" >&2
+      exit 1
+      ;;
+  esac
+}
+
+host_native_package() {
+  local libc_suffix=""
+  if [[ "$(host_platform)" == "linux" && "${OPENTUI_LIBC:-glibc}" == "musl" ]]; then
+    libc_suffix="-musl"
+  fi
+
+  printf '@opentui/core-%s-%s%s\n' "$(host_platform)" "$(host_arch)" "$libc_suffix"
+}
+
+host_binary_relative_path() {
+  local platform
+  platform="$(host_platform)"
+  if [[ "$platform" == "win32" ]]; then
+    platform="windows"
+  fi
+
+  printf 'opencode-%s-%s/bin/opencode\n' "$platform" "$(host_arch)"
+}
+
+resolve_zig_bin_dir() {
+  if [[ -n "$preferred_zig_bin_dir" && -x "$preferred_zig_bin_dir/zig" ]]; then
+    printf '%s\n' "$preferred_zig_bin_dir"
+    return 0
+  fi
+
+  local mise_dir
+  mise_dir="$(mise where zig@0.15.2 2>/dev/null || true)"
+  if [[ -n "$mise_dir" && -x "$mise_dir/bin/zig" ]]; then
+    printf '%s\n' "$mise_dir/bin"
+    return 0
+  fi
+
+  printf '%s\n' ""
+}
+
+run_bun_install_verbose() {
+  local root="$1"
+  (
+    cd "$root"
+    bun install --verbose --no-progress
+  )
+}
+
+backup_lockfile() {
+  local lockfile_path="$1"
+  local backup_path="$temp_root/$(basename "$lockfile_path").$(echo "$lockfile_path" | tr '/:' '__').bak"
+  if [[ -f "$lockfile_path" ]]; then
+    cp "$lockfile_path" "$backup_path"
+    lock_restore_map+=("$lockfile_path:$backup_path")
+  fi
+}
+
+bootstrap_dependencies_if_needed() {
+  if [[ ! -d "$opentui_root/node_modules" || ! -d "$opentui_root/node_modules/yoga-layout" ]]; then
+    printf 'Installing OpenTUI dependencies...\n'
+    backup_lockfile "$opentui_root/bun.lock"
+    run_bun_install_verbose "$opentui_root"
+  fi
+
+  if [[ ! -d "$opencode_root/node_modules" || ! -d "$opencode_root/packages/opencode/node_modules" ]]; then
+    printf 'Installing OpenCode dependencies...\n'
+    backup_lockfile "$opencode_root/bun.lock"
+    run_bun_install_verbose "$opencode_root"
+  fi
+}
+
+ensure_required_paths() {
+  local required=(
+    "$opencode_root"
+    "$opencode_root/packages/opencode/script/build.ts"
+    "$opentui_core_root"
+    "$opentui_core_root/package.json"
+    "$opentui_solid_root"
+    "$opentui_solid_root/package.json"
+    "$opentui_keymap_root"
+    "$opentui_keymap_root/package.json"
+  )
+
+  local item
+  for item in "${required[@]}"; do
+    if [[ ! -e "$item" ]]; then
+      printf 'Required path does not exist: %s\n' "$item" >&2
+      exit 1
+    fi
+  done
+}
+
+run_opentui_core_native_build() {
+  local zig_bin_dir zig_version
+  zig_bin_dir="$(resolve_zig_bin_dir)"
+
+  if [[ -n "$zig_bin_dir" ]]; then
+    zig_version="$(PATH="$zig_bin_dir:$PATH" zig version)"
+    printf 'Using Zig %s from %s\n' "$zig_version" "$zig_bin_dir"
+    (cd "$opentui_core_root" && PATH="$zig_bin_dir:$PATH" bun run build:native)
+    return 0
+  fi
+
+  zig_version="$(zig version)"
+  printf 'Using Zig %s from PATH\n' "$zig_version"
+  (cd "$opentui_core_root" && bun run build:native)
+}
+
+find_installed_package_targets() {
+  local package_name="$1"
+  local escaped_package_name="$2"
+  python3 - "$opencode_root" "$package_name" "$escaped_package_name" <<'PY'
+import glob
+import os
+import sys
+
+root, package_name, escaped = sys.argv[1:4]
+pattern = os.path.join(root, "node_modules", ".bun", f"{escaped}@*", "node_modules", package_name)
+for path in sorted(glob.glob(pattern)):
+    if os.path.isdir(path):
+        print(path)
+PY
+}
+
+swap_installed_package() {
+  local source_dir="$1"
+  local package_name="$2"
+  local escaped_package_name="$3"
+  local label="$4"
+
+  local targets=()
+  mapfile -t targets < <(find_installed_package_targets "$package_name" "$escaped_package_name")
+
+  if [[ ${#targets[@]} -eq 0 ]]; then
+    printf 'Could not find installed package targets for %s\n' "$label" >&2
+    exit 1
+  fi
+
+  local target backup_dir index=0
+  for target in "${targets[@]}"; do
+    backup_dir="$temp_root/backups/${label//\//_}-$index"
+    mkdir -p "$(dirname "$backup_dir")"
+    cp -a "$target" "$backup_dir"
+    printf '%s\t%s\n' "$target" "$backup_dir" >> "$restore_map"
+
+    rm -rf "$target"
+    mkdir -p "$(dirname "$target")"
+    cp -a "$source_dir" "$target"
+    printf 'Replaced %s at %s\n' "$label" "$target"
+    index=$((index + 1))
+  done
+}
+
+resolve_import_dir() {
+  local package_root="$1"
+  local spec="$2"
+  (
+    cd "$package_root"
+    bun --conditions=browser -e 'const { fileURLToPath } = await import("node:url"); const { dirname } = await import("node:path"); console.log(dirname(fileURLToPath(import.meta.resolve(process.argv[1]))))' "$spec"
+  )
+}
+
+validate_swapped_resolutions() {
+  local resolved_core resolved_solid resolved_keymap
+  resolved_core="$(resolve_import_dir "$opencode_root/packages/opencode" "@opentui/core")"
+  resolved_solid="$(resolve_import_dir "$opencode_root/packages/opencode" "@opentui/solid")"
+  resolved_keymap="$(resolve_import_dir "$opencode_root/packages/opencode" "@opentui/keymap")"
+
+  if [[ ! -f "$resolved_core/parser.worker.js" ]]; then
+    printf 'Expected parser.worker.js in resolved @opentui/core package: %s\n' "$resolved_core" >&2
+    exit 1
+  fi
+  if [[ ! -f "$resolved_solid/index.js" ]]; then
+    printf 'Expected index.js in resolved @opentui/solid package: %s\n' "$resolved_solid" >&2
+    exit 1
+  fi
+  if [[ ! -f "$resolved_keymap/index.js" ]]; then
+    printf 'Expected index.js in resolved @opentui/keymap package: %s\n' "$resolved_keymap" >&2
+    exit 1
+  fi
+}
+
+smoke_test_binary() {
+  local binary_path="$1"
+  printf 'Running compiled TUI startup smoke test...\n'
+
+  python3 - "$binary_path" "$temp_root" "$build_channel" <<'PY'
+import json
+import os
+import pty
+import re
+import selectors
+import signal
+import subprocess
+import sys
+import time
+
+binary_path, temp_root, build_channel = sys.argv[1:4]
+smoke_home = os.path.join(temp_root, "smoke-home")
+smoke_cwd = os.path.join(temp_root, "smoke-cwd")
+os.makedirs(os.path.join(smoke_home, ".config"), exist_ok=True)
+os.makedirs(os.path.join(smoke_home, ".local", "share"), exist_ok=True)
+os.makedirs(smoke_cwd, exist_ok=True)
+
+env = os.environ.copy()
+env.update(
+    {
+        "HOME": smoke_home,
+        "XDG_CONFIG_HOME": os.path.join(smoke_home, ".config"),
+        "XDG_DATA_HOME": os.path.join(smoke_home, ".local", "share"),
+        "OPENCODE_CONFIG_CONTENT": "{}",
+        "OPENCODE_FAST_BOOT": "1",
+        "OPENCODE_DISABLE_MOUSE": "1",
+        "OPENCODE_CHANNEL": build_channel,
+        "TERM": "xterm-256color",
+    }
+)
+
+master_fd, slave_fd = pty.openpty()
+proc = subprocess.Popen(
+    [binary_path],
+    cwd=smoke_cwd,
+    env=env,
+    stdin=slave_fd,
+    stdout=slave_fd,
+    stderr=slave_fd,
+    start_new_session=True,
+)
+os.close(slave_fd)
+os.set_blocking(master_fd, False)
+
+selector = selectors.DefaultSelector()
+selector.register(master_fd, selectors.EVENT_READ)
+output = []
+failure_re = re.compile(r"Unexpected error|Effect\.tryPromise|An error occurred in Effect\.tryPromise", re.IGNORECASE)
+deadline = time.time() + 5.0
+timed_out = False
+
+def read_chunk():
+    try:
+        chunk = os.read(master_fd, 4096)
+    except BlockingIOError:
+        return
+    except OSError:
+        return
+    if not chunk:
+        return
+    output.append(chunk.decode("utf-8", errors="replace"))
+    text = "".join(output)
+    if len(text) > 24000:
+        output[:] = [text[-16000:]]
+
+while time.time() < deadline:
+    if proc.poll() is not None:
+        break
+    events = selector.select(timeout=0.05)
+    if events:
+        read_chunk()
+    if failure_re.search("".join(output)):
+        break
+
+text = "".join(output)
+if proc.poll() is None and not failure_re.search(text):
+    timed_out = True
+
+try:
+    os.killpg(proc.pid, signal.SIGTERM)
+except ProcessLookupError:
+    pass
+
+try:
+    proc.wait(timeout=1)
+except subprocess.TimeoutExpired:
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    proc.wait(timeout=1)
+
+selector.close()
+os.close(master_fd)
+
+if timed_out:
+    raise SystemExit(0)
+
+payload = {
+    "exitCode": proc.returncode,
+    "output": text,
+}
+print(json.dumps(payload, indent=2), file=sys.stderr)
+raise SystemExit(1)
+PY
+}
+
+run_tui_build() {
+  ensure_required_paths
+
+  temp_root="$(mktemp -d "${TMPDIR:-/tmp}/build-opencode.XXXXXXXXXX")"
+  restore_map="$temp_root/restore-map.tsv"
+  : > "$restore_map"
+
+  local host_native_pkg
+  host_native_pkg="$(host_native_package)"
+  local host_native_glob
+  host_native_glob="${host_native_pkg/\//+}"
+
+  printf 'Using OpenTUI checkout: %s\n' "$opentui_root"
+  printf 'Using OpenCode checkout: %s\n' "$opencode_root"
+
+  bootstrap_dependencies_if_needed
+
+  printf 'Building local OpenTUI artifacts...\n'
+  if $rebuild_native; then
+    printf '%s\n' '- Rebuilding host native @opentui/core package'
+  else
+    printf '%s\n' '- Refreshing host native @opentui/core package (incremental)'
+  fi
+  run_opentui_core_native_build
+
+  printf '%s\n' '- Building @opentui/core dist'
+  (cd "$opentui_core_root" && bun run build:lib)
+
+  printf '%s\n' '- Building @opentui/solid dist'
+  (cd "$opentui_solid_root" && bun run build)
+
+  printf '%s\n' '- Building @opentui/keymap dist'
+  (cd "$opentui_keymap_root" && bun run build)
+
+  printf 'Swapping installed OpenTUI packages in opencode node_modules...\n'
+  swap_installed_package "$opentui_core_root/dist" '@opentui/core' '@opentui+core' '@opentui/core'
+  swap_installed_package "$opentui_solid_root/dist" '@opentui/solid' '@opentui+solid' '@opentui/solid'
+  swap_installed_package "$opentui_keymap_root/dist" '@opentui/keymap' '@opentui+keymap' '@opentui/keymap'
+  swap_installed_package "$opentui_core_root/node_modules/$host_native_pkg" "$host_native_pkg" "$host_native_glob" "$host_native_pkg"
+
+  validate_swapped_resolutions
+
+  local forwarded_args=("${build_args[@]}")
+  if [[ ! " ${forwarded_args[*]} " =~ " --single " ]]; then
+    forwarded_args=("--single" "${forwarded_args[@]}")
+  fi
+  if [[ ! " ${forwarded_args[*]} " =~ " --skip-install " ]]; then
+    forwarded_args+=("--skip-install")
+  fi
+
+  printf 'Building standalone OpenCode binary...\n'
+  (
+    cd "$opencode_root/packages/opencode"
+    OPENCODE_CHANNEL="$build_channel" bun run build "${forwarded_args[@]}"
+  )
+
+  local binary_path
+  binary_path="$opencode_root/packages/opencode/dist/$(host_binary_relative_path)"
+  if [[ ! -x "$binary_path" ]]; then
+    printf 'Expected built binary at %s\n' "$binary_path" >&2
+    exit 1
+  fi
+
+  if ! $skip_smoke_test; then
+    smoke_test_binary "$binary_path"
+  fi
+
+  printf 'Local OpenTUI TUI build complete.\n'
+  printf 'Built binary: %s\n' "$binary_path"
+
+  if $keep_temp; then
+    keep_temp_on_exit=true
+    printf 'Preserved temp artifacts at: %s\n' "$temp_root"
+  fi
+}
 
 for arg in "$@"; do
-  if [[ "$arg" == "--tui" ]]; then
-    link_tui=true
-  else
-    build_args+=("$arg")
-  fi
+  case "$arg" in
+    --tui)
+      link_tui=true
+      ;;
+    --keep-temp)
+      keep_temp=true
+      ;;
+    --rebuild-native)
+      rebuild_native=true
+      ;;
+    --skip-smoke-test)
+      skip_smoke_test=true
+      ;;
+    *)
+      build_args+=("$arg")
+      ;;
+  esac
 done
 
 if $link_tui; then
-  has_skip_install=false
-  for arg in "${build_args[@]}"; do
-    if [[ "$arg" == "--skip-install" ]]; then
-      has_skip_install=true
-      break
-    fi
-  done
-  if ! $has_skip_install; then
-    build_args+=("--skip-install")
-  fi
+  run_tui_build
+  exit 0
 fi
 
 cd "$opencode_root"
 git clean -ffdx
 rm -rf "${HOME}/.bun/install/cache/@opentui"
 
-if $link_tui; then
-  echo "Building local @opentui/core..."
-  (cd "$opentui_core_root" && bun run build:lib)
-
-  root_pkg="$opencode_root/package.json"
-  opencode_pkg="$opencode_root/packages/opencode/package.json"
-  restore_dir=$(mktemp -d "${TMPDIR:-/tmp}/build-opencode.XXXXXXXXXX")
-  cp "$root_pkg" "$restore_dir/root.package.json"
-  cp "$opencode_pkg" "$restore_dir/opencode.package.json"
-  cp "$opencode_root/bun.lock" "$restore_dir/bun.lock"
-
-  restore_pkg() {
-    cp "$restore_dir/root.package.json" "$root_pkg"
-    cp "$restore_dir/opencode.package.json" "$opencode_pkg"
-    cp "$restore_dir/bun.lock" "$opencode_root/bun.lock"
-    rm -rf "$restore_dir"
-    echo "Restored opencode package manifests and lockfile"
-  }
-  trap restore_pkg EXIT
-
-  echo "Using clean bun.lock for temporary local @opentui/core install..."
-  git checkout -- bun.lock
-
-  echo "Patching opencode package manifests to use local @opentui/core..."
-  OPENTUI_CORE_SPEC="$opentui_core_spec" python3 - "$root_pkg" <<'PY'
-import json
-import os
-import sys
-
-spec = os.environ["OPENTUI_CORE_SPEC"]
-root_pkg = sys.argv[1]
-
-with open(root_pkg) as f:
-    data = json.load(f)
-data["workspaces"]["catalog"]["@opentui/core"] = spec
-data.setdefault("overrides", {})["@opentui/core"] = spec
-with open(root_pkg, "w") as f:
-    json.dump(data, f, indent=2)
-    f.write("\n")
-PY
-fi
-
 bun install
 
-if $link_tui; then
-  echo "Validating local @opentui/core resolution..."
-  resolve_core_from() {
-    local package_root="$1"
-    (cd "$package_root" && bun --conditions=browser -e 'const { fileURLToPath } = await import("url"); const { dirname } = await import("path"); console.log(dirname(fileURLToPath(import.meta.resolve("@opentui/core"))))')
-  }
-
-  direct_core_root=$(resolve_core_from "$opencode_root/packages/opencode")
-  solid_pkg_root=$(readlink -f "$opencode_root/packages/opencode/node_modules/@opentui/solid")
-  solid_core_root=$(resolve_core_from "$solid_pkg_root")
-
-  if [[ "$direct_core_root" != "$solid_core_root" ]]; then
-    echo "Normalizing duplicate local @opentui/core file: installs..."
-    rm -f "$opencode_root/packages/opencode/node_modules/@opentui/core"
-    ln -s "$solid_core_root" "$opencode_root/packages/opencode/node_modules/@opentui/core"
-    direct_core_root=$(resolve_core_from "$opencode_root/packages/opencode")
-
-    if [[ "$direct_core_root" != "$solid_core_root" ]]; then
-      echo "@opentui/core resolved differently for opencode and @opentui/solid:" >&2
-      echo "  opencode:       $direct_core_root" >&2
-      echo "  @opentui/solid: $solid_core_root" >&2
-      exit 1
-    fi
-  fi
-
-  if [[ "$direct_core_root" != *"@opentui+core@file+"* ]]; then
-    echo "@opentui/core did not resolve to the local file: package:" >&2
-    echo "  $direct_core_root" >&2
-    exit 1
-  fi
-
-  if ! (cd "$opencode_root/packages/opencode" && bun --conditions=browser -e 'const core = await import("@opentui/core"); const resume = core.CliRenderer.prototype.resume.toString(); if (!resume.includes("forceFullRepaintRequested") || resume.includes("currentRenderBuffer.clear")) process.exit(1)'); then
-    echo "Local @opentui/core install does not contain the force-only resume repaint fix" >&2
-    exit 1
-  fi
-
-  echo "Validated @opentui/core: $direct_core_root"
-fi
-
 cd "$opencode_root/packages/opencode"
-OPENCODE_CHANNEL=dev bun run build --single "${build_args[@]}"
+OPENCODE_CHANNEL="$build_channel" bun run build --single "${build_args[@]}"
