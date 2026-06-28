@@ -18,6 +18,9 @@ cargo-audit = "cargo:cargo-audit"
 cargo-llvm-cov = "aqua:taiki-e/cargo-llvm-cov"
 cargo-modules = "cargo:cargo-modules"
 
+[env]
+OPENCODE_BINARY = { value = "{{ tools.opencode.path }}/opencode", tools = true }
+
 [tools]
 bun = "latest"
 bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubuntu*24.04*.AppImage" }
@@ -44,10 +47,12 @@ npm = "latest"
 gh = "latest"
 "conda:git" = "latest"
 claude-code = "latest"
+opencode = "1.17.4"
 "pipx:pre-commit" = "latest"
 "pipx:mergify-cli" = "latest"
 just = "latest"
 mold = "latest"
+"cargo:opencode-orchestrator-mcp" = "0.7.3"
 
 bitwarden = "latest"
 mitmproxy = "latest"

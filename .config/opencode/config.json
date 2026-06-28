@@ -122,6 +122,13 @@
       },
       "enabled": false
     },
+    "orchestrator": {
+      "type": "local",
+      "command": [
+        "opencode-orchestrator-mcp"
+      ],
+      "enabled": true
+    },
     "ha-official": {
       "type": "remote",
       "url": "https://assistant.home.fstab.net:8123/api/mcp",

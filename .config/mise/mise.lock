@@ -909,6 +909,10 @@ backend = "cargo:cargo-audit"
 version = "0.25.0"
 backend = "cargo:cargo-modules"
 
+[[tools."cargo:opencode-orchestrator-mcp"]]
+version = "0.7.3"
+backend = "cargo:opencode-orchestrator-mcp"
+
 [[tools."cargo:rust-script"]]
 version = "0.36.0"
 backend = "cargo:rust-script"
@@ -1581,6 +1585,10 @@ backend = "npm:node-gyp"
 [[tools."npm:playwright"]]
 version = "1.61.0"
 backend = "npm:playwright"
+
+[[tools.opencode]]
+version = "1.17.4"
+backend = "aqua:anomalyco/opencode"
 
 [[tools.opentofu]]
 version = "1.11.5"
