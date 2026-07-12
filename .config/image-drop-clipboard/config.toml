@@ -1,0 +1,6 @@
+watch_dirs = [
+  "/home/altendky/Downloads/kdeconnect",
+]
+
+settle_ms = 2000
+copy_existing_latest_on_start = true

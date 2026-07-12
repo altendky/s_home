@@ -1,0 +1,285 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "msgspec>=0.19.0",
+#     "platformdirs>=4.0.0",
+#     "pyside6>=6.10.0",
+#     "watchfiles>=1.0.0",
+# ]
+# ///
+
+from __future__ import annotations
+
+import argparse
+import mimetypes
+import sys
+from pathlib import Path
+from typing import NoReturn
+
+import msgspec
+from platformdirs import user_config_path
+from PySide6.QtCore import QMimeData, QObject, QThread, QTimer, Signal, Slot
+from PySide6.QtGui import QAction, QIcon, QImage
+from PySide6.QtWidgets import QApplication, QLabel, QMenu, QPushButton, QSystemTrayIcon, QVBoxLayout, QWidget
+from watchfiles import Change, watch
+
+
+APP_NAME = "image-drop-clipboard"
+IMAGE_EXTENSIONS = {
+    ".avif",
+    ".bmp",
+    ".gif",
+    ".heic",
+    ".heif",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".tif",
+    ".tiff",
+    ".webp",
+}
+
+
+class Config(msgspec.Struct, frozen=True):
+    watch_dirs: list[str]
+    settle_ms: int = 2000
+    copy_existing_latest_on_start: bool = False
+
+
+class RuntimeConfig(msgspec.Struct, frozen=True):
+    watch_dirs: list[Path]
+    settle_ms: int = 2000
+    copy_existing_latest_on_start: bool = False
+
+
+def config_path() -> Path:
+    return user_config_path(APP_NAME, appauthor=False) / "config.toml"
+
+
+def fail(message: str) -> NoReturn:
+    print(message, file=sys.stderr, flush=True)
+    raise SystemExit(1)
+
+
+def load_config(path: Path) -> RuntimeConfig:
+    if not path.exists():
+        fail(f"Missing config file: {path}")
+    try:
+        config = msgspec.toml.decode(path.read_bytes(), type=Config)
+    except msgspec.DecodeError as error:
+        fail(f"Invalid config file {path}: {error}")
+
+    watch_dirs = [Path(watch_dir).expanduser().resolve() for watch_dir in config.watch_dirs]
+    if not watch_dirs:
+        fail(f"Config file {path} must contain at least one watch_dirs entry")
+    for watch_dir in watch_dirs:
+        if not watch_dir.exists():
+            fail(f"Configured watch directory does not exist: {watch_dir}")
+        if not watch_dir.is_dir():
+            fail(f"Configured watch path is not a directory: {watch_dir}")
+    if config.settle_ms < 0:
+        fail(f"Config file {path} has negative settle_ms: {config.settle_ms}")
+
+    return RuntimeConfig(
+        watch_dirs=watch_dirs,
+        settle_ms=config.settle_ms,
+        copy_existing_latest_on_start=config.copy_existing_latest_on_start,
+    )
+
+
+def is_image_path(path: Path) -> bool:
+    return not path.name.startswith(".") and path.suffix.lower() in IMAGE_EXTENSIONS
+
+
+def image_paths(watch_dirs: list[Path]) -> list[Path]:
+    paths: list[Path] = []
+    for watch_dir in watch_dirs:
+        paths.extend(path for path in watch_dir.iterdir() if is_image_path(path) and path.is_file())
+    return paths
+
+
+class DirectoryWatcher(QObject):
+    image_changed = Signal(str)
+    failed = Signal(str)
+
+    def __init__(self, watch_dirs: list[Path]) -> None:
+        super().__init__()
+        self.watch_dirs = watch_dirs
+
+    def run(self) -> None:
+        try:
+            for changes in watch(*(str(path) for path in self.watch_dirs)):
+                for change, raw_path in changes:
+                    if change == Change.deleted:
+                        continue
+                    path = Path(raw_path)
+                    if is_image_path(path):
+                        print(f"Detected image event: {path}", flush=True)
+                        self.image_changed.emit(str(path))
+        except Exception as error:  # pragma: no cover - logged in GUI runtime.
+            self.failed.emit(str(error))
+
+
+class ImageDropClipboard(QObject):
+    def __init__(self, app: QApplication, config: Config) -> None:
+        super().__init__()
+        self.app = app
+        self.config = config
+        self.current_path: Path | None = None
+        self.pending: set[Path] = set()
+
+        self.window = self.create_window()
+        self.tray = self.create_tray()
+        self.thread = QThread(self.app)
+        self.watcher = DirectoryWatcher(self.config.watch_dirs)
+        self.watcher.moveToThread(self.thread)
+        self.thread.started.connect(self.watcher.run)
+        self.watcher.image_changed.connect(self.handle_image_changed)
+        self.watcher.failed.connect(self.report_watch_error)
+        self.thread.start()
+
+        if self.config.copy_existing_latest_on_start:
+            latest = self.latest_image()
+            if latest is not None:
+                self.schedule_offer(latest)
+
+        print("Watching image drop directories:", flush=True)
+        for watch_dir in self.config.watch_dirs:
+            print(f"- {watch_dir}", flush=True)
+
+    def create_window(self) -> QWidget:
+        window = QWidget()
+        window.setWindowTitle("Image Drop Clipboard")
+
+        layout = QVBoxLayout(window)
+        self.label = QLabel("No image pending.")
+        self.label.setWordWrap(True)
+        layout.addWidget(self.label)
+
+        copy_button = QPushButton("Copy image to clipboard")
+        copy_button.clicked.connect(self.copy_current)
+        layout.addWidget(copy_button)
+
+        hide_button = QPushButton("Not now")
+        hide_button.clicked.connect(window.hide)
+        layout.addWidget(hide_button)
+
+        window.resize(420, 130)
+        return window
+
+    def create_tray(self) -> QSystemTrayIcon | None:
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            return None
+
+        tray = QSystemTrayIcon(QIcon.fromTheme("image-x-generic"), self.app)
+        tray.setToolTip("Image Drop Clipboard")
+
+        menu = QMenu()
+        copy_latest = QAction("Copy latest image", menu)
+        copy_latest.triggered.connect(self.copy_latest)
+        menu.addAction(copy_latest)
+
+        show_pending = QAction("Show pending image", menu)
+        show_pending.triggered.connect(self.show_pending)
+        menu.addAction(show_pending)
+
+        quit_action = QAction("Quit", menu)
+        quit_action.triggered.connect(self.app.quit)
+        menu.addAction(quit_action)
+
+        tray.setContextMenu(menu)
+        tray.show()
+        return tray
+
+    def stop(self) -> None:
+        self.thread.requestInterruption()
+        self.thread.quit()
+        self.thread.wait(3000)
+
+    def report_watch_error(self, message: str) -> None:
+        print(f"Watch error: {message}", file=sys.stderr, flush=True)
+        if self.tray is not None:
+            self.tray.showMessage("Image Drop Clipboard watch error", message, QSystemTrayIcon.MessageIcon.Critical, 5000)
+
+    @Slot(str)
+    def handle_image_changed(self, path: str) -> None:
+        self.schedule_offer(Path(path))
+
+    def latest_image(self) -> Path | None:
+        paths = image_paths(self.config.watch_dirs)
+        if not paths:
+            return None
+        return max(paths, key=lambda path: path.stat().st_mtime_ns)
+
+    def schedule_offer(self, path: Path) -> None:
+        if path in self.pending:
+            return
+        self.pending.add(path)
+
+        def offer_if_stable() -> None:
+            self.pending.discard(path)
+            if not path.exists() or not path.is_file():
+                return
+            self.offer_image(path)
+
+        QTimer.singleShot(self.config.settle_ms, offer_if_stable)
+
+    def show_pending(self) -> None:
+        if self.current_path is not None:
+            self.offer_image(self.current_path)
+
+    def copy_latest(self) -> None:
+        latest = self.latest_image()
+        if latest is not None:
+            self.copy_image(latest)
+
+    def copy_current(self) -> None:
+        if self.current_path is not None:
+            self.copy_image(self.current_path)
+
+    def offer_image(self, path: Path) -> None:
+        self.current_path = path
+        self.label.setText(f"New image received:\n{path}")
+        self.window.show()
+        self.window.raise_()
+        self.window.activateWindow()
+        print(f"Image ready for clipboard: {path}", flush=True)
+        if self.tray is not None:
+            self.tray.showMessage("Image ready for clipboard", "Click the window button to copy it.", QSystemTrayIcon.MessageIcon.Information, 5000)
+
+    def copy_image(self, path: Path) -> None:
+        image = QImage(str(path))
+        if image.isNull():
+            print(f"Ignoring unreadable image: {path}", flush=True)
+            return
+        mime = QMimeData()
+        mime.setImageData(image)
+        self.app.clipboard().setMimeData(mime)
+
+        guessed_mime = mimetypes.guess_type(path.name)[0] or "image"
+        print(f"Copied image to clipboard: {path} ({guessed_mime}, {image.width()}x{image.height()})", flush=True)
+        if self.tray is not None:
+            self.tray.showMessage("Image copied", path.name, QSystemTrayIcon.MessageIcon.Information, 2500)
+        self.window.hide()
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Watch configured directories and offer new images for KDE-compatible clipboard copy.")
+    parser.add_argument("--config", type=Path, default=config_path())
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] = sys.argv[1:]) -> int:
+    args = parse_args(argv)
+    config = load_config(args.config.expanduser())
+    app = QApplication([sys.argv[0]])
+    app.setQuitOnLastWindowClosed(False)
+    controller = ImageDropClipboard(app=app, config=config)
+    app.aboutToQuit.connect(controller.stop)
+    app.setProperty("imageDropClipboard", controller)
+    return app.exec()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

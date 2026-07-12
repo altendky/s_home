@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Image Drop Clipboard
+Comment=Offer newly dropped images for KDE-compatible clipboard copy
+Exec=/home/altendky/.local/bin/image-drop-clipboard
+Icon=image-x-generic
+Terminal=false
+X-KDE-autostart-after=panel
