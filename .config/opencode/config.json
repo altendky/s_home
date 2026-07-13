@@ -147,6 +147,7 @@
     }
   },
   "permission": {
+    "orchestrator_*": "deny",
     "external_directory": {
       "*": "ask",
       "/tmp/agents/*": "allow",
