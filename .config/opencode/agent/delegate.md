@@ -28,9 +28,9 @@ The orchestrator MCP exposes these tools with the `orchestrator_` prefix:
 
 ## Runtime Discovery First
 
-At the start of each new user task, call `orchestrator_list_commands` and `orchestrator_list_agents` before choosing a route. Treat the runtime results and their descriptions as authoritative.
+You must call both `orchestrator_list_commands` and `orchestrator_list_agents` at least once in the current context before selecting a route for the first `orchestrator_run` call. Treat the runtime results and their descriptions as authoritative.
 
-Re-run discovery when the repository configuration may have changed, an expected command or agent is missing, or routing is uncertain.
+Re-run discovery if previous results may be stale, configuration or repository context may have changed, an expected command or agent is missing, or routing is uncertain.
 
 ## Routing Scope
 
