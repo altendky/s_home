@@ -10,6 +10,7 @@ trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
 [tool_alias]
 bs = "github:bambulab/BambuStudio"
 grip = "pipx:grip"
+orchestrator = "cargo:opencode-orchestrator-mcp"
 
 # for gw
 dockerfmt = "github:reteps/dockerfmt"
