@@ -53,7 +53,7 @@ opencode = "1.17.4"
 "pipx:mergify-cli" = "latest"
 just = "latest"
 mold = "latest"
-"cargo:opencode-orchestrator-mcp" = "0.7.3"
+"cargo:opencode-orchestrator-mcp" = "0.7.9"
 
 bitwarden = "latest"
 mitmproxy = "latest"
