@@ -25,6 +25,7 @@ OPENCODE_BINARY = { value = "{{ tools.opencode.path }}/opencode", tools = true }
 [tools]
 bun = "latest"
 bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubuntu*24.04*.AppImage" }
+"github:rustdesk/rustdesk" = { version = "latest", bin = "rustdesk", asset_pattern = "*x86_64.AppImage" }
 "pipx:grip" = "latest"
 
 # for gw

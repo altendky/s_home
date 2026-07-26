@@ -117,7 +117,7 @@
         "mise",
         "mcp"
       ],
-      "environment": {
+      "env": {
         "MISE_EXPERIMENTAL": "1"
       },
       "enabled": false
@@ -157,6 +157,9 @@
       "*": "ask",
       "/tmp/agents/*": "allow"
     }
+  },
+  "experimental": {
+    "mcp_timeout": 7200000
   },
   "$schema": "https://opencode.ai/config.json"
 }

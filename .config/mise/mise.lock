@@ -754,66 +754,66 @@ checksum = "sha256:6e7fe65ef0d0401af20bb739cb81469a0c001d9ee249ceea4a86974ae27a4
 url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.2.0/bw-windows-2026.2.0.zip"
 
 [[tools.bs]]
-version = "02.08.00.50"
+version = "02.08.01.55"
 backend = "github:bambulab/BambuStudio"
 
 [tools.bs.options]
 asset_pattern = "*ubuntu*24.04*.AppImage"
 
 [tools.bs."platforms.linux-arm64"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.linux-arm64-musl"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.linux-x64"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.linux-x64-baseline"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.linux-x64-musl"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.macos-arm64"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.macos-x64"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.macos-x64-baseline"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.windows-x64"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [tools.bs."platforms.windows-x64-baseline"]
-checksum = "sha256:246cb6b9ad93b4b4a65f631324dd7f098bf21198a2c39837e91aa6a0393e4dd4"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.00.50/BambuStudio_ubuntu24.04-v02.08.00.50-20260625193201.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/457646746"
+checksum = "sha256:225102433dbfcc475cbd79befa0453bb93f9f3cd15bb43848040a7fe2211c7de"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.01.55/BambuStudio_ubuntu24.04-v02.08.01.55-20260715113557.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/477511249"
 
 [[tools.bun]]
 version = "1.3.14"
@@ -1362,6 +1362,68 @@ url_api = "https://api.github.com/repos/reteps/dockerfmt/releases/assets/3061976
 checksum = "sha256:bf0fc306228ede37586620e6a3d68387de53935d2b2b718da0a37453252fc89d"
 url = "https://github.com/reteps/dockerfmt/releases/download/v0.3.9/dockerfmt-v0.3.9-darwin-arm64.tar.gz"
 url_api = "https://api.github.com/repos/reteps/dockerfmt/releases/assets/306197685"
+
+[[tools."github:rustdesk/rustdesk"]]
+version = "1.4.9"
+backend = "github:rustdesk/rustdesk"
+
+[tools."github:rustdesk/rustdesk".options]
+asset_pattern = "*x86_64.AppImage"
+
+[tools."github:rustdesk/rustdesk"."platforms.linux-arm64"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.linux-arm64-musl"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.linux-x64"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.linux-x64-baseline"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.linux-x64-musl"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.macos-arm64"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.macos-x64"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.macos-x64-baseline"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.windows-x64"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
+
+[tools."github:rustdesk/rustdesk"."platforms.windows-x64-baseline"]
+checksum = "sha256:7902cd60a4f29817eebe2668a15c9a1952ac690e8f7b07bfe7620fedd4e28217"
+url = "https://github.com/rustdesk/rustdesk/releases/download/1.4.9/rustdesk-1.4.9-x86_64.AppImage"
+url_api = "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/467985087"
 
 [[tools.hadolint]]
 version = "2.12.0"

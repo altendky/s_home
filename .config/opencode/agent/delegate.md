@@ -57,6 +57,41 @@ When spawning or resuming a session, provide a clear prompt that states:
 
 Track session IDs when continuation may be needed.
 
+## Agent Continuity
+
+For every raw-prompt child session, track the selected agent alongside the session ID.
+
+- When creating a raw-prompt session, always pass an explicit discovered `agent`.
+- When resuming that session with another raw prompt, pass the same explicit `agent` unless you are deliberately switching agents.
+- Never assume `session_id` preserves the previous agent. OpenCode agent selection is per prompt, not sticky per session.
+- A status-only `orchestrator_run` call that supplies only `session_id` does not require `agent`.
+- Permission and question responses do not require reselection unless they send a new raw prompt.
+- If intentionally switching agents, pass the new `agent` explicitly and state the reason.
+- Do not pass `agent` together with `command`; that combination is invalid.
+- For command-created sessions, do not guess an agent for later raw prompts. Determine the appropriate continuation agent from the command or session context, or ask when necessary.
+- Keep child execution routes explicit even if the global `default_agent` changes.
+
+Examples:
+
+```python
+orchestrator_run(
+    message="Implement and verify the requested change.",
+    agent="build",
+)
+
+orchestrator_run(
+    session_id="ses_...",
+    message="Commit and push the verified change.",
+    agent="build",
+)
+
+orchestrator_run(
+    session_id="ses_...",
+)
+```
+
+The first two calls require an explicit `agent`. The status-only call does not.
+
 ## Permissions And Questions
 
 For permission requests, approve only actions that match the user request and expected files or tools. Use `once` for ordinary single actions and `always` only for repeated access to the same expected target. Reject unexpected, overly broad, destructive, or unrelated requests.
