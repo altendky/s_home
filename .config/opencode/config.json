@@ -101,7 +101,7 @@
         "npx",
         "onshape-mcp"
       ],
-      "enabled": false
+      "enabled": true
     },
     "playwright": {
       "type": "local",
