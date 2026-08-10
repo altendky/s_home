@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -u
+
+if (( $# != 1 )) || [[ ! $1 =~ ^[1-9][0-9]*$ ]]; then
+    printf 'Usage: %s PID\n' "${0##*/}" >&2
+    exit 2
+fi
+
+readonly pid=$1
+
+if [[ ! -e /proc/$pid ]]; then
+    printf 'PID %s is not running.\n' "$pid" >&2
+    exit 1
+fi
+
+printf 'Monitoring PID %s starting at %s\n' "$pid" "$(date --iso-8601=seconds)"
+
+while [[ -e /proc/$pid ]]; do
+    sleep 1
+done
+
+printf 'PID %s disappeared at %s (%s UTC)\n' \
+    "$pid" \
+    "$(date --iso-8601=ns)" \
+    "$(date --utc --iso-8601=ns)"
+
+printf 'Kernel OOM messages from the preceding two minutes:\n'
+journalctl -k --since '2 minutes ago' --no-pager \
+    | grep -Ei 'oom|out of memory|killed process' \
+    || printf 'No matching kernel messages found.\n'

@@ -143,10 +143,17 @@ requested by the user. If a situation arises where you believe a force push is
 necessary (e.g., after a rebase or amend), ask the user before making the commits
 that would require forcing.
 
-Git commits may involve manual approval from the user. When a commit fails due
-to GPG signing or manual approval, the user may have been distracted. Note the
-failure clearly, inform the user, and ask if they would like you to retry with a
-simple yes/no question.
+When a commit fails because of signing or 1Password approval, report the failure
+clearly and never retry automatically. Prefer OpenCode's question tool to ask
+whether to retry the same normal signed commit; if it is unavailable, ask a
+direct simple yes/no question and wait for the answer.
+
+Read-only diagnosis is allowed. Do not retry with direct GPG invocation or with
+explicit GPG program, key, homedir, configuration, environment, pinentry, or
+agent overrides. Do not change or bypass the configured Git/GPG/1Password
+signing path. Any user-approved retry must use the normal configured path. If it
+remains broken, stop for the user to repair it or ask for approval before making
+any repair.
 
 # Failure Handling
 
@@ -170,6 +177,14 @@ file, pass `--print-logs`. To control verbosity, pass
 `--log-level DEBUG|INFO|WARN|ERROR`.
 
 ## Session Conversation Data
+
+Do not list, query, search, or export persisted OpenCode session data for general
+conversation discovery without the user's explicit request or approval. This
+restriction does not apply to ordinary context already present in the current
+conversation, a session or export the user specifically asks to inspect, or
+narrowly scoped debugging of OpenCode session storage, retrieval, export, or
+database behavior. Content found during such debugging must not be reused for
+unrelated discovery.
 
 When looking up past session conversations, use the SQLite database at
 `~/.local/share/opencode/opencode.db`. Channel-specific builds use a separate

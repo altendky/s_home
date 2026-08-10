@@ -1,0 +1,19 @@
+# OpenChamber AppImage on Ubuntu 26.04+ needs explicit AppArmor permission
+# for unprivileged user namespaces so Chromium can start its sandbox.
+#
+# Install or refresh this profile with:
+#   ~/.config/mise/install-openchamber-apparmor.sh
+#
+# The wildcard path matches the temporary AppImage mount location used at run
+# time, e.g. /tmp/.mount_openchABC123/openchamber.
+
+abi <abi/5.0>,
+include <tunables/global>
+
+profile openchamber-appimage /tmp/.mount_opench*/openchamber flags=(unconfined) {
+  userns,
+  @{exec_path} mr,
+
+  # Site-specific additions and overrides. See local/README for details.
+  include if exists <local/openchamber-appimage>
+}

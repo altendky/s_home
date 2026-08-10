@@ -1324,6 +1324,18 @@ url_api = "https://api.github.com/repos/nextest-rs/nextest/releases/assets/16972
 url = "https://github.com/nextest-rs/nextest/releases/download/cargo-nextest-0.9.72/cargo-nextest-0.9.72-x86_64-pc-windows-msvc.zip"
 url_api = "https://api.github.com/repos/nextest-rs/nextest/releases/assets/169726180"
 
+[[tools."github:openchamber/openchamber"]]
+version = "1.18.1"
+backend = "github:openchamber/openchamber"
+
+[tools."github:openchamber/openchamber".options]
+asset_pattern = "*linux-x86_64.AppImage"
+
+[tools."github:openchamber/openchamber"."platforms.linux-x64"]
+checksum = "sha256:c6e32e8783786311672c22aeed93208fe49a96f3a959b9698e7438d545ee7852"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.18.1/OpenChamber-1.18.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/501576896"
+
 [[tools."github:reteps/dockerfmt"]]
 version = "0.3.9"
 backend = "github:reteps/dockerfmt"
