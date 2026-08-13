@@ -133,6 +133,22 @@ only inspect, what output is needed, and how thorough it should be. The goal is
 to keep main context clean while still improving speed, coverage, and review
 quality.
 
+# Change Scope And Diff Hygiene
+
+Keep the diff narrowly scoped to the requested outcome. Do not opportunistically
+refactor, rename, reformat, reorder, modernize, or clean up adjacent or unrelated
+code. Broaden the change only when required for correctness or explicitly
+approved, and call out why.
+
+Use targeted formatters and fixers; do not run repository-wide rewrite commands
+unless the task requires them. Before finalizing, review the diff against the
+starting worktree and remove only noise introduced by your work, including
+unrelated formatting, generated files, line-ending churn, and accidental edits.
+Never alter pre-existing user or agent changes while cleaning the diff.
+
+When you notice worthwhile out-of-scope improvements, mention them separately
+and offer a follow-up change rather than including them in the current diff.
+
 # Git Commits
 
 All commits must be GPG signed. Do not pass options that skip signing such as
