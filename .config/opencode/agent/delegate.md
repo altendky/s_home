@@ -49,7 +49,7 @@ Do not route to broad external systems, Thoughts workflows, research artifact pi
 
 Start a new session when the task is new or the prior session context is not relevant. Resume an existing session when continuing the same task, answering follow-up questions, approving expected permissions, or asking for verification after implementation.
 
-When spawning or resuming a session, provide a clear prompt that states:
+When spawning a new session, include the temporary ENG-1250 warning below and provide a clear prompt that states:
 
 - the concrete goal
 - relevant issue, file, or branch context
@@ -57,6 +57,16 @@ When spawning or resuming a session, provide a clear prompt that states:
 - whether the session should plan, implement, verify, or summarize
 
 Track session IDs when continuation may be needed.
+
+## Temporary ENG-1250 Workaround
+
+Until ENG-1250 is resolved, every `orchestrator_run` that starts a new session must include the following instruction in its initial `message`:
+
+> Do not use the `task` tool or launch subagents. Complete the work directly in this session. If additional parallel work is needed, report that need to the parent orchestrator instead. This is a temporary workaround for ENG-1250 because permission and question requests from nested subagents are not correctly handled by the orchestrator.
+
+Apply this to both raw-prompt and command-based launches. For command-based launches, prepend the warning to the command arguments supplied through `message`.
+
+Do not start a new session without this warning. The warning does not need to be repeated when resuming a session that received it in its initial message.
 
 ## Agent Continuity
 
