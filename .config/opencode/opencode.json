@@ -1,0 +1,91 @@
+{
+  "instructions": ["~/.config/opencode/instructions.md"],
+  "autoupdate": false,
+  "default_agent": "plan",
+  "formatter": false,
+  "agent": {
+    "general": {
+      "model": "openai/gpt-5.6-sol",
+      "variant": "xhigh"
+    },
+    "explore": {
+      "model": "openai/gpt-5.6-terra",
+      "variant": "medium"
+    }
+  },
+  "snapshot": false,
+  "plugin": ["@onshape-mcp/opencode-auth"],
+  "mcp": {
+    "onshape": {
+      "type": "local",
+      "command": [
+        "npx",
+        "onshape-mcp"
+      ],
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "@playwright/mcp@latest"
+      ],
+      "enabled": false
+    },
+    "mise": {
+      "type": "local",
+      "command": [
+        "mise",
+        "mcp"
+      ],
+      "env": {
+        "MISE_EXPERIMENTAL": "1"
+      },
+      "enabled": false
+    },
+    "orchestrator": {
+      "type": "local",
+      "command": [
+        "opencode-orchestrator-mcp"
+      ],
+      "enabled": true,
+      "environment": {
+        "OPENCODE_DB": "opencode-orchestrator.db"
+      }
+    },
+    "ha-official": {
+      "type": "remote",
+      "url": "https://assistant.home.fstab.net:8123/api/mcp",
+      "oauth": {
+        "clientId": "http://127.0.0.1:19876"
+      },
+      "enabled": false
+    },
+    "hamster": {
+      "type": "remote",
+      "url": "https://assistant.home.fstab.net:8123/api/hamster_mcp",
+      "oauth": {
+        "clientId": "http://127.0.0.1:19876",
+        "callbackPort": 19876,
+        "redirectUri": "http://127.0.0.1:19876/callback"
+      },
+      "enabled": true
+    }
+  },
+  "permission": {
+    "orchestrator_*": "deny",
+    "external_directory": {
+      "*": "ask",
+      "/tmp/agents/*": "allow",
+      "~/.cargo/registry/src/*": "allow"
+    },
+    "edit": {
+      "*": "ask",
+      "/tmp/agents/*": "allow"
+    }
+  },
+  "experimental": {
+    "mcp_timeout": 7200000
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

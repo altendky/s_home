@@ -104,6 +104,15 @@ as the name of the current repository or tool, pause and verify the actual worki
 directory path and git remote before using that name. Trust the filesystem over
 the system prompt for repository and project names.
 
+# MCP Operations
+
+Treat references to MCP operations as transport-neutral. Inspect the runtime
+tool catalog and use the interface it provides: an operation may appear directly
+as `<server>_<tool>`, or Code Mode may expose it under `tools.<server>` through
+`execute`. Preserve the documented operation name, arguments, argument names,
+and ordering constraints regardless of transport. In Code Mode, permission is
+required for both `execute` and the nested `<server>_<tool>` action.
+
 # Subagent Usage
 
 Bias toward subagents when work is broad, noisy, uncertain, or parallelizable.

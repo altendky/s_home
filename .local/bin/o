@@ -16,16 +16,90 @@ find_upward() {
     done
 }
 
+is_tui_launch() {
+    local arg
+    local expects_value=0
+
+    for arg in "$@"; do
+        if ((expects_value)); then
+            expects_value=0
+            continue
+        fi
+
+        case "$arg" in
+            --)
+                return 0
+                ;;
+            -h | --help | -v | --version)
+                return 1
+                ;;
+            --log-level | --port | --hostname | --mdns-domain | --cors | \
+                -m | --model | -s | --session | --prompt | --agent | --replay-limit)
+                expects_value=1
+                ;;
+            -*)
+                ;;
+            completion | acp | mcp | attach | run | debug | providers | auth | agent | \
+                upgrade | uninstall | serve | web | models | stats | export | import | \
+                github | pr | session | plugin | plug | db)
+                return 1
+                ;;
+            *)
+                return 0
+                ;;
+        esac
+    done
+
+    return 0
+}
+
 overrides="$HOME/.config/opencode/overrides.json"
 
+config=""
 if f="$(find_upward opencode.json)"; then
     config_dir="$(dirname "$f")"
     config="$(jq -s --arg d "$config_dir" \
         '.[0] * .[1] | walk(if type == "string" then gsub("{file:(?!/)" ; "{file:\($d)/") else . end)' \
         "$f" "$overrides")"
-else
-    config="$(cat "$overrides")"
 fi
 
 #export PATH="/home/altendky/repos/aac-target/release:$PATH"
-OPENCODE_CHANNEL=dev OPENCODE_CONFIG_CONTENT="$config" exec "$(dirname "$0")/opencode" "$@"
+target="$(dirname "$0")/opencode"
+network_args=()
+
+version_output="$("$target" --version)"
+if [[ "$version_output" =~ ^1([.]|$) ]]; then
+    version="1"
+elif [[ "$version_output" == opencode2\ * ]]; then
+    version="2"
+else
+    printf 'o: could not identify OpenCode version from %q: %s\n' \
+        "$target" "$version_output" >&2
+    exit 2
+fi
+
+if [[ "$version" == "1" ]]; then
+    if is_tui_launch "$@"; then
+        has_hostname=0
+        has_port=0
+        has_mdns=0
+        for arg in "$@"; do
+            case "$arg" in
+                --hostname | --hostname=*) has_hostname=1 ;;
+                --port | --port=*) has_port=1 ;;
+                --mdns | --mdns=* | --no-mdns) has_mdns=1 ;;
+            esac
+        done
+        ((has_hostname)) || network_args+=(--hostname 127.0.0.1)
+        ((has_port)) || network_args+=(--port 0)
+        ((has_mdns)) || network_args+=(--no-mdns)
+    fi
+else
+    network_args+=(--standalone)
+fi
+
+if [[ -n "$config" ]]; then
+    OPENCODE_CONFIG_CONTENT="$config" exec "$target" "${network_args[@]}" "$@"
+else
+    exec "$target" "${network_args[@]}" "$@"
+fi

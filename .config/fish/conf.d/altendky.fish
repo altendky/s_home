@@ -3,6 +3,11 @@
 # function nvm
 #     bash -c "source ~/.nvm/nvm.sh; nvm $argv"
 # end
+
+if not contains -- /home/altendky/.local/lib/x86_64-linux-gnu/qt6/plugins $QT_PLUGIN_PATH
+    set -gx QT_PLUGIN_PATH /home/altendky/.local/lib/x86_64-linux-gnu/qt6/plugins $QT_PLUGIN_PATH
+end
+
 # https://gist.github.com/calle2010/b3f0054c1d4b72394d0fda7f22d47b38
 function load_nvm --on-variable disabled_PWD
   set -l default_node_version (nvm version default)

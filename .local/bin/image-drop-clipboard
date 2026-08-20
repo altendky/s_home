@@ -19,7 +19,7 @@ from typing import NoReturn
 
 import msgspec
 from platformdirs import user_config_path
-from PySide6.QtCore import QMimeData, QObject, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import QMimeData, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QAction, QIcon, QImage
 from PySide6.QtWidgets import QApplication, QLabel, QMenu, QPushButton, QSystemTrayIcon, QVBoxLayout, QWidget
 from watchfiles import Change, watch
@@ -157,15 +157,27 @@ class ImageDropClipboard(QObject):
         self.label.setWordWrap(True)
         layout.addWidget(self.label)
 
-        copy_button = QPushButton("Copy image to clipboard")
+        copy_button = QPushButton("Copy original image")
         copy_button.clicked.connect(self.copy_current)
         layout.addWidget(copy_button)
+
+        copy_1000_button = QPushButton("Copy image (1000 px long side)")
+        copy_1000_button.clicked.connect(lambda: self.copy_current(max_long_side=1000))
+        layout.addWidget(copy_1000_button)
+
+        copy_500_button = QPushButton("Copy image (500 px long side)")
+        copy_500_button.clicked.connect(lambda: self.copy_current(max_long_side=500))
+        layout.addWidget(copy_500_button)
+
+        copy_path_button = QPushButton("Copy image path")
+        copy_path_button.clicked.connect(self.copy_current_path)
+        layout.addWidget(copy_path_button)
 
         hide_button = QPushButton("Not now")
         hide_button.clicked.connect(window.hide)
         layout.addWidget(hide_button)
 
-        window.resize(420, 130)
+        window.resize(420, 250)
         return window
 
     def create_tray(self) -> QSystemTrayIcon | None:
@@ -234,9 +246,18 @@ class ImageDropClipboard(QObject):
         if latest is not None:
             self.copy_image(latest)
 
-    def copy_current(self) -> None:
+    def copy_current(self, *, max_long_side: int | None = None) -> None:
         if self.current_path is not None:
-            self.copy_image(self.current_path)
+            self.copy_image(self.current_path, max_long_side=max_long_side)
+
+    def copy_current_path(self) -> None:
+        if self.current_path is None:
+            return
+        self.app.clipboard().setText(str(self.current_path))
+        print(f"Copied image path to clipboard: {self.current_path}", flush=True)
+        if self.tray is not None:
+            self.tray.showMessage("Image path copied", self.current_path.name, QSystemTrayIcon.MessageIcon.Information, 2500)
+        self.window.hide()
 
     def offer_image(self, path: Path) -> None:
         self.current_path = path
@@ -248,11 +269,18 @@ class ImageDropClipboard(QObject):
         if self.tray is not None:
             self.tray.showMessage("Image ready for clipboard", "Click the window button to copy it.", QSystemTrayIcon.MessageIcon.Information, 5000)
 
-    def copy_image(self, path: Path) -> None:
+    def copy_image(self, path: Path, *, max_long_side: int | None = None) -> None:
         image = QImage(str(path))
         if image.isNull():
             print(f"Ignoring unreadable image: {path}", flush=True)
             return
+        if max_long_side is not None and max(image.width(), image.height()) > max_long_side:
+            image = image.scaled(
+                max_long_side,
+                max_long_side,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
         mime = QMimeData()
         mime.setImageData(image)
         self.app.clipboard().setMimeData(mime)

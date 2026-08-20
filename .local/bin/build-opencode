@@ -18,8 +18,13 @@ fi
 opentui_core_root="$opentui_root/packages/core"
 opentui_solid_root="$opentui_root/packages/solid"
 opentui_keymap_root="$opentui_root/packages/keymap"
-build_channel="${OPENCODE_CHANNEL:-dev}"
+build_channel="${OPENCODE_CHANNEL:-local}"
 preferred_zig_bin_dir="${OPENTUI_ZIG_BIN_DIR:-}"
+layout=""
+build_pkg_root=""
+build_script_path=""
+build_binary_name=""
+build_dist_prefix=""
 
 temp_root=""
 keep_temp_on_exit=false
@@ -83,14 +88,97 @@ host_native_package() {
   printf '@opentui/core-%s-%s%s\n' "$(host_platform)" "$(host_arch)" "$libc_suffix"
 }
 
+read_root_dev_script() {
+  python3 - "$opencode_root/package.json" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+except FileNotFoundError:
+    raise SystemExit(1)
+
+scripts = data.get("scripts") or {}
+dev = scripts.get("dev")
+if isinstance(dev, str):
+    print(dev)
+PY
+}
+
+use_v1_layout() {
+  layout="v1"
+  build_pkg_root="$opencode_root/packages/opencode"
+  build_script_path="$build_pkg_root/script/build.ts"
+  build_binary_name="opencode"
+  build_dist_prefix="opencode"
+}
+
+use_v2_layout() {
+  layout="v2"
+  build_pkg_root="$opencode_root/packages/cli"
+  build_script_path="$build_pkg_root/script/build.ts"
+  build_binary_name="opencode2"
+  build_dist_prefix="cli"
+}
+
+detect_build_layout() {
+  local has_v1=false
+  local has_v2=false
+  if [[ -f "$opencode_root/packages/opencode/script/build.ts" && -f "$opencode_root/packages/opencode/package.json" ]]; then
+    has_v1=true
+  fi
+  if [[ -f "$opencode_root/packages/cli/script/build.ts" && -f "$opencode_root/packages/cli/package.json" ]]; then
+    has_v2=true
+  fi
+
+  if $has_v2 && ! $has_v1; then
+    use_v2_layout
+    return 0
+  fi
+
+  if $has_v1 && ! $has_v2; then
+    use_v1_layout
+    return 0
+  fi
+
+  if $has_v1 && $has_v2; then
+    local dev_script
+    dev_script="$(read_root_dev_script || true)"
+    if [[ "$dev_script" == *"packages/cli"* ]]; then
+      use_v2_layout
+      return 0
+    fi
+    if [[ "$dev_script" == *"packages/opencode"* ]]; then
+      use_v1_layout
+      return 0
+    fi
+
+    use_v2_layout
+    return 0
+  fi
+
+  printf 'Could not detect OpenCode build layout in %s\n' "$opencode_root" >&2
+  exit 1
+}
+
+ensure_build_layout() {
+  if [[ -n "$build_pkg_root" ]]; then
+    return 0
+  fi
+
+  detect_build_layout
+}
+
 host_binary_relative_path() {
+  ensure_build_layout
   local platform
   platform="$(host_platform)"
   if [[ "$platform" == "win32" ]]; then
     platform="windows"
   fi
 
-  printf 'opencode-%s-%s/bin/opencode\n' "$platform" "$(host_arch)"
+  printf '%s-%s-%s/bin/%s\n' "$build_dist_prefix" "$platform" "$(host_arch)" "$build_binary_name"
 }
 
 resolve_zig_bin_dir() {
@@ -127,13 +215,14 @@ backup_lockfile() {
 }
 
 bootstrap_dependencies_if_needed() {
+  ensure_build_layout
   if [[ ! -d "$opentui_root/node_modules" || ! -d "$opentui_root/node_modules/yoga-layout" ]]; then
     printf 'Installing OpenTUI dependencies...\n'
     backup_lockfile "$opentui_root/bun.lock"
     run_bun_install_verbose "$opentui_root"
   fi
 
-  if [[ ! -d "$opencode_root/node_modules" || ! -d "$opencode_root/packages/opencode/node_modules" ]]; then
+  if [[ ! -d "$opencode_root/node_modules" || ! -d "$build_pkg_root/node_modules" ]]; then
     printf 'Installing OpenCode dependencies...\n'
     backup_lockfile "$opencode_root/bun.lock"
     run_bun_install_verbose "$opencode_root"
@@ -141,9 +230,10 @@ bootstrap_dependencies_if_needed() {
 }
 
 ensure_required_paths() {
+  ensure_build_layout
   local required=(
     "$opencode_root"
-    "$opencode_root/packages/opencode/script/build.ts"
+    "$build_script_path"
     "$opentui_core_root"
     "$opentui_core_root/package.json"
     "$opentui_solid_root"
@@ -232,10 +322,11 @@ resolve_import_dir() {
 }
 
 validate_swapped_resolutions() {
+  ensure_build_layout
   local resolved_core resolved_solid resolved_keymap
-  resolved_core="$(resolve_import_dir "$opencode_root/packages/opencode" "@opentui/core")"
-  resolved_solid="$(resolve_import_dir "$opencode_root/packages/opencode" "@opentui/solid")"
-  resolved_keymap="$(resolve_import_dir "$opencode_root/packages/opencode" "@opentui/keymap")"
+  resolved_core="$(resolve_import_dir "$build_pkg_root" "@opentui/core")"
+  resolved_solid="$(resolve_import_dir "$build_pkg_root" "@opentui/solid")"
+  resolved_keymap="$(resolve_import_dir "$build_pkg_root" "@opentui/keymap")"
 
   if [[ ! -f "$resolved_core/parser.worker.js" ]]; then
     printf 'Expected parser.worker.js in resolved @opentui/core package: %s\n' "$resolved_core" >&2
@@ -377,6 +468,7 @@ run_tui_build() {
 
   printf 'Using OpenTUI checkout: %s\n' "$opentui_root"
   printf 'Using OpenCode checkout: %s\n' "$opencode_root"
+  printf 'Using OpenCode package: %s\n' "$build_pkg_root"
 
   bootstrap_dependencies_if_needed
 
@@ -415,12 +507,12 @@ run_tui_build() {
 
   printf 'Building standalone OpenCode binary...\n'
   (
-    cd "$opencode_root/packages/opencode"
+    cd "$build_pkg_root"
     OPENCODE_CHANNEL="$build_channel" bun run build "${forwarded_args[@]}"
   )
 
   local binary_path
-  binary_path="$opencode_root/packages/opencode/dist/$(host_binary_relative_path)"
+  binary_path="$build_pkg_root/dist/$(host_binary_relative_path)"
   if [[ ! -x "$binary_path" ]]; then
     printf 'Expected built binary at %s\n' "$binary_path" >&2
     exit 1
@@ -464,11 +556,13 @@ if $link_tui; then
   exit 0
 fi
 
+ensure_build_layout
+
 cd "$opencode_root"
 git clean -ffdx
 rm -rf "${HOME}/.bun/install/cache/@opentui"
 
 bun install
 
-cd "$opencode_root/packages/opencode"
+cd "$build_pkg_root"
 OPENCODE_CHANNEL="$build_channel" bun run build --single "${build_args[@]}"

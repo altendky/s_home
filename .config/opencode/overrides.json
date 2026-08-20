@@ -3,6 +3,13 @@
     "bash": true,
     "question": true
   },
+  "mcp": {
+    "orchestrator": {
+      "environment": {
+        "OPENCODE_DB": "opencode-orchestrator.db"
+      }
+    }
+  },
   "permission": {
     "external_directory": {
       "*": "ask",
@@ -13,6 +20,48 @@
       "*": "ask",
       "/tmp/agents/*": "allow",
       "~/.cargo/registry/src/*": "deny"
+    }
+  },
+  "agent": {
+    "Normal": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Orchestrator": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Review": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Devtools": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Linear": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Discord": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Grafana": {
+      "permission": {
+        "execute": "allow"
+      }
+    },
+    "Sentry": {
+      "permission": {
+        "execute": "allow"
+      }
     }
   },
   "$schema": "https://opencode.ai/config.json"

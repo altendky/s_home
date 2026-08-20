@@ -6,6 +6,7 @@ trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
 
 [shell_alias]
 #bs = "Bambu_Studio.AppImage"
+oco = 'OPENCODE_DB="opencode-orchestrator.db" mise exec -- opencode --hostname 127.0.0.1 --port 0 --no-mdns'
 
 [tool_alias]
 bs = "github:bambulab/BambuStudio"
