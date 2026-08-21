@@ -325,7 +325,52 @@ the user explicitly chooses that tradeoff after seeing the residual diff. Exact
 equivalence achieved by an unexplained catch-all is not a successful
 dissection.
 
-After proving tree equivalence, recount and inspect the final history with:
+### Reviewer simulation and refinement
+
+After first proving tree equivalence, perform at least one complete review of
+the reconstructed history as if encountering it for the first time. Do not
+proceed directly from initial equivalence to numbering verification or
+publication.
+
+Inspect the actual result rather than the earlier plan:
+
+```text
+git log --graph --oneline --decorate --topo-order <base>..<result>
+git log --reverse --topo-order --format='%H %s' <base>..<result>
+git diff <commit>^1 <commit>
+git diff <commit>^2 <commit>   # also inspect the other parent of a merge
+```
+
+Read every commit message immediately before its parent diff. Evaluate:
+
+- whether the purpose and suggested reading order are obvious without relying
+  on later commits;
+- whether each commit contains one coherent reviewer concern;
+- whether extractions, moves, and reuse are presented clearly enough to
+  recognize behavior preservation;
+- whether temporary review-oriented arrangements improve clarity and have an
+  understandable follow-up;
+- whether canonical definitions and mirrored representations are separated;
+- whether dependencies are real rather than artifacts of construction;
+- whether a large commit should be split or adjacent small commits combined;
+- whether `imports`, `tests`, and `cruft` contain only their reserved mechanical
+  changes;
+- whether merge commits explain their parents and advance the review narrative.
+
+When available, ask a fresh read-only reviewer subagent to inspect the graph,
+messages, and commit diffs for clarity problems. Use it as an independent
+perspective, not as a replacement for the main workflow's review.
+
+If the pass finds concrete improvements to boundaries, ordering, explanations,
+dependencies, or diff readability, present a concise refinement plan and get
+approval before replacing generated branches. Apply the approved refinements,
+rebuild affected descendants and the result, then re-prove exact tree
+equivalence. Repeat the reviewer-simulation pass while it continues to find
+material improvements. Stop when a full pass finds none; do not prolong the
+workflow for subjective polish without a specific reviewer benefit.
+
+After refinement is stable and tree equivalence has been re-proven, recount and
+inspect the final history with:
 
 ```text
 git rev-list --count <base>..<result>
@@ -489,6 +534,7 @@ Report:
 - the scope placed in the trailing `imports`, `tests`, and `cruft` commits;
 - the result branch and its tree ID;
 - whether exact tree equality was proven;
+- how many reviewer-simulation passes were performed and what they refined;
 - whether commit numbering was verified against the final result history;
 - publication status, including the draft PR and original-comment URLs when
   publication was requested;
