@@ -2,6 +2,7 @@
   "instructions": ["~/.config/opencode/instructions.md"],
   "autoupdate": false,
   "default_agent": "plan",
+  "shell": "/usr/bin/bash",
   "formatter": false,
   "agent": {
     "general": {
