@@ -1,0 +1,1 @@
+bind main J @sh -c "setsid -f git difftool --dir-diff %(commit)^ %(commit) </dev/null >/dev/null 2>&1"
