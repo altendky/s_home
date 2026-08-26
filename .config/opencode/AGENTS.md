@@ -1,8 +1,10 @@
 # About This File
 
-This file is loaded as custom instructions from `~/.config/opencode/instructions.md`.
-When the user mentions "updating instructions" or similar, consider if they are
-referring to these agent instructions.
+This file contains the global OpenCode agent instructions and is located at
+`~/.config/opencode/AGENTS.md`. When the user refers to "instructions", "agent
+instructions", "global instructions", or asks to update instructions, treat that
+as referring to this file unless they clearly identify project-specific
+instructions, a session prompt, or another instruction source.
 
 # Temporary Files
 
@@ -12,6 +14,27 @@ and reuse the same path for the remainder of the session. Clean up individual
 files or subdirectories within it as they become unnecessary. Clean up the
 session temporary directory when it is no longer needed, unless preserving it is
 useful for debugging or user review.
+
+# Git Repository Copies And Network Access
+
+Never create shallow, partial, blobless, or promisor clones. Do not use the
+`--filter` or `--depth` options with `git clone`, or equivalent configuration.
+Do not enable `extensions.partialClone`, `remote.*.promisor`, or
+`remote.*.partialCloneFilter`. Content-based history operations including
+`git log -S`, `git log -G`, and `git log --follow` can cause partial clones to
+perform many incremental remote fetches.
+
+Prefer an existing full local repository. For isolated work, prefer
+`git worktree`; when a separate repository is necessary, use
+`git clone --shared` from a stable full local clone. If a network clone is
+unavoidable, make a full clone over HTTPS rather than SSH unless the user
+explicitly requests SSH. Do not change an existing repository's remote URL
+solely to comply with this rule.
+
+Do not run concurrent Git operations that may contact a remote. If a Git
+operation unexpectedly triggers an SSH key, credential, or interactive approval
+request, stop and report it; do not retry it automatically or start additional
+remote Git operations.
 
 # Standalone Python Scripts
 
