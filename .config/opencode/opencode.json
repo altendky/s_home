@@ -1,5 +1,5 @@
 {
-  "instructions": ["~/.config/opencode/instructions.md"],
+  "instructions": ["~/.config/opencode/AGENTS.md"],
   "autoupdate": false,
   "default_agent": "plan",
   "shell": "/usr/bin/bash",
