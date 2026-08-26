@@ -79,7 +79,7 @@ conversation.
 ## Phase 3: Map The Market
 
 Survey manufacturers deliberately across the regions and markets relevant to
-the category. For globally traded physical tools, default to checking North
+the category. For globally traded physical products, default to checking North
 America, Europe, Japan, and any additional region important to that category.
 Explain when a region is irrelevant rather than silently omitting it.
 
@@ -102,10 +102,12 @@ For each relevant manufacturer, collect enough information to understand:
 - whether it designs the product, manufactures it, or appears to private-label
   another supplier's design.
 
-Do not infer a product's country of origin from company headquarters. Do not
-state that two products share an OEM merely because they look alike or repeat
-similar marketing language. Describe such relationships as probable or
-possible unless documentary evidence establishes them.
+Do not infer a product's country of origin from company headquarters. Similar
+appearance, specifications, packaging, interfaces, or marketing language may
+justify comparing products as possible relatives, but do not treat that as
+proof of common design, manufacture, ownership, or private-label origin.
+Describe such relationships as probable or possible unless documentary
+evidence establishes them.
 
 ## Phase 4: Survey Products
 
@@ -113,6 +115,11 @@ Use manufacturer findings to discover products, and use product findings to
 discover additional manufacturers, families, competitors, and source designs.
 Continue this bidirectional loop rather than completing one survey before
 starting the other.
+
+Maintain a working ledger of serious candidates, product families, and
+solution approaches discovered during research. Record enough to reconcile
+each materially distinct eligible solution into the final result as a
+comparison candidate, adjacent alternative, or explicit exclusion.
 
 For each qualifying or potentially qualifying product, collect category-
 appropriate evidence such as:
@@ -195,6 +202,11 @@ after establishing that products fill the same role. Keep adjacent but
 non-equivalent products visible as alternatives or complements rather than
 forcing them into one ranking.
 
+Do not collapse solutions into one family when their design differences
+materially affect capability, compatibility, access, workflow, convenience,
+performance, serviceability, safety, required complementary products, or total
+ownership cost. Separate meaningful distinctions from superficial variations.
+
 Within each group, explain which design differences matter in the specific
 application and which are merely preferences. Call out where a premium buys an
 actual feature, manufacturing control, support, or durability, and where it
@@ -238,6 +250,13 @@ Lead with the useful conclusions, but preserve enough evidence and structure
 that the user can make a different tradeoff. Clearly distinguish "best made,"
 "best matched to this application," "best supported," and "best value" when
 they are different products.
+
+Before presenting the result, reconcile the working candidate ledger against
+the final comparison and account for every materially distinct eligible
+solution, including candidates found by parallel researchers. Keep market
+coverage separate from recommendation strength: high price, weak application
+evidence, or a low ranking may reduce confidence or preference, but must not
+silently erase a meaningful solution family.
 
 ## Parallelism And Stopping
 
