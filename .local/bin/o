@@ -83,7 +83,9 @@ else
     exit 2
 fi
 
+# Temporary workaround for https://github.com/anomalyco/opencode/issues/43987
 if [[ "$version" == "1" ]]; then
+    export OPENCODE_EXPERIMENTAL_DISABLE_FILEWATCHER=true
     if is_tui_launch "$@"; then
         has_hostname=0
         has_port=0
@@ -100,6 +102,9 @@ if [[ "$version" == "1" ]]; then
         ((has_mdns)) || network_args+=(--no-mdns)
     fi
 else
+    export OPENCODE_FILEWATCHER_DISABLE=true
+    export OPENCODE_DISABLE_FILEWATCHER=true
+    export OPENCODE_DISABLE_FFF=1
     network_args+=(--standalone)
 fi
 
