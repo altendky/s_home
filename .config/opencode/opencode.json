@@ -20,13 +20,18 @@
   "snapshot": false,
   "plugin": ["@onshape-mcp/opencode-auth"],
   "mcp": {
+    "onshape-official": {
+      "type": "remote",
+      "url": "https://fs-mcp.labs.onshape.app/mcp",
+      "enabled": true
+    },
     "onshape": {
       "type": "local",
       "command": [
         "npx",
         "onshape-mcp"
       ],
-      "enabled": true
+      "enabled": false
     },
     "playwright": {
       "type": "local",

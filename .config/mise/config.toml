@@ -24,7 +24,9 @@ cargo-modules = "cargo:cargo-modules"
 OPENCODE_BINARY = { value = "{{ tools.opencode.path }}/opencode", tools = true }
 
 [tools]
-bun = "latest"
+# first entry is the default `bun` on PATH; both ranges stay installed
+# (build-opencode selects between them per the opencode checkout's packageManager)
+bun = ["1.4", "1.3"]
 bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubuntu*24.04*.AppImage" }
 "github:rustdesk/rustdesk" = { version = "latest", bin = "rustdesk", asset_pattern = "*x86_64.AppImage" }
 # Ubuntu 26.04+ needs the accompanying AppArmor userns exception:

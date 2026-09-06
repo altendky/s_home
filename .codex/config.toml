@@ -1,0 +1,12 @@
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+sandbox_mode = "workspace-write"
+
+[projects."/home/altendky"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/tome"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/gw/monorepo"]
+trust_level = "trusted"

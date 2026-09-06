@@ -442,13 +442,20 @@ Put a stable hidden identity marker in the draft PR body:
 <!-- opencode-dissect:v1 original=OWNER/REPO#NUMBER target=TARGET_SHA tree=TREE_SHA run=RUN -->
 ```
 
-Put a corresponding marker containing the dissection PR number in the original
-PR comment. On rerun:
+Put a corresponding marker containing the dissection PR number and first review
+commit SHA in the original PR comment:
+
+```html
+<!-- opencode-dissect-link:v1 original=OWNER/REPO#NUMBER dissection=OWNER/REPO#NUMBER first=FIRST_SHA target=TARGET_SHA tree=TREE_SHA run=RUN -->
+```
+
+On rerun:
 
 - reuse an open draft PR only when its marker, head branch, head OID, base
   branch, target SHA, and tree SHA all match;
 - skip a push when the remote result already equals the local result;
-- skip an original-PR comment when its marker and URL already match;
+- skip an original-PR comment when its marker and direct first-commit review URL
+  already match;
 - stop before overwriting an unrelated PR or comment that happens to use the
   same branch or URL;
 - stop and ask before reopening a closed PR, converting a ready PR back to
@@ -465,6 +472,8 @@ After preflight, present one concise summary containing:
 - draft PR repository;
 - draft PR base: the original PR's head branch;
 - draft PR head: the pushed result branch;
+- first commit SHA in final topological order and, when reusing a draft PR, its
+  direct review URL;
 - whether a draft PR or original-PR comment will be created or reused.
 
 Ask a yes/no question: "Publish exactly this dissection now?" Do not mutate any
@@ -497,9 +506,23 @@ Populate the body with:
 - an explicit note to stop before trailing `imports`, `tests`, and `cruft`;
 - the Tig command for the local review.
 
-Comment on the original PR with the draft dissection PR URL, target snapshot,
-and tree ID. State that it provides an alternate review structure with an
-equivalent final tree, is not an implementation PR, and must not be merged.
+After creating or identifying the draft PR, resolve the first review commit from
+the final numbered history:
+
+```text
+git rev-list --reverse --topo-order <base>..dissect/<run>/result | sed -n '1p'
+```
+
+Construct its GitHub commit-review URL as
+`<draft-dissection-pr-url>/changes/<first-commit-sha>`. Comment on the original
+PR with a compact human-readable link such as
+``[`<first-short-sha>` (#<dissection-pr-number>)](<direct-review-url>)``. Use the
+direct first-commit review URL rather than the draft PR's overview URL, and
+include the target snapshot and tree ID. State that it provides an alternate
+review structure with an equivalent final tree, is not an implementation PR,
+and must not be merged. Include the complete corresponding idempotency marker
+with the original PR, dissection PR, first full commit SHA, target SHA, tree SHA,
+and run name.
 
 ### Verify publication
 
@@ -510,7 +533,10 @@ Verify all of the following from remote data:
 - its base is the original PR's head branch;
 - it is still a draft and its URL is known;
 - its body contains the identity marker and equivalence proof;
-- the original PR contains exactly one matching link comment.
+- the direct review URL names the first commit from the verified final
+  topological order;
+- the original PR contains exactly one matching direct first-commit link
+  comment.
 
 Recheck the original PR head. If it moved during publication, report that the
 dissection proves equivalence only to the recorded snapshot. Do not rewrite the
@@ -536,8 +562,8 @@ Report:
 - whether exact tree equality was proven;
 - how many reviewer-simulation passes were performed and what they refined;
 - whether commit numbering was verified against the final result history;
-- publication status, including the draft PR and original-comment URLs when
-  publication was requested;
+- publication status, including the draft PR, direct first-commit review, and
+  original-comment URLs when publication was requested;
 - any correction commits, unresolved concerns, or intentionally imperfect
   boundaries;
 - confirmation that the original worktree was left unchanged.
