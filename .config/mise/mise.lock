@@ -1183,7 +1183,7 @@ version = "0.25.0"
 backend = "cargo:cargo-modules"
 
 [[tools."cargo:opencode-orchestrator-mcp"]]
-version = "0.7.9"
+version = "0.7.12"
 backend = "cargo:opencode-orchestrator-mcp"
 
 [[tools."cargo:rust-script"]]
