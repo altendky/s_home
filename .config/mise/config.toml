@@ -12,6 +12,7 @@ oco = 'OPENCODE_DB="opencode-orchestrator.db" mise exec -- opencode --hostname 1
 bs = "github:bambulab/BambuStudio"
 grip = "pipx:grip"
 orchestrator = "cargo:opencode-orchestrator-mcp"
+rustdesk = "github:rustdesk/rustdesk"
 
 # for gw
 dockerfmt = "github:reteps/dockerfmt"
