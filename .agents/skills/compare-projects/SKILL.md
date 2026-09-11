@@ -1,10 +1,11 @@
 ---
-description: Compare CI workflows and settings across multiple repositories
+name: compare-projects
+description: "Compare CI workflows, GitHub Actions settings, and development tooling across specified repositories, honoring any requested focus topics."
 ---
 
 # Compare Projects CI Configuration
 
-**User input:** $ARGUMENTS
+**Input:** Read the repository references and any focus directives from the user's request and surrounding conversation.
 
 ## Objective
 
@@ -38,7 +39,7 @@ Interpret flexibly — e.g., "coverage" maps to `testing`, "renovate" maps to `i
 
 ### Phase 1: Parallel Repository Exploration
 
-**IMPORTANT: Maximize concurrency.** Launch parallel subagent tasks (one per repository) simultaneously to gather CI configuration details. Do NOT process repositories sequentially.
+Use the host's available subagent interface to explore independent repositories concurrently, with one task per repository and within its concurrency limits. If delegation is unavailable or prohibited, perform the same scoped exploration directly and explain that limitation. Keep Git operations that contact a remote sequential, as required by the shared global instructions.
 
 Each subagent should explore a single repository and return a structured summary. **If focus topics were identified in Scope Determination, instruct each subagent to gather information ONLY for those topics. Skip all other categories.** If no focus topics were identified, cover all of the following:
 

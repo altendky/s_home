@@ -1,10 +1,11 @@
 ---
-description: Request CodeRabbit review, waiting for rate limits when needed
+name: coderabbit-review
+description: "Request a CodeRabbit review for a GitHub pull request, check for existing approval, and wait out reported review limits. Use when the user asks to trigger a CodeRabbit review."
 ---
 
 # Request CodeRabbit Review
 
-**PR URL or number (optional):** $1
+**PR reference (optional):** Read the GitHub PR URL or number from the user's request. If omitted, infer the PR for the current branch as described below.
 
 Request a CodeRabbit review for the provided PR. If CodeRabbit has already
 approved the PR, no action is needed. If the latest relevant CodeRabbit comment
@@ -14,23 +15,23 @@ before posting `@coderabbitai review`.
 ## Process
 
 0. **Check execution permissions before doing any long wait:**
-   - Before calculating or sleeping, check whether the current opencode mode, system prompts, tool permissions, or user instructions allow posting the final GitHub comment.
+   - Before calculating or sleeping, check whether the current agent mode, system prompts, tool permissions, or user instructions allow posting the final GitHub comment.
    - If the current mode is read-only, plan-only, or otherwise prevents running the final `gh api ... -f body='@coderabbitai review'` command, warn the user immediately and stop before waiting.
    - The warning must clearly say that the command would be able to wait but would not be allowed to submit the CodeRabbit trigger comment afterward.
-   - Ask the user to change mode or permissions, then rerun the command.
+   - Ask the user to change mode or permissions, then invoke this skill again.
    - Do not sleep unless the final comment submission is expected to be permitted.
 
 1. **Identify the PR:**
-   - If `$1` is omitted, infer the PR for the current branch with:
+   - If the PR reference is omitted, infer the PR for the current branch with:
 
      ```sh
      gh pr view --json url --jq .url
      ```
 
    - If no PR is associated with the current branch, report that no PR could be inferred and ask the user to provide a PR URL or PR number.
-   - If `$1` is a GitHub PR URL matching `https://github.com/<owner>/<repo>/pull/<number>`, use it.
-   - If `$1` is a bare PR number, use `gh pr view <number> --json url --jq .url` to resolve the full URL for the current repository.
-   - If `$1` is provided but is neither a PR URL nor a bare PR number, ask the user for a PR URL or PR number and stop.
+   - If the PR reference is a GitHub PR URL matching `https://github.com/<owner>/<repo>/pull/<number>`, use it.
+   - If the PR reference is a bare PR number, use `gh pr view <number> --json url --jq .url` to resolve the full URL for the current repository.
+   - If the PR reference is provided but is neither a PR URL nor a bare PR number, ask the user for a PR URL or PR number and stop.
 
 2. **Check for existing CodeRabbit approval:**
    - Fetch PR reviews with:
@@ -92,7 +93,7 @@ before posting `@coderabbitai review`.
 6. **Wait if needed:**
    - If `remaining_seconds <= 0`, do not sleep.
    - If `remaining_seconds > 0`, sleep for `remaining_seconds + 15` seconds.
-   - When invoking the shell tool for this command, set its timeout greater than the planned sleep duration plus a small margin. A long `sleep` can otherwise be reported as a tool error even though the script logic is correct.
+   - Use the host's interruptible waiting or background execution facilities. Keep blocking waits within the host's limits, check for cancellation, and provide progress updates during long waits. If using the shell example below, run it through a background-capable shell interface and poll it without blocking user interaction for the whole delay.
 
 7. **Request the review:**
    - Post the trigger comment:
@@ -105,11 +106,13 @@ before posting `@coderabbitai review`.
 
 ## Suggested Implementation
 
+Use this example only after checking that the requested GitHub comment is authorized and the host permits posting it. For a long wait, use background execution and periodically report progress; honor cancellation before the comment is posted. Save the example to a temporary shell script and pass the optional PR URL or number as its first shell argument, properly quoted. The `$1` below is an actual script argument; do not substitute user text into the script source.
+
 Use this shell script structure from any directory where `gh` is authenticated.
 It requires `jq`, `perl`, and GNU `date`.
 
 ```sh
-input='$1'
+input=${1:-}
 
 if [ -z "$input" ]; then
   pr_url=$(gh pr view --json url --jq .url 2>/dev/null) || {
@@ -200,7 +203,15 @@ printf 'More reviews available at: %s\n' "$available_at"
 if [ "$remaining_seconds" -gt 0 ]; then
   wait_seconds=$((remaining_seconds + 15))
   printf 'Waiting %s seconds plus 15 second buffer: %s seconds total\n' "$remaining_seconds" "$wait_seconds"
-  sleep "$wait_seconds"
+  while [ "$wait_seconds" -gt 0 ]; do
+    chunk_seconds=$wait_seconds
+    if [ "$chunk_seconds" -gt 60 ]; then chunk_seconds=60; fi
+    sleep "$chunk_seconds"
+    wait_seconds=$((wait_seconds - chunk_seconds))
+    if [ "$wait_seconds" -gt 0 ]; then
+      printf 'Waiting for CodeRabbit: %s seconds remaining\n' "$wait_seconds"
+    fi
+  done
 else
   printf 'Reset time has already passed; submitting review request immediately.\n'
 fi

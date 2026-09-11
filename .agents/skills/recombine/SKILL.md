@@ -1,10 +1,11 @@
 ---
-description: Catch up constituent branches and recreate a combined integration branch
+name: recombine
+description: Catch up the constituent branches of a combined integration branch to its base, drop work already merged upstream, and recreate the combined branch. Use when the user requests the interactive recombine workflow.
 ---
 
 # Recombine
 
-**Arguments:** $ARGUMENTS
+**Inputs:** Read optional combined-branch and base-branch names from the user's request; use the defaults in Phase 1 when omitted.
 
 **Execute this workflow on the current repository.** Follow each phase in order,
 run the git commands shown, and prompt the user at every decision point. Do not
@@ -12,11 +13,11 @@ treat this as documentation — it is a runbook to be carried out interactively.
 
 ## Pre-flight check
 
-This workflow modifies local branches. Before proceeding, verify that your
-current mode permits running bash commands and making changes. If you are in
-read-only or plan mode, stop immediately and ask the user to switch to the build
-agent (Tab key) and re-run this command. Do not proceed to Phase 1 until you can
-confirm you are able to take action.
+This workflow modifies local branches. Before proceeding, verify that the
+current host and mode permit shell commands and changes. If you are restricted
+to read-only work or planning, explain the restriction and ask the user to enable
+execution through the host's available interface. Do not proceed to Phase 1 until
+action is permitted. Do not assume a particular agent name or keyboard shortcut.
 
 **Goal:** Recreate the combined integration branch by catching up all its
 constituent branches to the latest base branch, dropping any that have been
@@ -32,7 +33,7 @@ fully merged upstream, and rebuilding the combined branch from scratch.
 - Do not modify branches beyond merging the base branch into them.
 - When merge conflicts occur, present them to the user and let them decide how
   to proceed — do not silently abort or auto-resolve without approval.
-- This command focuses narrowly on incorporating upstream changes and
+- This skill focuses narrowly on incorporating upstream changes and
   rebuilding the combined branch. It does not perform general repository
   cleanup (e.g., pruning stale remote-tracking references or deleting
   old branches beyond those identified as fully merged).
@@ -42,9 +43,10 @@ fully merged upstream, and rebuilding the combined branch from scratch.
 > **Workflow note:** Execute these phases sequentially. Run the exact git
 > commands provided and stop for user confirmation at every decision point.
 
-### 1.1 Parse arguments
+### 1.1 Read the request
 
-Optional positional arguments: `[combined-branch] [base-branch]`
+Optional inputs: combined branch and base branch. Accept names in natural
+language, or two names in that order when the request uses positional shorthand.
 
 - **combined-branch**: Name of the combined integration branch. Default:
   `combined`.

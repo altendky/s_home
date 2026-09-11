@@ -1,25 +1,27 @@
 ---
-description: Lightly merge a source branch into the current branch with basic safety checks
+name: mrg
+description: Perform a lightweight merge of a source branch into the current branch with basic safety checks and optional tests. Use for simple or routine merges; escalate broad, architectural, or semantically risky conflicts to the full merge skill.
 ---
 
 # Light Merge
 
-**Source branch:** $1
+**Source branch:** Read the branch or ref from the user's request. Use `<source>` below for that resolved ref.
 
 Merge the specified source branch into the current branch using a lightweight,
-pragmatic workflow. This command is for simple or routine merges. If conflicts
+pragmatic workflow. This skill is for simple or routine merges. If conflicts
 become broad, architectural, or semantically risky, pause and recommend rerunning
-with `/merge` instead.
+with the `merge` skill instead.
 
-If $1 is not provided, ask the user to supply a branch name.
+If the request does not identify a source branch, ask the user to supply one.
 
 ## Principles
 
 - Keep the workflow fast and local. Do not perform deep branch topology analysis
   unless a concrete problem requires it.
 - Do not create temporary worktrees or source checkouts by default.
-- Do not use subagents by default. Use them only when conflict analysis becomes
-  noisy enough that delegating would materially improve clarity.
+- Do not use subagents by default. Use the current host's available subagent
+  tools only when conflict analysis becomes noisy enough that delegating would
+  materially improve clarity; if unavailable, analyze locally.
 - Do not assume project tooling. Offer checks/tests when discovered or obvious,
   but do not require them for simple merges.
 - Do not commit or push without explicit user approval.
@@ -109,7 +111,7 @@ Handle conflicts according to complexity:
 - For ambiguous semantic conflicts, explain the trade-off and ask the user before
   editing.
 - If conflicts span many files, changed APIs, renamed modules, or architectural
-  decisions, stop and recommend using `/merge` for the full analysis workflow.
+  decisions, stop and recommend using the `merge` skill for the full analysis workflow.
 
 After resolving conflicts:
 
@@ -175,6 +177,6 @@ never force push unless explicitly requested.
 
 - If any Git command fails unexpectedly, show the error and ask how to proceed.
 - If the lightweight workflow no longer fits the conflict complexity, stop and
-  recommend `/merge` rather than improvising a deep merge process inline.
+  recommend the `merge` skill rather than improvising a deep merge process inline.
 - If the user chooses to abort, run `git merge --abort` only when a merge is in
   progress.

@@ -1,26 +1,31 @@
 ---
-description: Process GitHub PR review comments
+name: process-comments
+description: Evaluate and address existing GitHub PR review threads, with verified findings, per-group decisions and commits, and approved replies. Use for processing review comments on a PR or selected comment URLs, not for conducting a new PR review.
 ---
 
 # Process GitHub PR Review Comments
 
-**Arguments:** $ARGUMENTS
+**Inputs:** Use the PR reference, selected review-comment references, and processing directions supplied in the user's request and current conversation. When no reference is supplied, infer the PR for the current branch as described below.
 
 ## User interaction convention
 
-When a step calls for presenting multiple independent choices to the user simultaneously, use the **question tool** with one question per item. This allows the user to review and decide on each item independently in a tabbed interface. Each question should have a short `header` (≤30 chars), a descriptive `question` with full context, and concise option labels. The recommended option should be listed first with `"(Recommended)"` appended to its label. The user always has the option to type a custom answer.
+Keep a separate decision for each thread, group, and draft reply. Use the current host's question interface when it is available and permitted for that kind of decision. Respect its limits on question counts, choices, and label lengths; split rounds into smaller batches when necessary. Labels, context, and decisions below describe the information to present, not a required tool schema or tabbed UI.
+
+If an appropriate interface is unavailable or disallowed, ask a concise direct question in the host's permitted conversation channel and let the user state their decision or revision in their own words. Preserve the required decisions even when the host cannot display every choice at once. A missing answer does not authorize implementation or posting.
+
+Apply decisions and authorization already supplied in the current conversation; do not ask the user to repeat them. Approving a code approach does not approve a reply's text: present the actual draft for posting approval unless the user has already explicitly authorized that reply.
 
 ## Process
 
 1. **Validate and parse the input:**
-   - Parse all input from `$ARGUMENTS`, not just the first token. Supported forms include:
+   - Parse the full user request and all supplied references, not just the first token. Supported forms include:
      - No input: infer the PR for the current branch.
      - PR reference: PR URL or bare PR number → **PR-wide mode**.
      - Comment reference: PR review comment URL containing `#discussion_r123`, `#r123`, or `/files#r123`, or an `r1234567890` token with PR context → **selected-comments mode**.
      - Multiple comment references: pasted comment URLs separated by whitespace → **selected-comments mode**.
      - Mixed PR and comment references: PR URL/number plus one or more comment URLs → **selected-comments mode**, with the PR reference used only to disambiguate repository/PR context.
    - If no input is provided, attempt to identify the PR for the current branch: `gh pr view --json number --jq '.number'`. If this succeeds, use the returned PR number → **PR-wide mode**. If this fails (no PR associated with the current branch, or not on a branch), inform the user: "No input provided and no PR found for the current branch. Provide a comment URL, PR URL, PR number, or one or more PR review comment URLs." **Stop.**
-   - If the input contains `/issues/` → **stop** and inform the user: "This appears to be an issue URL, not a PR review comment. Use `/process-issue` instead."
+   - If the input contains `/issues/` → **stop** and inform the user: "This appears to be an issue URL, not a PR review comment. Use the `process-issue` skill instead."
    - Extract all PR URLs and review comment URLs from the input. For each comment URL like `https://github.com/owner/repo/pull/123#discussion_r1234567890` or `https://github.com/owner/repo/pull/123/files#r1234567890`, extract the repository owner/name, PR number, and comment ID (the number after `r`).
    - If any comment references are present, enter **selected-comments mode**. Require all comment URLs and any explicit PR reference to point to the same repository and PR. If they do not, inform the user which references conflict and **stop**.
    - If no comment references are present and a PR URL like `https://github.com/owner/repo/pull/123` is provided, extract the repository owner/name and PR number → **PR-wide mode**.
@@ -124,18 +129,16 @@ When a step calls for presenting multiple independent choices to the user simult
    - If the user selected a comment in a thread with multiple comments, process the full thread context, not just the selected comment body.
 
    **PR-wide mode:**
-    - Use the **question tool** with one question per unresolved thread:
-      - `header`: `file:line` (truncated to 30 chars)
-      - `question`: file path, line range, first line of comment body, author
-      - `options`: `"Evaluate (Recommended)"`, `"Reject"`, `"Skip"`
-       - `multiple: false`
+    - Collect a separate decision for each unresolved thread:
+      - **Label:** `file:line`
+      - **Context:** file path, line range, first line of comment body, author
+      - **Decisions:** `"Evaluate (Recommended)"`, `"Reject"`, `"Skip"`
      - Collect all threads the user selected "Evaluate" for into the working set.
 
-   **Draft rejection replies:** After all selection choices have been collected, gather all rejected threads — both those rejected in this step and any queued for rejection from step 3. For each rejected thread, consider whether you have enough context to draft a suggested rejection reply. Use the **question tool** with one question per rejected thread:
-    - `header`: `file:line` (truncated to 30 chars)
-    - `question`: If a draft reply is available, present the full draft text and ask the user to accept or revise it. If no draft is possible, explain why (e.g., "I don't have enough context about why you want to reject this") and ask the user to provide the reply text.
-    - `options`: `"Accept draft (Recommended)"` (only if a draft was provided), `"Skip reply"`
-    - `multiple: false`
+   **Draft rejection replies:** After all selection choices have been collected, gather all rejected threads — both those rejected in this step and any queued for rejection from step 3. For each rejected thread, consider whether you have enough context to draft a suggested rejection reply. Collect a separate decision for each rejected thread:
+    - **Label:** `file:line`
+    - **Context:** If a draft reply is available, present the full draft text and ask the user to accept or revise it. If no draft is possible, explain why (e.g., "I don't have enough context about why you want to reject this") and ask the user to provide the reply text.
+    - **Decisions:** `"Accept draft (Recommended)"` (only if a draft was provided), `"Skip reply"`
     - The user may type a custom answer as the reply text or as revision guidance. If guidance is given, revise the draft and re-present in another round until accepted or skipped.
 
    Rejected threads skip steps 6–9. Their approved rejection replies are queued for posting in step 10.
@@ -148,28 +151,25 @@ When a step calls for presenting multiple independent choices to the user simult
      - **Interleaved resolutions** — fixing one comment necessarily touches code that another comment also addresses, so they cannot be resolved independently without conflicts.
    - Do NOT group comments merely because they are in the same file, from the same reviewer, or about the same general topic.
    - If there is only a single comment/thread total, skip the grouping presentation and proceed directly.
-   - If any multi-thread groups are proposed, present them using the question tool in two rounds:
+   - If any multi-thread groups are proposed, present them using the interaction convention in two rounds:
 
-     **Round 1 — Group acceptance:** Use the **question tool** with one question per proposed group:
-      - `header`: brief group label (e.g., `Rename get_val`)
-      - `question`: which threads are in the group, why they're grouped, and the suggested primary comment
-      - `options`: `"Accept"`, `"Split into separate commits"`, `"Reject entire group"`, `"Skip entire group"`
-      - `multiple: false`
+     **Round 1 — Group acceptance:** Collect a separate decision for each proposed group:
+      - **Label:** brief group label (e.g., `Rename get_val`)
+      - **Context:** which threads are in the group, why they're grouped, and the suggested primary comment
+      - **Decisions:** `"Accept"`, `"Split into separate commits"`, `"Reject entire group"`, `"Skip entire group"`
 
-      **Round 1b — Draft rejection replies** (only if any groups were rejected): For each rejected group, draft a rejection reply for the group's primary thread using the same approach as step 5's rejection reply drafting. Use the **question tool** with one question per rejected group:
-      - `header`: same group label as round 1
-      - `question`: If a draft reply is available, present the full draft text. If not, explain why and ask the user to provide the reply text.
-      - `options`: `"Accept draft (Recommended)"` (only if a draft was provided), `"Skip reply"`
-      - `multiple: false`
+      **Round 1b — Draft rejection replies** (only if any groups were rejected): For each rejected group, draft a rejection reply for the group's primary thread using the same approach as step 5's rejection reply drafting. Collect a separate decision for each rejected group:
+      - **Label:** same group label as round 1
+      - **Context:** If a draft reply is available, present the full draft text. If not, explain why and ask the user to provide the reply text.
+      - **Decisions:** `"Accept draft (Recommended)"` (only if a draft was provided), `"Skip reply"`
       - The user may type a custom answer as the reply text or as revision guidance. If guidance is given, revise the draft and re-present in another round until accepted or skipped.
 
       Rejected groups skip steps 7–9. Their approved rejection replies are queued for posting in step 10. If a rejected group contains multiple threads, the rejection reply is posted to the primary thread and secondary replies linking to the primary are posted to the remaining threads (handled in step 10).
 
-      **Round 2 — Primary comment selection** (only for accepted groups that contain multiple threads): Use the **question tool** with one question per such group:
-      - `header`: same group label as round 1
-      - `question`: "Which thread should be the primary comment for this group?"
-      - `options`: one option per thread in the group — `label`: `file:line`, `description`: first line of comment body. The agent's suggested primary should be listed first with `"(Recommended)"` appended.
-      - `multiple: false`
+      **Round 2 — Primary comment selection** (only for accepted groups that contain multiple threads): Collect a separate decision for each such group:
+      - **Label:** same group label as round 1
+      - **Context:** "Which thread should be the primary comment for this group?"
+      - **Decisions:** one option per thread in the group — identify it by `file:line` and the first line of its comment body. The agent's suggested primary should be listed first with `"(Recommended)"` appended.
 
       Skip round 2 entirely if no accepted group has multiple threads.
 
@@ -201,7 +201,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
    **7b. Verify the feedback:**
 
-   Launch a subagent for each group in parallel to perform verification. Each subagent should:
+   Use a subagent for each group in parallel when the host supports delegation, batching within its concurrency limits. Otherwise perform the same independent verification locally. Each verifier should:
 
    - Read the relevant file(s) mentioned in the comments.
    - Understand the surrounding code and its purpose.
@@ -220,24 +220,22 @@ When a step calls for presenting multiple independent choices to the user simult
 
    **Phase 2 — Batch approach confirmation:**
 
-   After all groups have been verified, use the **question tool** with one question per group:
-   - `header`: brief group label (e.g., `Error context`)
-   - `question`: Include all of the following:
+   After all groups have been verified, collect a separate decision for each group:
+   - **Label:** brief group label (e.g., `Error context`)
+   - **Context:** Include all of the following:
      - **Reviewer's claim:** What the reviewer is asserting or requesting
      - **Verification findings:** Evidence that supports or contradicts the claim. Be specific — cite code, test results, or logic that informed the assessment. If the reviewer appears to have misunderstood something, explain what they missed.
      - **Confidence:** High, medium, or low
      - **Recommendation:** Intended resolution (proceed as suggested, proceed with modifications, or decline) with rationale
      - **Original comment URL(s)** for full context
-   - `options`: When verification supports the reviewer's claim, use `"Proceed (Recommended)"`, `"Reject"`, `"Skip"`, `"Discuss"`. When verification contradicts the claim, use `"Reject (Recommended)"`, `"Skip"`, `"Proceed anyway"`, `"Discuss"`.
-   - `multiple: false`
+   - **Decisions:** When verification supports the reviewer's claim, use `"Proceed (Recommended)"`, `"Reject"`, `"Skip"`, `"Discuss"`. When verification contradicts the claim, use `"Reject (Recommended)"`, `"Skip"`, `"Proceed anyway"`, `"Discuss"`.
 
-   If there is only a single group, still use the question tool — the user should review verification findings and confirm before implementation begins.
+   If there is only a single group, still collect the approach decision — the user should review verification findings and confirm before implementation begins.
 
-   **Phase 2b — Draft rejection replies** (only if any groups were rejected): For each rejected group, draft a rejection reply using the verification findings as context. Use the **question tool** with one question per rejected group:
-   - `header`: brief group label
-   - `question`: Present the full draft rejection reply, which should reference the specific verification findings (e.g., contradicting evidence, why the proposed change is unnecessary, or why an alternative approach is preferred).
-   - `options`: `"Accept draft (Recommended)"`, `"Skip reply"`
-   - `multiple: false`
+   **Phase 2b — Draft rejection replies** (only if any groups were rejected): For each rejected group, draft a rejection reply using the verification findings as context. Collect a separate decision for each rejected group:
+   - **Label:** brief group label
+   - **Context:** Present the full draft rejection reply, which should reference the specific verification findings (e.g., contradicting evidence, why the proposed change is unnecessary, or why an alternative approach is preferred).
+   - **Decisions:** `"Accept draft (Recommended)"`, `"Skip reply"`
    - The user may type a custom answer as the reply text or as revision guidance. If guidance is given, revise the draft and re-present in another round until accepted or skipped.
 
    Rejected groups skip Phase 4 (implementation). Their approved rejection replies are queued for posting in step 10.
@@ -257,7 +255,7 @@ When a step calls for presenting multiple independent choices to the user simult
    - Ensure changes are consistent with the codebase style and conventions.
 
    **7e. Verify changes:**
-   - Run `git diff` (full diff, not just `--name-only`) and confirm the changes correspond only to the current group's scope. Check for changes belonging to other groups that may have leaked into the working tree — especially when multiple groups touch the same file. If unrelated changes are present, stash or revert them before proceeding to commit. If unexpected files appear, flag them to the user.
+   - Run `git diff` (full diff, not just `--name-only`) and confirm the changes correspond only to the current group's scope. Check for changes belonging to other groups that may have leaked into the working tree — especially when multiple groups touch the same file. Remove only accidental out-of-scope changes introduced by this workflow. Preserve pre-existing user or agent work; do not stash or revert it without authorization. If unexpected files or changes cannot be safely separated, flag them to the user before committing.
    - Determine the appropriate targeted verification for this group without asking the user. Use the repository's existing tooling and the changed files to decide what to run, preferring the smallest checks that provide meaningful confidence (for example: focused tests for touched code, type checks for typed code, lint/format checks when configured and relevant).
    - Run the selected tests/checks before committing. If no meaningful targeted verification is available, state that briefly and continue after reviewing the diff.
    - If failures occur, investigate whether they are caused by the current group's changes. Fix failures caused by the current group and re-run the relevant checks. If the failure appears unrelated, pre-existing, flaky, or requires a product/design tradeoff, show the relevant output and ask the user how to proceed.
@@ -283,7 +281,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
 8. **Pre-push verification:**
 
-   Before pushing, run the project's automated checks to ensure the changes don't break anything. Launch all configured checks **in parallel** (they are independent):
+   Before pushing, ensure the project's configured automated checks have passed for the final changes. Reuse applicable successful results from step 7e and run any remaining checks. Run checks **in parallel** when they are independent:
 
    - The project's test suite
    - The type checker (if configured)
@@ -323,11 +321,10 @@ When a step calls for presenting multiple independent choices to the user simult
 
    Use an iterative multi-question cycle to review and refine all draft replies. This includes both implementation replies drafted in 10a **and** previously-approved rejection replies (giving the user a final unified view before posting).
 
-   1. Use the **question tool** with one question per draft reply:
-      - `header`: `file:line` of the target thread (truncated to 30 chars)
-      - `question`: the full draft reply text, marked as primary, secondary, or rejection, with target info (group, thread, file:line)
-      - `options`: `"Post as-is (Recommended)"`, `"Skip"`
-      - `multiple: false`
+   1. Collect a separate decision for each draft reply:
+      - **Label:** `file:line` of the target thread
+      - **Context:** the full draft reply text, marked as primary, secondary, or rejection, with target info (group, thread, file:line)
+      - **Decisions:** `"Post as-is (Recommended)"`, `"Skip"`
       - The user may also type a custom answer as **guidance for revision** — instructions for how to change the reply (e.g., "make it shorter", "mention the performance impact", "don't link the commit"). This is guidance, not necessarily verbatim replacement text.
 
    2. For any reply where the user provided revision guidance: revise the draft based on the guidance.
@@ -338,13 +335,15 @@ When a step calls for presenting multiple independent choices to the user simult
 
    **10c. Post replies in batches:**
 
+   Create each approved reply body in a temporary file with a file-editing tool, preserving literal Markdown and code. Pass the file to `gh api` as shown below rather than interpolating reply text into shell arguments.
+
    Post replies in three sequential batches. Within each batch, post all replies **in parallel** (each targets an independent thread):
 
    - **Batch 1: Primary replies.** Post all approved **primary replies** (implementation), each to the **root comment ID** of its thread:
 
      ```bash
      gh api repos/{owner}/{repo}/pulls/{pull_number}/comments \
-       -f body="<primary reply text>" \
+       -F body=@{primary_reply_body_file} \
        -F in_reply_to={root_comment_id}
      ```
 
@@ -354,7 +353,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
      ```bash
      gh api repos/{owner}/{repo}/pulls/{pull_number}/comments \
-       -f body="<secondary reply text>" \
+       -F body=@{secondary_reply_body_file} \
        -F in_reply_to={root_comment_id_of_this_thread}
      ```
 
@@ -367,7 +366,7 @@ When a step calls for presenting multiple independent choices to the user simult
 
 These principles apply across all steps:
 
-- **Transient errors** (HTTP 5xx, 429 rate limits, network timeouts): retry up to 3 times with a brief pause between attempts before reporting the failure to the user.
+- **Transient read errors** (HTTP 5xx, 429 rate limits, network timeouts): retry up to 3 times with a brief pause between attempts before reporting the failure to the user. Before retrying a write such as a reply, check whether it already succeeded; never blindly duplicate a mutation after an ambiguous response. Stop and report the uncertainty if its outcome cannot be established. Follow the applicable Git/signing failure rules for commits and pushes.
 - **Authentication/permission errors** (401, 403): inform the user and stop — this likely needs manual intervention such as re-authentication or adjusting token scopes.
 - **Not found errors** (404): inform the user with context about what was not found (comment, PR, repository) and stop.
 - **Unexpected errors:** show the full error output and ask the user how to proceed.

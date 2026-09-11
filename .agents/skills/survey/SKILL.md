@@ -1,10 +1,11 @@
 ---
-description: Survey a product category and organize evidence-based choices
+name: survey
+description: Conduct an interactive, read-only survey of a product, device, tool, component, or service category. Map mechanisms, manufacturers, comparable products, application compatibility, and evidence-based choices when the user wants a market survey or substantial product comparison.
 ---
 
 # Product Survey
 
-**Research request:** $ARGUMENTS
+**Research request:** Use the category, specific application, candidate products, constraints, and preferences supplied in the user's request and current conversation.
 
 Conduct an interactive, read-only survey of the requested product, device,
 tool, component, or service category. The goal is not merely to name a winner.

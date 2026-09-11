@@ -1,10 +1,14 @@
 # About This File
 
-This file contains the global OpenCode agent instructions and is located at
-`~/.config/opencode/AGENTS.md`. When the user refers to "instructions", "agent
+This file contains shared global instructions for agents and is located at
+`~/.agents/AGENTS.md`. When the user refers to "instructions", "agent
 instructions", "global instructions", or asks to update instructions, treat that
 as referring to this file unless they clearly identify project-specific
 instructions, a session prompt, or another instruction source.
+
+Guidance about a specific tool's interfaces or session storage applies when using
+or working on that tool. Use the current host's equivalent interfaces for shared
+workflows.
 
 # Temporary Files
 

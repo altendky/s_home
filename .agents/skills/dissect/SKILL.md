@@ -1,10 +1,9 @@
 ---
-description: Rebuild a change as an explanatory DAG of reviewable commits
+name: dissect
+description: Reconstruct an existing Git change or patch as an explanatory DAG of reviewable commits with an exactly equivalent final tree. Use when asked to dissect a change for review or rebuild its review history.
 ---
 
 # Dissect Changes
-
-**Arguments:** $ARGUMENTS
 
 Execute this workflow interactively in the current Git repository. The goal is
 to reconstruct an existing change as a set of small, explanatory commits and
@@ -19,24 +18,19 @@ pass tests. Exact final-tree equivalence is still required because it proves the
 dissection represents the requested change; it is not a substitute for, or a
 request to perform, build and test validation.
 
-## Invocation
+## Input
 
-Accept these input forms:
+Read the base, target, optional patch path, and review guidance from the user's
+request and current conversation. Accept revisions supplied as a pair,
+`<base>..<target>`, or `<default-branch>...<target>`, and a base plus a patch file
+(including `<base> --patch <path>`).
+Natural language is sufficient; no command template or argument substitution is
+required. Treat additional text as guidance about useful boundaries, ordering,
+naming, or reviewer concerns. Do not interpolate request text into shell
+commands. Resolve and validate revisions and paths separately before using them.
 
-```text
-/dissect
-/dissect <base-revision> <target-revision> [guidance]
-/dissect <base-revision> --patch <patch-file> [guidance]
-/dissect <base-revision>..<target-revision> [guidance]
-/dissect <default-branch>...<target-revision> [guidance]
-```
-
-Treat additional text as guidance about useful boundaries, ordering, naming,
-or reviewer concerns. Do not interpolate argument text into shell commands.
-Resolve and validate revisions and paths separately before using them.
-
-With no arguments, default to `<default-branch>...HEAD`. Detect the default
-branch from the symbolic remote HEAD, preferring `upstream` and then `origin`,
+With no base or target supplied, default to `<default-branch>...HEAD`. Detect
+the default branch from the symbolic remote HEAD, preferring `upstream` and then `origin`,
 and fall back to an unambiguous local `main`, `master`, or `dev`. For three-dot
 input, resolve the reconstruction base with `git merge-base <left> <right>` and
 use the right side as the target; this matches the tree change selected by
@@ -57,20 +51,23 @@ failure.
 
 ## Safety Rules
 
-- Before doing work, confirm that the active agent can run shell commands,
-  create commits, and modify branches. In plan or read-only mode, stop and ask
-  the user to switch to the build agent and rerun the command.
+- Before construction, verify that the current host permits shell commands,
+  commits, and branch changes. If these capabilities are unavailable, complete
+  permitted inspection and planning, then explain which execution capability
+  is needed to construct the approved DAG.
 - Never modify, reset, rebase, delete, or check out the user's source branches.
 - Do not push by default. The only exception is the opt-in publication phase,
   after local completion and two explicit user decisions. Even then, push only
   the result branch with a normal non-forced push.
 - Never force-update a branch.
-- Create every commit and merge with `--no-verify`. Do not run pre-commit,
+- Create every commit and merge with `--no-verify`, preserving configured commit
+  signing and its normal approval path. Do not run pre-commit,
   commit-message, or merge hooks manually; they are outside the scope of review
   decomposition and can waste time or introduce unrelated failures.
-- Perform construction in temporary worktrees under `/tmp/opencode`, not in the
-  user's current worktree. Existing uncommitted changes in the current worktree
-  must remain untouched.
+- Perform construction in the shared session temporary directory under
+  `${TMPDIR:-/tmp}/agents/`, following the global temporary-file convention.
+  Existing uncommitted changes in the user's current worktree must remain
+  untouched.
 - Put every created branch under `dissect/`.
 - Before creating anything, list colliding `dissect/` branches and worktrees.
   If names collide, offer to continue the prior dissection, choose another run
@@ -385,15 +382,18 @@ stale or duplicate numbering.
 
 ## Phase 6: Optional Publication
 
-Publication is never inferred from the arguments or conversation. After exact
-tree equivalence and commit numbering are proven, briefly ask:
+Publication is separate from local reconstruction; invoking the skill alone
+does not authorize it. After exact tree equivalence and commit numbering are
+proven, if the user has not already explicitly requested publication, briefly
+ask:
 
 > Publish this as a draft dissection PR and link it from the original PR?
 
 If the user declines, perform no publication discovery or network mutation and
 continue to the report. If the user accepts, perform the following read-only
 preflight. Acceptance of the brief offer authorizes discovery only, not remote
-mutation.
+mutation. Honor explicit authorization already given for these same actions;
+do not repeat an approval step the user has already completed.
 
 ### Discover the original PR
 
@@ -435,6 +435,10 @@ Search all PR states in the original head repository for a PR using this result
 branch. Search the original PR's comments for an existing dissection link.
 
 ### Idempotency markers
+
+Keep the legacy `opencode-dissect` marker names so previous dissections remain
+discoverable across hosts and reruns do not create duplicate PRs or comments.
+They identify the artifact format, not the host executing the skill.
 
 Put a stable hidden identity marker in the draft PR body:
 

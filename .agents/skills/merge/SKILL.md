@@ -1,16 +1,17 @@
 ---
-description: Merge a source branch into the current branch with deep analysis, parallel conflict resolution, and full verification
+name: merge
+description: Merge a source branch into the current branch with deep branch analysis, reviewed conflict resolution, and full verification. Use for the full merge workflow or broad, architectural, or semantically risky conflicts; use mrg for routine lightweight merges.
 ---
 
 # Merge Branch
 
-**Source branch:** $1
+**Source branch:** Read the branch or ref from the user's request. Use `<source>` below for that resolved ref.
 
-Merge the specified source branch into the current branch. This command is repo-agnostic and must be run from inside a Git repository.
+Merge the specified source branch into the current branch. This skill is repo-agnostic and must be run from inside a Git repository.
 
 ## Principles
 
-- Use the `task` tool aggressively to parallelize analysis work across files and branches.
+- Use the current host's available subagent tools to parallelize independent analysis across files and branches. Prefer agents with shell/Git access. If delegation is unavailable, perform the same analyses locally in sequence and state that independent subagent review was unavailable. Host-specific agent types and tool names are not required.
 - The main agent is an orchestrator and user-facing decision-maker. Delegate data-heavy work (git output processing, file reading/editing, test execution, diff analysis) to subagents so that raw outputs stay out of the main context. Subagents return concise structured summaries.
 - **Subagent branch awareness**: The main working tree reflects the **current branch** only. When a subagent needs to analyze source branch content, prefer subagents with bash/git access so they can run git commands directly. When choosing between subagent types, always prefer ones that support bash or git over ones that can only read files. A temporary checkout of the source branch (set up in Phase 2) provides a filesystem path that any subagent type can read, and ensures file-reading-only subagents see the correct branch's content.
 - Think carefully and reason step-by-step for complex or ambiguous decisions that benefit from deeper consideration.
@@ -19,7 +20,7 @@ Merge the specified source branch into the current branch. This command is repo-
 - Even clean merges get full analysis and verification.
 - Be explicit about any code that will be lost or cannot be trivially preserved.
 
-If $1 is not provided, ask the user to supply a branch name.
+If the request does not identify a source branch, ask the user to supply one.
 
 ## Phase 1: Pre-checks (use subagent)
 
@@ -29,7 +30,7 @@ Spawn a subagent to run all pre-check commands and return a structured summary. 
 
 2. **Resolve refs**:
    - Current branch: `git rev-parse --abbrev-ref HEAD`
-   - Source branch: verify $1 exists as a local branch, remote-tracking branch, or valid ref. Report if ambiguous or missing.
+   - Source branch: verify the requested source exists as a local branch, remote-tracking branch, or valid ref. Report if ambiguous or missing.
 
 3. **Check for in-progress operations**:
    - Check for ongoing merge (`git rev-parse -q --verify MERGE_HEAD`), rebase (`.git/rebase-apply`, `.git/rebase-merge`), cherry-pick (`.git/CHERRY_PICK_HEAD`), or revert (`.git/REVERT_HEAD`).
@@ -59,7 +60,7 @@ Goal: build a thorough understanding of both branches before merging.
 
 ### Set up source branch checkout
 
-Create a temporary directory containing a checkout of the source branch so that subagents can read the source branch's actual file contents (not the current branch's working tree). If the repository is inside a git worktree, use `git worktree add`; otherwise, use an alternative approach (e.g., `git clone --shared --branch <source>` into a temp directory).
+Create a temporary directory under `${TMPDIR:-/tmp}/agents/` containing a checkout of the source branch so that subagents can read the source branch's actual file contents (not the current branch's working tree). Prefer `git worktree add --detach <checkout-path> <source>` with a new child path in the session temporary directory. If a separate repository is necessary, use a full shared clone from the local repository and check out the resolved source ref; do not create a shallow or partial clone.
 
 Record the path. Pass it to any subagent that needs to read source branch files. This checkout persists until cleanup in Phase 8.
 
@@ -85,8 +86,8 @@ Present a short topology summary from the topology subagent's results: branch na
 ## Phase 3: Initiate merge
 
 - Run `git merge <source> --no-commit`
-- If "Already up to date": note this and proceed to Phase 5 for verification.
-- If clean merge (no conflicts): proceed to Phase 5.
+- If "Already up to date": note this and proceed to Phase 6 for verification.
+- If clean merge (no conflicts): proceed to Phase 6.
 - If conflicts: proceed to Phase 4.
 
 Do not commit yet. The commit happens in Phase 8 after all verification.
@@ -96,7 +97,7 @@ Do not commit yet. The commit happens in Phase 8 after all verification.
 ### 4.1 Identify all conflicts
 
 - List conflicted files: `git ls-files -u | awk '{print $4}' | sort -u`
-- Find all conflict marker locations: `grep -rn '^<<<<<<< \|^=======\|^>>>>>>> ' <files>`
+- Find all conflict marker locations: `rg -n '^(<<<<<<< |=======|>>>>>>> )' <files>`
 - List auto-merged files that were changed on both branches (overlapping files that are NOT in the unmerged list).
 - **Separate lock files**: Identify any conflicted files matching known lock file patterns (`Cargo.lock`, `poetry.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.json`, `composer.lock`, `Gemfile.lock`, `go.sum`, `packages.lock.json`, etc.). By default these files cannot be meaningfully hand-merged and will be checked out from a chosen branch instead. Present the list and ask the user how to handle them. First offer a single choice for all lock files:
   - **Source branch (`<source>`)** (Recommended) — check out the source branch's version; typical when catching up (e.g., merging `main` into a feature branch)
@@ -167,12 +168,12 @@ Ask: "Approve this merge resolution plan? (yes/no)"
    - Lock files marked for manual merge that fall within the group are resolved as part of this step
    - Returns a summary of changes made
 
-   Run independent conflict groups in parallel. If groups share files, run them sequentially.
+   Run independent conflict groups in parallel. If groups share files, run them sequentially. Serialize staging and other Git index mutations to avoid concurrent writes to the shared index.
 
 2. **Resolve lock files**: For each lock file not marked for manual merge, run `git checkout <chosen-branch> -- <lock-file>` then `git add <lock-file>`. Do not attempt to regenerate lock files — that is left to the user or repository tooling (e.g., pre-commit hooks).
 
 3. **Verify completeness**:
-   - No conflict markers remain: `grep -rn '^<<<<<<< \|^=======\|^>>>>>>> '` should yield nothing.
+   - No conflict markers remain: run `rg -n -- '^(<<<<<<< |=======|>>>>>>> )' <affected-files>` over every affected file that still exists, passing each path explicitly and quoting it. Include hidden and ignored tracked paths such as `.github/`; do not rely on recursive discovery that skips them. There should be no matches.
    - No unmerged files: `git ls-files -u` should be empty.
    - If any remain, fix and re-check.
 
@@ -222,7 +223,7 @@ Spawn all three concurrently:
 
 - **Verify source branch intent**: compare the merged result against the source branch overlap analysis from Phase 2. Ensure structural changes, renamed modules, changed signatures, and new patterns are correctly integrated. Verify callers were updated and imports are correct. Reason step-by-step where deep semantic reasoning is needed.
 
-- **Generate diff files**: create a temporary directory (`mktemp -d --tmpdir merge-diff-XXXXXX`), save the before diff (`git diff <source>...HEAD > $tmpdir/before.diff`), save the after diff (`git diff <source> > $tmpdir/after.diff`), and return the quoted paths (using `printf '%q'`).
+- **Generate diff files**: create a diff directory under the session temporary directory in `${TMPDIR:-/tmp}/agents/`, save the before diff (`git diff <source>...HEAD > "$merge_diff_dir/before.diff"`), save the after diff (`git diff <source> > "$merge_diff_dir/after.diff"`), and return the quoted paths (using `printf '%q'`). Preserve the diff files for user review.
 
 ### Present verification results and get approval (GATE)
 
