@@ -10,9 +10,9 @@ oco = 'OPENCODE_DB="opencode-orchestrator.db" mise exec -- opencode --hostname 1
 
 [tool_alias]
 bs = "github:bambulab/BambuStudio"
+codex = "npm:@openai/codex"
 grip = "pipx:grip"
 orchestrator = "cargo:opencode-orchestrator-mcp"
-rustdesk = "github:rustdesk/rustdesk"
 
 # for gw
 dockerfmt = "github:reteps/dockerfmt"
@@ -29,7 +29,6 @@ OPENCODE_BINARY = { value = "{{ tools.opencode.path }}/opencode", tools = true }
 # (build-opencode selects between them per the opencode checkout's packageManager)
 bun = ["1.4", "1.3"]
 bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubuntu*24.04*.AppImage" }
-"github:rustdesk/rustdesk" = { version = "latest", bin = "rustdesk", asset_pattern = "*x86_64.AppImage" }
 # Ubuntu 26.04+ needs the accompanying AppArmor userns exception:
 #   ~/.config/mise/install-openchamber-apparmor.sh
 "github:openchamber/openchamber" = { version = "latest", bin = "openchamber", asset_pattern = "*linux-x86_64.AppImage" }
@@ -70,6 +69,8 @@ zig = "latest"
 "npm:node-gyp" = "latest"
 "npm:@openai/codex" = "latest"
 ripgrep = "latest"
+rclone = "latest"
+"aqua:mikefarah/yq" = "latest"
 cmake = "latest"
 ninja = "latest"
 aws = { version = "latest", symlink_bins = "true" }

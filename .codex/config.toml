@@ -1,6 +1,8 @@
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 sandbox_mode = "workspace-write"
+model = "gpt-6-astra"
+model_reasoning_effort = "xhigh"
 
 [projects."/home/altendky"]
 trust_level = "trusted"
@@ -10,3 +12,42 @@ trust_level = "trusted"
 
 [projects."/home/altendky/repos/gw/monorepo"]
 trust_level = "trusted"
+
+[projects."/home/altendky/repos/onshape-mcp"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/opencode-beacon"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/scansor"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/openapi-mcp"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/nac"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/polars"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/onshape-mcp-more"]
+trust_level = "trusted"
+
+[tui.model_availability_nux]
+gpt-6-astra = 4
+
+[mcp_servers.linear]
+command = "agentic-mcp"
+env_vars = ["LINEAR_API_KEY"]
+enabled_tools = [
+  "linear_add_comment",
+  "linear_archive_issue",
+  "linear_create_issue",
+  "linear_get_issue_comments",
+  "linear_get_metadata",
+  "linear_read_issue",
+  "linear_search_issues",
+  "linear_set_relation",
+  "linear_update_issue",
+]
