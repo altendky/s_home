@@ -68,6 +68,12 @@ Example:
 If unsure whether a script should be standalone (with inline metadata) or part of
 an existing project (using project dependencies), ask.
 
+# Credential Access
+
+Before supplying an existing 1Password secret to a command or script, read
+[credential-access](skills/credential-access/SKILL.md). Keep secret values
+inside the execution environment and out of agent-visible output.
+
 # Android Builds
 
 Before building or testing Android projects, read
