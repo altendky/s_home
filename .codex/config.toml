@@ -2,7 +2,8 @@ approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 sandbox_mode = "workspace-write"
 model = "gpt-6-astra"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
+service_tier = "default"
 
 [projects."/home/altendky"]
 trust_level = "trusted"
@@ -34,6 +35,15 @@ trust_level = "trusted"
 [projects."/home/altendky/repos/onshape-mcp-more"]
 trust_level = "trusted"
 
+[projects."/home/altendky/repos/corax-diff"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/mise"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/corax-diff-more"]
+trust_level = "trusted"
+
 [tui.model_availability_nux]
 gpt-6-astra = 4
 
@@ -51,3 +61,86 @@ enabled_tools = [
   "linear_set_relation",
   "linear_update_issue",
 ]
+
+[mcp_servers.node_repl]
+args = []
+command = "/usr/lib/chatgpt/resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/usr/lib/chatgpt/resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/usr/lib/chatgpt/resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/home/altendky/.codex:/usr/lib/chatgpt/resources/cua_node/lib/node_modules"
+CODEX_HOME = "/home/altendky/.codex"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_TINYSKY_ENABLED = "1"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.908.40401"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/openai-bundled/browser/26.908.40401/scripts/browser-service.mjs"}'
+CODEX_CLI_PATH = "/usr/lib/chatgpt/resources/codex"
+
+[hooks.state]
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:3da08c6b5c68e5466a0498c95c5366dd54e77338ed22f8ffaeaef5b8175691b2"
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:ab104b80f9aede14066a7906dbade0efb4e29fc745c443b71d4f2b5d0c7f70cb"
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:session_end:0:0"]
+trusted_hash = "sha256:73e5f02f6b9f9c16beac302d40eccaa01ad755102f8b8760d16d6d8e0ec92967"
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:2759d15170b986aa7d17c3fff2db61a5533b03dd5fe23f944a32b863af5458da"
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:subagent_start:0:0"]
+trusted_hash = "sha256:d2db4ad7c1bd63eb821fdad605b828c5abc66c9b955b7dd2b7ebec0767a6b6ad"
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:subagent_stop:0:0"]
+trusted_hash = "sha256:67a7cfe9a4ac6a308d01ff74ebe488e826b3deedc575b7cc4be93aa561a16d9b"
+
+[hooks.state."/home/altendky/repos/mise/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:b667168b4504bb7b99c5afea6af0dbb0f45898bf61c6dabdee686a00e6dae992"
+
+[desktop]
+followUpQueueMode = "steer"
+conversationDetailMode = "STEPS_COMMANDS"
+ambient-suggestions-enabled = true
+
+[marketplaces.openai-bundled]
+source_type = "local"
+source = "/home/altendky/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+source_type = "local"
+source = "/home/altendky/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."unified-computer-use@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
