@@ -312,6 +312,7 @@ Apply decisions and authorization already supplied in the current conversation; 
 
    **10a. Draft all implementation replies:**
    - For each implemented group, build the commit URL from the SHA recorded in step 7g: `https://github.com/${REPO}/commit/${COMMIT_SHA}`
+   - For all commit links, use the abbreviated commit SHA as the visible label and the full SHA in the URL: ``[`abc1234`](https://github.com/owner/repo/commit/<full-sha>)``. Do not use "Commit" as the label.
    - For each implemented group, draft a **primary reply** for the primary comment's thread: a brief, conversational explanation of what changes were made (or why no change was needed), including a link to the commit if applicable.
    - For each implemented group with multiple threads, draft **secondary replies** for the remaining threads: a shorter message linking to the commit. For example: "Addressed in [`abc1234`](commit-url)." (The primary reply URL will be added after the primary is posted.)
 
