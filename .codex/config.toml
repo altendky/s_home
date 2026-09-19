@@ -1,8 +1,8 @@
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 sandbox_mode = "workspace-write"
-model = "gpt-6-astra"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 service_tier = "default"
 
 [projects."/home/altendky"]
@@ -44,43 +44,57 @@ trust_level = "trusted"
 [projects."/home/altendky/repos/corax-diff-more"]
 trust_level = "trusted"
 
+[projects."/home/altendky/repos/scansor-more"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/hamster-two"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/onshape-export-again"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/mujou-more"]
+trust_level = "trusted"
+
+[projects."/data/Personal/Finance/Taxes/2025"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/home-assistant-config"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/carl"]
+trust_level = "trusted"
+
 [tui.model_availability_nux]
 gpt-6-astra = 4
 
 [mcp_servers.linear]
 command = "agentic-mcp"
 env_vars = ["LINEAR_API_KEY"]
-enabled_tools = [
-  "linear_add_comment",
-  "linear_archive_issue",
-  "linear_create_issue",
-  "linear_get_issue_comments",
-  "linear_get_metadata",
-  "linear_read_issue",
-  "linear_search_issues",
-  "linear_set_relation",
-  "linear_update_issue",
-]
+enabled_tools = ["linear_add_comment", "linear_archive_issue", "linear_create_issue", "linear_get_issue_comments", "linear_get_metadata", "linear_read_issue", "linear_search_issues", "linear_set_relation", "linear_update_issue"]
 
 [mcp_servers.node_repl]
-args = []
 command = "/usr/lib/chatgpt/resources/cua_node/bin/node_repl"
-startup_timeout_sec = 120
+startup_timeout_sec = 120.0
 
 [mcp_servers.node_repl.env]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.915.31029"
+BROWSER_USE_TINYSKY_ENABLED = "1"
+CODEX_CLI_PATH = "/usr/lib/chatgpt/resources/codex"
+CODEX_HOME = "/home/altendky/.codex"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
 NODE_REPL_NODE_MODULE_DIRS = "/usr/lib/chatgpt/resources/cua_node/lib/node_modules"
 NODE_REPL_NODE_PATH = "/usr/lib/chatgpt/resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/home/altendky/.codex:/usr/lib/chatgpt/resources/cua_node/lib/node_modules"
-CODEX_HOME = "/home/altendky/.codex"
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-BROWSER_USE_TINYSKY_ENABLED = "1"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
-NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
-BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.908.40401"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/openai-bundled/browser/26.908.40401/scripts/browser-service.mjs"}'
-CODEX_CLI_PATH = "/usr/lib/chatgpt/resources/codex"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/openai-bundled/browser/26.915.31029/scripts/browser-service.mjs"}'
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest", "--executable-path", "/usr/bin/brave-browser", "--user-data-dir", "/home/altendky/.local/share/codex-playwright/browser-profile"]
 
 [hooks.state]
 
