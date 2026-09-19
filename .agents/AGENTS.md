@@ -10,6 +10,20 @@ Guidance about a specific tool's interfaces or session storage applies when usin
 or working on that tool. Use the current host's equivalent interfaces for shared
 workflows.
 
+# Image Retention
+
+User-provided images are generally reference material for observation and
+interpretation. Do not persist them in repositories or other durable storage
+without explicit user approval. Temporary copies needed to inspect an image
+are allowed under the temporary-file policy. Record relevant observations and
+interpretations in text when appropriate.
+
+Ask to retain an image only when the image itself seems particularly
+significant for future use beyond enabling the current observation and
+interpretation; explain that value when asking. Do not routinely ask to save
+images. General requests to document findings or persist session context do
+not constitute approval to retain image files.
+
 # Temporary Files
 
 Use a temporary directory under `${TMPDIR:-/tmp}/agents/`. Create it on first need
