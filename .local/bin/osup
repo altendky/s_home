@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# osup - update the OS: apt update, full-upgrade, autoremove, plus firmware report.
+# osup - update the OS and mise-managed tools, plus firmware and reboot reports.
 
 set -euo pipefail
 
@@ -7,9 +7,31 @@ header() {
     printf '\n=== %s ===\n' "$1"
 }
 
+# Tool names to omit from the report of exact pins with newer releases.
+mise_pinned_report_excludes=(
+    # "example-tool"
+)
+
+mise_pin_report_is_excluded() {
+    local tool=$1
+    local excluded
+
+    for excluded in "${mise_pinned_report_excludes[@]}"; do
+        if [[ "$tool" == "$excluded" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 have_fwupdmgr=0
 if command -v fwupdmgr >/dev/null 2>&1; then
     have_fwupdmgr=1
+fi
+
+have_mise=0
+if command -v mise >/dev/null 2>&1; then
+    have_mise=1
 fi
 
 sudo -v
@@ -36,7 +58,18 @@ sudo apt full-upgrade -y
 header "apt autoremove"
 sudo apt autoremove -y
 
-# Step 5: firmware update report.
+# Step 5: update tools managed by mise. Running from $HOME limits this to the
+# global config instead of including a project config from the caller's cwd.
+if (( have_mise )); then
+    header "mise upgrade"
+    if ! mise -C "$HOME" --yes upgrade; then
+        echo "(mise upgrade failed; continuing)"
+    fi
+else
+    echo "(mise not installed; skipping mise upgrade)"
+fi
+
+# Step 6: firmware update report.
 # Special-cased: fwupdmgr get-updates exits 2 when there are no updates.
 if (( have_fwupdmgr )); then
     header "fwupdmgr get-updates"
@@ -58,7 +91,7 @@ if (( have_fwupdmgr )); then
             ;;
     esac
 
-    # Step 6: prompt to apply firmware updates (default No).
+    # Step 7: prompt to apply firmware updates (default No).
     if (( updates_available )); then
         printf '\nApply firmware updates now? [y/N] '
         read -r reply
@@ -74,7 +107,79 @@ if (( have_fwupdmgr )); then
     fi
 fi
 
-# Step 7: reboot-required notice.
+# Step 8: report exact mise pins with newer releases. These are intentionally
+# not changed by `mise upgrade` and can be omitted with the exclusion list above.
+if (( have_mise )); then
+    header "mise pinned updates"
+    pinned_mise_tools=()
+    mise_pins_identified=0
+    if [[ ! -x /usr/bin/jq ]]; then
+        echo "(/usr/bin/jq not installed; skipping mise pinned update check)"
+    elif pinned_mise_tool_output=$(
+        mise -C "$HOME" ls --global --json |
+            /usr/bin/jq -r '
+                to_entries[] |
+                select(any(.value[];
+                    .active and
+                    .requested_version != "latest" and
+                    .requested_version == .version
+                )) |
+                .key
+            '
+    ); then
+        while IFS= read -r tool; do
+            if [[ -n "$tool" ]] && ! mise_pin_report_is_excluded "$tool"; then
+                pinned_mise_tools+=("$tool")
+            fi
+        done <<< "$pinned_mise_tool_output"
+        mise_pins_identified=1
+    else
+        echo "(failed to identify mise pins; skipping pinned update check)"
+    fi
+
+    if (( mise_pins_identified )); then
+        if (( ${#pinned_mise_tools[@]} == 0 )); then
+            echo "No non-excluded exact pins found."
+        elif pinned_mise_outdated_json=$(
+            mise -C "$HOME" outdated --bump --json "${pinned_mise_tools[@]}"
+        ); then
+            if pinned_mise_update_output=$(
+                /usr/bin/jq -r '
+                    to_entries[] |
+                    [
+                        .key,
+                        (.value.current // .value.requested),
+                        .value.latest
+                    ] |
+                    @tsv
+                ' <<< "$pinned_mise_outdated_json"
+            ); then
+                if [[ -z "$pinned_mise_update_output" ]]; then
+                    echo "All non-excluded exact pins are up to date."
+                else
+                    if ! {
+                        printf 'TOOL\tCURRENT\tLATEST\tUPDATE COMMAND\n'
+                        while IFS=$'\t' read -r tool current latest; do
+                            printf -v update_command \
+                                'mise -C %q --yes upgrade --bump %q' \
+                                "$HOME" "$tool"
+                            printf '%s\t%s\t%s\t%s\n' \
+                                "$tool" "$current" "$latest" "$update_command"
+                        done <<< "$pinned_mise_update_output"
+                    } | /usr/bin/column --table --separator $'\t'; then
+                        echo "(failed to format mise pinned updates; continuing)"
+                    fi
+                fi
+            else
+                echo "(failed to parse mise pinned updates; continuing)"
+            fi
+        else
+            echo "(mise pinned update check failed; continuing)"
+        fi
+    fi
+fi
+
+# Step 9: reboot-required notice.
 header "reboot check"
 if [[ -f /var/run/reboot-required ]]; then
     echo "*** Reboot required ***"
