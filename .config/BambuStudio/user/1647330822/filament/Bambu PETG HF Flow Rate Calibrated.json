@@ -1,0 +1,17 @@
+{
+    "filament_extruder_variant": [
+        "Direct Drive Standard",
+        "Direct Drive High Flow"
+    ],
+    "filament_flow_ratio": [
+        "1.03455",
+        "nil"
+    ],
+    "filament_settings_id": [
+        "Bambu PETG HF Flow Rate Calibrated"
+    ],
+    "from": "User",
+    "inherits": "Bambu PETG HF @BBL X1C",
+    "name": "Bambu PETG HF Flow Rate Calibrated",
+    "version": "2.8.0.6"
+}
