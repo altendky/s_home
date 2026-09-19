@@ -147,6 +147,11 @@ function renice-python
     end
 end
 
+function ct --wraps 'codex'
+    cdt
+    codex
+end
+
 function gwts --wraps 'gwt s'
     cdm
     gwt switch $argv
@@ -205,6 +210,7 @@ alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
     https://github.com/xtendo-org/chips/releases/download/1.1.2/chips_gnulinux
     ; and chmod +x ~/.local/bin/chips'
 
+alias cdt 'cd ~/repos/tome/'
 alias cdm 'cd ~/repos/gw/monorepo/'
 alias gfm "fish -c 'cdm && git pull'"
 alias ai-cli 'opencode run'
