@@ -4,6 +4,7 @@
 !.config/opencode/
 !.config/opencode/**/*
 .config/opencode/service*.json
+.config/opencode/package-lock.json
 
 !.config/wezterm/
 !.config/wezterm/**/*
