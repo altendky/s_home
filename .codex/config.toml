@@ -65,6 +65,9 @@ trust_level = "trusted"
 [projects."/home/altendky/repos/carl"]
 trust_level = "trusted"
 
+[projects."/home/altendky/repos/ruff"]
+trust_level = "trusted"
+
 [tui.model_availability_nux]
 gpt-6-astra = 4
 
