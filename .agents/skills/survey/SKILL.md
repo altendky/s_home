@@ -102,6 +102,12 @@ Prefer, when practical:
 4. Detailed forums and owner reports.
 5. Search snippets and marketplace listings only as discovery leads.
 
+This preference order governs support for claims, not where candidates may be
+discovered. Use detailed community discussions and owner reports to discover
+less-visible options and investigate application-specific behavior,
+limitations, failures, and long-term experience; corroborate consequential
+claims when practical.
+
 Verify consequential claims at their source. Record URLs and the observation
 date for current price, availability, and lifecycle claims. Present conflicts
 rather than silently choosing one source.

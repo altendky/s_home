@@ -38,6 +38,13 @@ Check relevant market channels, which may include:
 - OEM, aftermarket, distributor, and private-label channels; and
 - direct, specialist-retail, and conventional distribution.
 
+Also inspect relevant publicly accessible practitioner and owner communities,
+such as Reddit, specialist forums, Stack Exchange sites, public mailing lists,
+and independent user groups, when they may reveal less-visible products,
+regional options, useful terminology, application-specific experience, or
+recurring concerns. Treat these as discovery and experiential sources, not
+automatically authoritative evidence, and do not bypass access controls.
+
 For globally traded physical products, normally check North America, Europe,
 Japan, and any additional region important to the category. Explain why a
 region is irrelevant when its omission could otherwise imply a coverage gap.
