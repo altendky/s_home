@@ -28,7 +28,7 @@ OPENCODE_BINARY = { value = "{{ tools.opencode.path }}/opencode", tools = true }
 # first entry is the default `bun` on PATH; both ranges stay installed
 # (build-opencode selects between them per the opencode checkout's packageManager)
 bun = ["1.4", "1.3"]
-bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubuntu*24.04*.AppImage" }
+bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubu*24*.AppImage" }
 # Ubuntu 26.04+ needs the accompanying AppArmor userns exception:
 #   ~/.config/mise/install-openchamber-apparmor.sh
 "github:openchamber/openchamber" = { version = "latest", bin = "openchamber", asset_pattern = "*linux-x86_64.AppImage" }

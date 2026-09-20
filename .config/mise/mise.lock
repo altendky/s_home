@@ -1110,66 +1110,66 @@ url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-w
 url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570319949"
 
 [[tools.bs]]
-version = "02.08.02.61"
+version = "02.08.03.66"
 backend = "github:bambulab/BambuStudio"
 
 [tools.bs.options]
-asset_pattern = "*ubuntu*24.04*.AppImage"
+asset_pattern = "*ubu*24*.AppImage"
 
 [tools.bs."platforms.linux-arm64"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.linux-arm64-musl"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.linux-x64"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.linux-x64-baseline"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.linux-x64-musl"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.macos-arm64"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.macos-x64"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.macos-x64-baseline"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.windows-x64"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [tools.bs."platforms.windows-x64-baseline"]
-checksum = "sha256:d501b103fac5424513ec0e8d6bc145fb30719de2c7d94d7320d723740c81a7fd"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu24.04-v02.08.02.61-20260820225108.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/523226841"
+checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
 
 [[tools.bun]]
 version = "1.3.14"
@@ -1354,63 +1354,63 @@ version = "0.36.0"
 backend = "cargo:rust-script"
 
 [[tools.claude-code]]
-version = "2.1.276"
+version = "2.1.278"
 backend = "aqua:anthropics/claude-code"
 
 [tools.claude-code."platforms.linux-arm64"]
-checksum = "sha256:da339bfa5e7345c6a793b4021fd7ac66a98a3f28ec888d106a2dc10ff1ac4e9e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549907"
+checksum = "sha256:5e3cc367f997847c89cdba3f5b1cd6ff5aabb8e94e14b19bad401124c0e838ed"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850764"
 
 [tools.claude-code."platforms.linux-arm64-musl"]
-checksum = "sha256:6df2859ff56c4b72059cbe65c7ae384f098242fd643d92601c511faf07079634"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549906"
+checksum = "sha256:a9fe96bb925f823608aa2d56cb7adc2c3ed4ca60f6184c588d26db608801f1e8"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850759"
 
 [tools.claude-code."platforms.linux-x64"]
-checksum = "sha256:09514ef3ed18c33c24793c57fa1ecd9b9bb03b75dedb51b08ae5ca9c6588fce4"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571550299"
+checksum = "sha256:1d1f9950b96acb5a50bf342a3d3bd51cdf40b1714b2ca3ce2319ba8e8e7f3633"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850915"
 
 [tools.claude-code."platforms.linux-x64-baseline"]
-checksum = "sha256:09514ef3ed18c33c24793c57fa1ecd9b9bb03b75dedb51b08ae5ca9c6588fce4"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571550299"
+checksum = "sha256:1d1f9950b96acb5a50bf342a3d3bd51cdf40b1714b2ca3ce2319ba8e8e7f3633"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850915"
 
 [tools.claude-code."platforms.linux-x64-musl"]
-checksum = "sha256:3c982b34a9c3406f9eb4d8906014df3e9c98aededbecd6be3b41420d4f26943d"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549909"
+checksum = "sha256:b2bddcaafe22a33ccf1aadc3d56dc0e89f05321447d317a0332857d469c98b93"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850755"
 
 [tools.claude-code."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:3c982b34a9c3406f9eb4d8906014df3e9c98aededbecd6be3b41420d4f26943d"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549909"
+checksum = "sha256:b2bddcaafe22a33ccf1aadc3d56dc0e89f05321447d317a0332857d469c98b93"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850755"
 
 [tools.claude-code."platforms.macos-arm64"]
-checksum = "sha256:fa258d405e854ed29245190e9fc8d49689a3bcb58c810f97cc6c17774b090c54"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549904"
+checksum = "sha256:d16dc23a4e27155a59cdc35251eccd7fa30ed46482c51af1c33e71b14d790f6b"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850762"
 
 [tools.claude-code."platforms.macos-x64"]
-checksum = "sha256:d0a65277c7c8d42d483fbcc94daffa816fb37862943bd4d448644c7d19676b8a"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549902"
+checksum = "sha256:d5fa59ea628b85b0a9d4b2c8aa59a20a9b9714a0b08c938b2d04de1f00c07bb2"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850760"
 
 [tools.claude-code."platforms.macos-x64-baseline"]
-checksum = "sha256:d0a65277c7c8d42d483fbcc94daffa816fb37862943bd4d448644c7d19676b8a"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571549902"
+checksum = "sha256:d5fa59ea628b85b0a9d4b2c8aa59a20a9b9714a0b08c938b2d04de1f00c07bb2"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850760"
 
 [tools.claude-code."platforms.windows-x64"]
-checksum = "sha256:533d97cda7bad1a047cdecbab66863071f1db82d2a545e87591cbaaa479b7307"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571550307"
+checksum = "sha256:8a223953a84861805ca7d00be12dee25590c06533e02f48dd9496f90db709d2e"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850919"
 
 [tools.claude-code."platforms.windows-x64-baseline"]
-checksum = "sha256:533d97cda7bad1a047cdecbab66863071f1db82d2a545e87591cbaaa479b7307"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.276/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/571550307"
+checksum = "sha256:8a223953a84861805ca7d00be12dee25590c06533e02f48dd9496f90db709d2e"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850919"
 
 [[tools.cmake]]
 version = "4.4.3"
@@ -1877,66 +1877,66 @@ url = "https://github.com/nextest-rs/nextest/releases/download/cargo-nextest-0.9
 url_api = "https://api.github.com/repos/nextest-rs/nextest/releases/assets/169726180"
 
 [[tools."github:openchamber/openchamber"]]
-version = "1.24.1"
+version = "1.24.2"
 backend = "github:openchamber/openchamber"
 
 [tools."github:openchamber/openchamber".options]
 asset_pattern = "*linux-x86_64.AppImage"
 
 [tools."github:openchamber/openchamber"."platforms.linux-arm64"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.linux-arm64-musl"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64-baseline"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64-musl"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.macos-arm64"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.macos-x64"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.macos-x64-baseline"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.windows-x64"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [tools."github:openchamber/openchamber"."platforms.windows-x64-baseline"]
-checksum = "sha256:fbc52a95ae33c33f210ed73494733cd6418ab14177ea592c34b62a45de285824"
-url = "https://github.com/openchamber/openchamber/releases/download/v1.24.1/OpenChamber-1.24.1-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/571458198"
+checksum = "sha256:e05fc5a0fc6f8fd4c7eb205fad445a15e63a0e805697e1e5b1533823da1e2cf3"
+url = "https://github.com/openchamber/openchamber/releases/download/v1.24.2/OpenChamber-1.24.2-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/573643094"
 
 [[tools."github:reteps/dockerfmt"]]
 version = "0.3.9"
@@ -2299,7 +2299,7 @@ version = "12.0.2"
 backend = "npm:npm"
 
 [[tools."npm:@openai/codex"]]
-version = "0.155.0"
+version = "0.155.1"
 backend = "npm:@openai/codex"
 
 [[tools."npm:node-gyp"]]
@@ -2784,73 +2784,73 @@ url_api = "https://api.github.com/repos/aquasecurity/trivy/releases/assets/51433
 provenance = "cosign"
 
 [[tools.uv]]
-version = "0.12.16"
+version = "0.12.17"
 backend = "aqua:astral-sh/uv"
 
 [tools.uv."platforms.linux-arm64"]
-checksum = "sha256:36d913ee9c647481d64f1a0a0485f85ff2feaee605c341fc22e73398f9212c26"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505011"
+checksum = "sha256:d636d1b678e9e7f367ecb22b46bd1cabbed234d6bc3b4d96365d2b507f72f86c"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573252936"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-arm64-musl"]
-checksum = "sha256:5beba1f35c0922fd086cce850ce919e55bc4e873c4fcda891343526afdb4c5b3"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505022"
+checksum = "sha256:a6096da273d548cb9f277d237a01ac7344a39ef0f455c0e148e4dc9737c1596b"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573252947"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-x64"]
-checksum = "sha256:8e5c6e5523dffc2dcf615bd995554c84c9feb4e577808a3fb8698a639d3f8d9c"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505211"
+checksum = "sha256:fa82fd8dde8e8eefdecada6aa0889666556cfceb690d06e0c3bca49eb3070a63"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253080"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-x64-baseline"]
-checksum = "sha256:8e5c6e5523dffc2dcf615bd995554c84c9feb4e577808a3fb8698a639d3f8d9c"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505211"
+checksum = "sha256:fa82fd8dde8e8eefdecada6aa0889666556cfceb690d06e0c3bca49eb3070a63"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253080"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-x64-musl"]
-checksum = "sha256:a01206ffbd60f3a7ee30949be1863527986f5307494a064042c69ce7e6d44799"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505223"
+checksum = "sha256:6401c4665d8fa2a9893e087c91f585430738e3170f5398a1141483efb4a93310"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253085"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:a01206ffbd60f3a7ee30949be1863527986f5307494a064042c69ce7e6d44799"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505223"
+checksum = "sha256:6401c4665d8fa2a9893e087c91f585430738e3170f5398a1141483efb4a93310"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253085"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-arm64"]
-checksum = "sha256:b6e03fae61704b1aa622f12b792a69483e837b83068e44f4fd34f8a07a8f74a3"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571504999"
+checksum = "sha256:85f00cbdc6dd3e97eba4c31b4d014375a9fdfe8f570023b84e5102fc3456896b"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573252913"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-x64"]
-checksum = "sha256:a42bcc9ce97eb8b364d7f162233a9c6b8c0ee25388e551d362809795127e0c31"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505180"
+checksum = "sha256:8dcf05a8c809bb3c471d2b614788ba27a6e41298fc8c31ac84b5f4339fd468e5"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253060"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-x64-baseline"]
-checksum = "sha256:a42bcc9ce97eb8b364d7f162233a9c6b8c0ee25388e551d362809795127e0c31"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505180"
+checksum = "sha256:8dcf05a8c809bb3c471d2b614788ba27a6e41298fc8c31ac84b5f4339fd468e5"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253060"
 provenance = "github-attestations"
 
 [tools.uv."platforms.windows-x64"]
-checksum = "sha256:f730454bf09019754e5e5abd71a8aa18683cb739cba0d9c720bac2e7c901160f"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505193"
+checksum = "sha256:a252121d5b59398fcb137c6ea448176459a44010f33f67e0072305a637119ca7"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253071"
 provenance = "github-attestations"
 
 [tools.uv."platforms.windows-x64-baseline"]
-checksum = "sha256:f730454bf09019754e5e5abd71a8aa18683cb739cba0d9c720bac2e7c901160f"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.16/uv-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/571505193"
+checksum = "sha256:a252121d5b59398fcb137c6ea448176459a44010f33f67e0072305a637119ca7"
+url = "https://github.com/astral-sh/uv/releases/download/0.12.17/uv-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/573253071"
 provenance = "github-attestations"
 
 [[tools.zig]]
