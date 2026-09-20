@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Query Anthropic and OpenAI subscription usage via stored OAuth credentials."""
 
+import base64
+import binascii
 import json
 import os
 import sys
@@ -53,6 +55,23 @@ def get_opencode_auth_path() -> Path:
     return Path(data_home) / "opencode" / "auth.json"
 
 
+def get_codex_auth_path() -> Path:
+    codex_home = os.environ.get("CODEX_HOME", os.path.expanduser("~/.codex"))
+    return Path(codex_home) / "auth.json"
+
+
+def load_codex_auth_file() -> dict | None:
+    path = get_codex_auth_path()
+    if not path.exists():
+        return None
+
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
 def load_opencode_auth_file() -> dict | None:
     path = get_opencode_auth_path()
     if not path.exists():
@@ -67,6 +86,23 @@ def load_opencode_auth_file() -> dict | None:
 
 def _is_expired(expires_ms: int | float | None) -> bool:
     return not expires_ms or expires_ms < time.time() * 1000
+
+
+def _jwt_expiry_ms(token: str) -> int | None:
+    try:
+        encoded_payload = token.split(".")[1]
+        padding = "=" * (-len(encoded_payload) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(encoded_payload + padding))
+        return int(payload["exp"]) * 1000
+    except (
+        IndexError,
+        KeyError,
+        TypeError,
+        ValueError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ):
+        return None
 
 
 def _safe_int(value) -> int | None:
@@ -137,7 +173,42 @@ def load_anthropic_auth() -> tuple[dict | None, str | None]:
     return {"access": access, "expires": expires}, None
 
 
-def load_openai_auth() -> tuple[dict | None, str | None]:
+def load_codex_openai_auth() -> tuple[dict | None, str | None]:
+    path = get_codex_auth_path()
+    data = load_codex_auth_file()
+    if data is None:
+        return None, f"No Codex auth file found at {path}."
+
+    if data.get("auth_mode") != "chatgpt":
+        return None, "Codex is not signed in with a ChatGPT subscription."
+
+    tokens = data.get("tokens")
+    if not isinstance(tokens, dict):
+        return None, "Codex auth contains no ChatGPT tokens."
+
+    access = tokens.get("access_token")
+    account_id = tokens.get("account_id")
+    if not access or not account_id:
+        return None, "Codex auth is missing an access token or ChatGPT account ID."
+
+    expires = _jwt_expiry_ms(access)
+    if expires is not None and _is_expired(expires):
+        return (
+            None,
+            "Codex OAuth access token is expired.\n\n"
+            "Run Codex and make any request to refresh the token\n"
+            "automatically, then try again.",
+        )
+
+    return {
+        "access": access,
+        "account_id": account_id,
+        "expires": expires,
+        "source": "codex",
+    }, None
+
+
+def load_opencode_openai_auth() -> tuple[dict | None, str | None]:
     path = get_opencode_auth_path()
     data = load_opencode_auth_file()
     if data is None:
@@ -195,7 +266,25 @@ def load_openai_auth() -> tuple[dict | None, str | None]:
         "access": access,
         "account_id": account_id,
         "expires": expires,
+        "source": "opencode",
     }, None
+
+
+def load_openai_auth() -> tuple[dict | None, str | None]:
+    codex_auth, codex_error = load_codex_openai_auth()
+    if codex_auth:
+        return codex_auth, None
+
+    opencode_auth, opencode_error = load_opencode_openai_auth()
+    if opencode_auth:
+        return opencode_auth, None
+
+    return (
+        None,
+        "No valid OpenAI ChatGPT subscription credentials found.\n\n"
+        f"Codex: {codex_error}\n\n"
+        f"OpenCode: {opencode_error}",
+    )
 
 
 def fetch_anthropic_usage(access_token: str) -> dict:
