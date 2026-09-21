@@ -100,7 +100,7 @@ NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/op
 
 [mcp_servers.playwright]
 command = "npx"
-args = ["-y", "@playwright/mcp@latest", "--executable-path", "/usr/bin/brave-browser", "--user-data-dir", "/home/altendky/.local/share/codex-playwright/browser-profile"]
+args = ["-y", "@playwright/mcp@latest", "--extension", "--executable-path", "/usr/bin/brave-browser", "--user-data-dir", "/home/altendky/.config/BraveSoftware/Brave-Browser", "--profile-dir-name", "Profile 2"]
 
 [hooks.state]
 
