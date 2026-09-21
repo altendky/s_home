@@ -4,7 +4,7 @@ set -euo pipefail
 # Keep temporary files within the pre-approved external directory.
 # TODO: Review Global.tmp usage and consider directly configuring OpenCode's
 # temporary root instead of overriding TMPDIR for all child processes.
-export TMPDIR=/tmp/agents
+export TMPDIR=/data/tmp
 
 find_upward() {
     local target="$1"

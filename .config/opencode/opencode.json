@@ -85,12 +85,12 @@
     "orchestrator_*": "deny",
     "external_directory": {
       "*": "ask",
-      "/tmp/agents/*": "allow",
+      "/data/tmp/*": "allow",
       "~/.cargo/registry/src/*": "allow"
     },
     "edit": {
       "*": "ask",
-      "/tmp/agents/*": "allow"
+      "/data/tmp/*": "allow"
     }
   },
   "experimental": {
