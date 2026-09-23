@@ -102,6 +102,13 @@ NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/op
 command = "npx"
 args = ["-y", "@playwright/mcp@latest", "--extension", "--executable-path", "/usr/bin/brave-browser", "--user-data-dir", "/home/altendky/.config/BraveSoftware/Brave-Browser", "--profile-dir-name", "Profile 2"]
 
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp"
+
+[mcp_servers.grafana]
+url = "https://mcp.grafana.com/mcp"
+http_headers = { "X-Grafana-URL" = "https://generalwisdom.grafana.net" }
+
 [hooks.state]
 
 [hooks.state."/home/altendky/repos/mise/.codex/hooks.json:post_tool_use:0:0"]
