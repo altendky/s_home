@@ -1019,36 +1019,36 @@ url = "https://github.com/taiki-e/cargo-llvm-cov/releases/download/v0.6.14/cargo
 url_api = "https://api.github.com/repos/taiki-e/cargo-llvm-cov/releases/assets/198609655"
 
 [[tools.aws]]
-version = "2.36.49"
+version = "2.37.0"
 backend = "aqua:aws/aws-cli"
 
 [tools.aws."platforms.linux-arm64"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.36.49.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.37.0.zip"
 
 [tools.aws."platforms.linux-arm64-musl"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.36.49.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.37.0.zip"
 
 [tools.aws."platforms.linux-x64"]
-checksum = "blake3:07403408a6f01f41fb3a0dd265e5d446f8f2c09eedfe0537cba8cc875a5323f3"
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.36.49.zip"
+checksum = "blake3:1e4e73809884709ff68b5b31e0f778bb9d9ad02da8b336d6414e47511a20b874"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.0.zip"
 
 [tools.aws."platforms.linux-x64-baseline"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.36.49.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.0.zip"
 
 [tools.aws."platforms.linux-x64-musl"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.36.49.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.0.zip"
 
 [tools.aws."platforms.linux-x64-musl-baseline"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.36.49.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.0.zip"
 
 [tools.aws."platforms.macos-arm64"]
-url = "https://awscli.amazonaws.com/AWSCLIV2-2.36.49.pkg"
+url = "https://awscli.amazonaws.com/AWSCLIV2-2.37.0.pkg"
 
 [tools.aws."platforms.macos-x64"]
-url = "https://awscli.amazonaws.com/AWSCLIV2-2.36.49.pkg"
+url = "https://awscli.amazonaws.com/AWSCLIV2-2.37.0.pkg"
 
 [tools.aws."platforms.macos-x64-baseline"]
-url = "https://awscli.amazonaws.com/AWSCLIV2-2.36.49.pkg"
+url = "https://awscli.amazonaws.com/AWSCLIV2-2.37.0.pkg"
 
 [[tools.bitwarden]]
 version = "2026.9.0"
@@ -1110,66 +1110,66 @@ url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-w
 url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570319949"
 
 [[tools.bs]]
-version = "02.08.03.66"
+version = "02.08.04.57"
 backend = "github:bambulab/BambuStudio"
 
 [tools.bs.options]
 asset_pattern = "*ubu*24*.AppImage"
 
 [tools.bs."platforms.linux-arm64"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.linux-arm64-musl"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.linux-x64"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.linux-x64-baseline"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.linux-x64-musl"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.macos-arm64"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.macos-x64"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.macos-x64-baseline"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.windows-x64"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [tools.bs."platforms.windows-x64-baseline"]
-checksum = "sha256:711d909a75a3f5778795cc4229fca46efdd0fe6917c1de00ad992a055507739d"
-url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.03.66/BambuStudio_ubu24-v02.08.03.66-20260909013025.AppImage"
-url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/551841054"
+checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
+url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
+url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
 
 [[tools.bun]]
 version = "1.3.14"
@@ -2147,7 +2147,7 @@ url = "https://github.com/casey/just/releases/download/1.58.0/just-1.58.0-x86_64
 url_api = "https://api.github.com/repos/casey/just/releases/assets/500511374"
 
 [[tools.markdownlint-cli2]]
-version = "0.23.2"
+version = "0.23.3"
 backend = "npm:markdownlint-cli2"
 
 [[tools.mitmproxy]]
@@ -2247,52 +2247,52 @@ checksum = "sha256:07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78d
 url = "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip"
 
 [[tools.node]]
-version = "26.9.0"
+version = "26.10.0"
 backend = "core:node"
 
 [tools.node."platforms.linux-arm64"]
-checksum = "sha256:d5077591aa38b48d90bf9b3ac10da8d2f40dce289b20294913c58c19f153eb12"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-linux-arm64.tar.gz"
+checksum = "sha256:423a41bff8e2a2fa15e702fefe2919ef95823b2378744daccb8439302534b44f"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-linux-arm64.tar.gz"
 
 [tools.node."platforms.linux-arm64-musl"]
-checksum = "sha256:b52b747e86ef6d18068f02f43f508a608358c974dc5da8ef270bc823ba4710ca"
-url = "https://unofficial-builds.nodejs.org/download/release/v26.9.0/node-v26.9.0-linux-arm64-musl.tar.gz"
+checksum = "sha256:d26027bff3197050d2a2b0bfa151b18e8378ed81affa2bf5093804db158979b6"
+url = "https://unofficial-builds.nodejs.org/download/release/v26.10.0/node-v26.10.0-linux-arm64-musl.tar.gz"
 
 [tools.node."platforms.linux-x64"]
-checksum = "sha256:03d9104fc4f19652e74480fed11c023d75981464b7292f21a601c3f95ce7d90d"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-linux-x64.tar.gz"
+checksum = "sha256:cb5c9ce9c80d7b8821e3a258543c71b939138cf17c74d5cc44bbe85d6dbc5ad8"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-linux-x64.tar.gz"
 
 [tools.node."platforms.linux-x64-baseline"]
-checksum = "sha256:03d9104fc4f19652e74480fed11c023d75981464b7292f21a601c3f95ce7d90d"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-linux-x64.tar.gz"
+checksum = "sha256:cb5c9ce9c80d7b8821e3a258543c71b939138cf17c74d5cc44bbe85d6dbc5ad8"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-linux-x64.tar.gz"
 
 [tools.node."platforms.linux-x64-musl"]
-checksum = "sha256:669dd67ec374f7315dbac9e119641d0e4f371519e00c4b692f1f81e7a04b747c"
-url = "https://unofficial-builds.nodejs.org/download/release/v26.9.0/node-v26.9.0-linux-x64-musl.tar.gz"
+checksum = "sha256:e42da94821b9422eb76bf5aaf4de0977e04ba320b8aff6148d895a94b08ee223"
+url = "https://unofficial-builds.nodejs.org/download/release/v26.10.0/node-v26.10.0-linux-x64-musl.tar.gz"
 
 [tools.node."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:669dd67ec374f7315dbac9e119641d0e4f371519e00c4b692f1f81e7a04b747c"
-url = "https://unofficial-builds.nodejs.org/download/release/v26.9.0/node-v26.9.0-linux-x64-musl.tar.gz"
+checksum = "sha256:e42da94821b9422eb76bf5aaf4de0977e04ba320b8aff6148d895a94b08ee223"
+url = "https://unofficial-builds.nodejs.org/download/release/v26.10.0/node-v26.10.0-linux-x64-musl.tar.gz"
 
 [tools.node."platforms.macos-arm64"]
-checksum = "sha256:6f3de7ed853ee283b4bf24b6e426618f1d357401ce5815db1866eb85eb4b05d9"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-darwin-arm64.tar.gz"
+checksum = "sha256:751fdf7439f115d87ee2a8f3f18c065b6151852068e3e666ac60ac2996f75ac9"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-darwin-arm64.tar.gz"
 
 [tools.node."platforms.macos-x64"]
-checksum = "sha256:06b2e742ed9025dc84adc830243b3f731956eac9c321bccd0ede384209af02a8"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-darwin-x64.tar.gz"
+checksum = "sha256:ebbe9ab9b58ad6bb54390d6e2c862c1afa7d4475fb7e8ae8146acde211bf70df"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-darwin-x64.tar.gz"
 
 [tools.node."platforms.macos-x64-baseline"]
-checksum = "sha256:06b2e742ed9025dc84adc830243b3f731956eac9c321bccd0ede384209af02a8"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-darwin-x64.tar.gz"
+checksum = "sha256:ebbe9ab9b58ad6bb54390d6e2c862c1afa7d4475fb7e8ae8146acde211bf70df"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-darwin-x64.tar.gz"
 
 [tools.node."platforms.windows-x64"]
-checksum = "sha256:c8af870b5b3e9789a6cbdb30270e7c212e12d76a7afa7fc7f21b6b21cc22a71b"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-win-x64.zip"
+checksum = "sha256:9fef7eca6743a6b910989cd8e78712376b394fcb9b6e1e9c44a0799a287f90c5"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-win-x64.zip"
 
 [tools.node."platforms.windows-x64-baseline"]
-checksum = "sha256:c8af870b5b3e9789a6cbdb30270e7c212e12d76a7afa7fc7f21b6b21cc22a71b"
-url = "https://nodejs.org/dist/v26.9.0/node-v26.9.0-win-x64.zip"
+checksum = "sha256:9fef7eca6743a6b910989cd8e78712376b394fcb9b6e1e9c44a0799a287f90c5"
+url = "https://nodejs.org/dist/v26.10.0/node-v26.10.0-win-x64.zip"
 
 [[tools.npm]]
 version = "12.0.2"
