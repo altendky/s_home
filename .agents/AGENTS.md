@@ -54,6 +54,13 @@ operation unexpectedly triggers an SSH key, credential, or interactive approval
 request, stop and report it; do not retry it automatically or start additional
 remote Git operations.
 
+# New GitHub Repositories
+
+When creating a new GitHub repository, make its first issue an intentionally
+blank placeholder before creating any substantive issues. Give issue #1 the
+exact title `this issue intentionally left blank`, leave its body empty, and
+close it immediately after creation.
+
 # Standalone Python Scripts
 
 When writing standalone Python scripts (single-file scripts not part of a larger
