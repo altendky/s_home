@@ -32,7 +32,9 @@ bs = { version = "latest", prerelease = true, bin = "bs", asset_pattern = "*ubu*
 # Ubuntu 26.04+ needs the accompanying AppArmor userns exception:
 #   ~/.config/mise/install-openchamber-apparmor.sh
 "github:openchamber/openchamber" = { version = "latest", bin = "openchamber", asset_pattern = "*linux-x86_64.AppImage" }
-"pipx:grip" = "latest"
+pipx = "latest"
+# grip depends on source-only docopt, so use pipx's version-only locking.
+"pipx:grip" = { version = "latest", uvx = false }
 
 # for gw
 opentofu = "latest"
