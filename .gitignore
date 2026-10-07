@@ -1,5 +1,19 @@
 **/**
 
+!/.agents/
+!/.agents/AGENTS.md
+!/.agents/skills/
+!/.agents/skills/**
+# Keep skill sources and support files; exclude generated development artifacts.
+/.agents/**/__pycache__/
+/.agents/**/*.py[cod]
+/.agents/**/.pytest_cache/
+/.agents/**/.ruff_cache/
+/.agents/**/.mypy_cache/
+/.agents/**/.cache/
+/.agents/**/.venv/
+/.agents/**/node_modules/
+
 !.config/
 !.config/mise/
 !.config/mise/locks/
