@@ -81,6 +81,12 @@ trust_level = "trusted"
 [projects."/home/altendky/repos/onshape-export"]
 trust_level = "trusted"
 
+[projects."/home/altendky/repos/FlexLayout"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/scansor-again"]
+trust_level = "trusted"
+
 [tui]
 screen_reader_detection_done = true
 
