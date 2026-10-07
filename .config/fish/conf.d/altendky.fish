@@ -210,6 +210,7 @@ alias get_chips 'curl -Lo ~/.local/bin/chips --create-dirs
     https://github.com/xtendo-org/chips/releases/download/1.1.2/chips_gnulinux
     ; and chmod +x ~/.local/bin/chips'
 
+alias cr 'c resume'
 alias cdt 'cd ~/repos/tome/'
 alias cdm 'cd ~/repos/gw/monorepo/'
 alias gfm "fish -c 'cdm && git pull'"

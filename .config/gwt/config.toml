@@ -1,5 +1,82 @@
+[gc]
+clean_days = 4
+merged_days = 1
+delete_days = 14
+
 [repos."/home/altendky/repos/gw/monorepo/.git"]
 post_create_commands = [
-  "just setup",
-  "thoughts init"
+    "just setup",
+    "thoughts init",
 ]
+
+[repos."/data/tmp/pytest-of-altendky/pytest-736/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-736/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-736/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-737/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-737/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-737/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-752/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-752/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-752/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-768/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-769/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-768/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-768/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-769/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-769/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-772/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-772/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-772/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-780/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-780/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-780/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-782/test_cli_remove_flow0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-782/test_branch_exists_locally_and0/repo/.git"]
+post_create_commands = []
+
+[repos."/data/tmp/pytest-of-altendky/pytest-782/test_list_worktrees_excludes_m0/repo/.git"]
+post_create_commands = []
