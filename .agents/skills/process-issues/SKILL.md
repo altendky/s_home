@@ -18,6 +18,10 @@ from the current conversation. Ask only for material missing information. Distin
 
 - **Queue:** explicit issues, a label-filtered set, or permission to select from
   a specified repository/backlog. A selector does not by itself authorize work.
+  Treat potentially dynamic groups, such as labels or search queries, as live
+  selectors unless the user requests a fixed snapshot. Authorization to process
+  such a group covers newly matching issues within the same approved scope and
+  delivery/stopping boundary; a fixed approved list remains a fixed list.
 - **Delivery boundary:** assessment only, implementation through PR, or merge
   after verification. Permission to implement does not imply permission to merge.
   Establish whether implementation authority also covers routine in-scope CI and
@@ -37,6 +41,21 @@ editing. Pause for consequential product/architecture choices, material scope
 expansion, or new authority. A missing answer is not approval.
 
 ## Select and assess
+
+Before every next-issue selection, including on resume and before concluding
+that no eligible work remains, refresh the queue and its issues from GitHub.
+For a dynamic group, rerun the original selector and retrieve the complete
+matching set rather than reusing the initial issue IDs. Compare membership and
+issue state with the previous assessment: additions, removals, reopened or
+closed issues, edits to scope or acceptance criteria, new comments/evidence,
+labels/priority, dependencies, and related PR activity. Evaluate relevant
+changes and their effect on eligibility, readiness, ordering, and the choice
+of the next issue. Reassess changed or newly matching candidates proportionately;
+do not carry forward stale readiness or deferral decisions. Exclude issues that
+no longer match from future selection, and consider newly matching issues under
+the existing group authorization. Explain material changes to the choice.
+Refreshing the group does not extend the agreed stopping boundary or authorize
+work beyond the approved scope.
 
 1. Check recent merges, open issue state, labels, linked discussions, and related
    active PRs. Do not duplicate work already implemented or being handled in
@@ -83,7 +102,9 @@ Do not force every finding into the current fix or discard it as out of scope.
 - Filing an issue does not authorize implementing it. A prerequisite enters the
   active queue only if covered by the approved scope; otherwise request an
   expansion. Record independent follow-ups outside the active queue unless the
-  user authorizes including them.
+  user authorizes including them, including through an authorized dynamic group
+  they match. Do not change labels or other selector fields merely to bring a
+  finding into scope without authorization.
 - Reorder approved work when a real dependency requires it, explaining the
   change. An independent defect should not unnecessarily block the original
   delivery. A newly discovered regression caused by the current implementation
@@ -127,15 +148,19 @@ to the updated default branch as authorized, without disturbing other work. For
 PR-only delivery, stop or proceed to the next item only according to the agreed
 queue policy; an open PR is not a merged dependency.
 
-Recheck the remaining approved queue against the new code and GitHub state.
-Priorities and readiness can change. Report the completed result and the next
-candidate without requesting approval already granted.
+Return to Select and assess before choosing the next item; refresh dynamic
+membership and issue changes against the new code and GitHub state. Report the
+completed result and the next candidate without requesting approval already
+granted.
 
 Maintain a compact checkpoint in the host's durable task/plan facility, or in an
 agreed local file when cross-session persistence is needed. Do not create a
 repository planning artifact or commit it without agreement. Record:
 
-- Repository and code baseline; queue scope and delivery/stopping boundary.
+- Repository and code baseline; queue scope, original selector or fixed issue
+  list, dynamic/snapshot policy, and delivery/stopping boundary.
+- Last observed queue membership and issue state sufficient to detect relevant
+  changes at the next selection.
 - Authorization for implementation, issue administration, merge, and override.
 - Completed items and issue/PR links; current issue, worktree, branch, and PR head.
 - Verification results and outstanding checks/review decisions.
