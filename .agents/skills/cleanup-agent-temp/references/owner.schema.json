@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent temporary directory ownership record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "created_at", "updated_at", "purpose", "owners", "cleanup_state", "retained", "worktrees", "jobs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "created_at": {"$ref": "#/$defs/utc"},
+    "updated_at": {"$ref": "#/$defs/utc"},
+    "purpose": {"type": "string", "minLength": 1},
+    "owners": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "tool", "session_id", "agent_id", "cwd", "joined_at", "last_used_at", "released_at"],
+        "properties": {
+          "claim_id": {"type": "string", "format": "uuid", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"},
+          "tool": {"type": "string", "minLength": 1},
+          "session_id": {"$ref": "#/$defs/identifier"},
+          "agent_id": {"$ref": "#/$defs/identifier"},
+          "cwd": {"type": "string", "minLength": 1},
+          "joined_at": {"$ref": "#/$defs/utc"},
+          "last_used_at": {"$ref": "#/$defs/utc"},
+          "released_at": {"anyOf": [{"$ref": "#/$defs/utc"}, {"type": "null"}]},
+          "runtime": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["host", "namespace", "pid", "started_at"],
+            "properties": {
+              "host": {"type": "string", "minLength": 1},
+              "namespace": {"type": "string", "minLength": 1},
+              "pid": {"type": "integer", "minimum": 1},
+              "started_at": {"$ref": "#/$defs/utc"}
+            }
+          }
+        }
+      }
+    },
+    "cleanup_state": {"enum": ["in-use", "retained", "ready"]},
+    "retained": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "reason", "release_when"],
+        "properties": {
+          "path": {"$ref": "#/$defs/resourcePath"},
+          "reason": {"type": "string", "minLength": 1},
+          "release_when": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "worktrees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "repository"],
+        "properties": {
+          "path": {"$ref": "#/$defs/resourcePath"},
+          "repository": {"type": "string", "pattern": "^/", "minLength": 1}
+        }
+      }
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "identity", "description"],
+        "properties": {
+          "kind": {"enum": ["process", "container"]},
+          "identity": {"$ref": "#/$defs/identifier"},
+          "description": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "generated": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "kind", "recreate"],
+        "properties": {
+          "path": {"$ref": "#/$defs/resourcePath"},
+          "kind": {"type": "string", "minLength": 1},
+          "recreate": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"cleanup_state": {"enum": ["retained", "ready"]}}},
+      "then": {
+        "properties": {
+          "owners": {"items": {"properties": {"released_at": {"$ref": "#/$defs/utc"}}}},
+          "jobs": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"cleanup_state": {"const": "ready"}}},
+      "then": {"properties": {"retained": {"maxItems": 0}, "worktrees": {"maxItems": 0}}}
+    },
+    {
+      "if": {"properties": {"cleanup_state": {"const": "retained"}}},
+      "then": {"properties": {"retained": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "utc": {"type": "string", "format": "date-time", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?Z$"},
+    "identifier": {"type": ["string", "null"], "minLength": 1},
+    "resourcePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\*?\\[\\]\\u0000]).+$"
+    }
+  }
+}

@@ -33,6 +33,32 @@ files or subdirectories within it as they become unnecessary. Clean up the
 session temporary directory when it is no longer needed, unless preserving it is
 useful for debugging or user review.
 
+Immediately after creation, write `owner.json` using the versioned
+[ownership record](skills/cleanup-agent-temp/references/ownership.md). Record
+the tool, available session and subagent identifiers, working directory, purpose,
+UTC timestamps, and cleanup state. Use `null` for unavailable identifiers; do not
+invent session IDs. Keep credentials, image data, and unnecessary conversation
+content out of the record.
+
+Update the record when resuming, adopting or sharing the directory, changing
+retention decisions, and before yielding. Preserve previous owners and record
+each owner's release separately. Returning to the user is not a release if the
+session may resume. Record Git worktrees, background jobs, and retained paths
+with a reason and release condition. Use a stable file lock and atomic
+replacement to avoid losing another owner's updates.
+
+Use `in-use` while an owner may resume or a job still uses the directory,
+`retained` after all owners release it when material must remain, and `ready`
+only when all owners have released it and remaining contents are disposable.
+Remove registered worktrees through Git after reviewing dirty files and commits
+that must be kept. When leaving material behind, keep its ownership record
+accurate and explain why it remains.
+
+For audits or cleanup, use [cleanup-agent-temp](skills/cleanup-agent-temp/SKILL.md).
+Age, missing processes, stale timestamps, or a PID alone do not establish that a
+directory is abandoned. Verified rebuildable output may be cleaned separately
+without deleting its owning directory or changing another owner's release state.
+
 # Git Repository Copies And Network Access
 
 Never create shallow, partial, blobless, or promisor clones. Do not use the
