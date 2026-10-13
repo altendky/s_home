@@ -1,0 +1,31 @@
+version = 1
+revision = 5
+requires-python = ">=3.10"
+
+[options]
+exclude-newer = "2026-10-09T15:01:39.773306364Z"
+
+[[package]]
+name = "mergify-cli"
+version = "2026.10.5"
+source = { registry = "https://pypi.org/simple/" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6f/d1/d3ffc82179692935f1bea9a9c61523ed32ad32284358b0ee7a9cf9807674/mergify_cli-2026.10.5-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:07e8a5a4a6fe07f8607803c1225fab2c3df8c2957e1769098c5358c1c1eed0bf", size = 6433890, upload-time = "2026-10-09T13:11:20.822Z" },
+    { url = "https://files.pythonhosted.org/packages/40/d3/8d4b2b443c2b052e956a5d246809fda4468d3e607600438ca8a4af02ec81/mergify_cli-2026.10.5-py3-none-macosx_11_0_arm64.whl", hash = "sha256:3b7b33476c824e9221b5216411f87affc72f97e816316caaf597f5f2dec2622c", size = 6007865, upload-time = "2026-10-09T13:11:22.76Z" },
+    { url = "https://files.pythonhosted.org/packages/90/f7/e31a27f849b33d8c58c1c0f3e5eea951a1775670380acaef582dd0bc5a7a/mergify_cli-2026.10.5-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6e6ed6c2c41e2994de297b5bbcebf43c29475bdef1a1369f6d8ff1ca3411be44", size = 7088331, upload-time = "2026-10-09T13:11:24.462Z" },
+    { url = "https://files.pythonhosted.org/packages/79/76/17748cf7f1d9961c28283e6d90277b758c77b195757fd03662042377f013/mergify_cli-2026.10.5-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:238e4302cf6bfa6eda18dc6dd748b847716a135e603f1a3f3e21f1e5990496e8", size = 7550520, upload-time = "2026-10-09T13:11:26.63Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/d1/6ae1c70b22d2f7b4df9b496bb6154f1e6ede955a1ceeffe846ee48e2ce63/mergify_cli-2026.10.5-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:d4bd58653236f8c0e33f0302bf81ca65595ede9f6d247933580cfa2236cdcb2b", size = 7074081, upload-time = "2026-10-09T13:11:28.461Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/55/1e886a74fd0f8b09d49d078e32141965942efe37204ec673ebfd7f783dfa/mergify_cli-2026.10.5-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:7d13abea6a90f2d416d10e166e54bfe86e905aab9c91de373d7438090e7cf7f4", size = 7686101, upload-time = "2026-10-09T13:11:30.423Z" },
+    { url = "https://files.pythonhosted.org/packages/26/d7/05203d62e9e6cc1e116cb3150fcacea2e8dae26cc8b7a6848cd5da0ada99/mergify_cli-2026.10.5-py3-none-win_amd64.whl", hash = "sha256:39e0fc2752fa4a91a7e94890d1707988ebab62e053fdae5563f8efeb8bbd8520", size = 6463658, upload-time = "2026-10-09T13:11:32.307Z" },
+]
+
+[[package]]
+name = "mise-pypi-tool-environment"
+version = "0.0.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "mergify-cli" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "mergify-cli", specifier = "==2026.10.5" }]
