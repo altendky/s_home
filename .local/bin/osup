@@ -58,15 +58,22 @@ sudo apt full-upgrade -y
 header "apt autoremove"
 sudo apt autoremove -y
 
-# Step 5: update tools managed by mise. Running from $HOME limits this to the
-# global config instead of including a project config from the caller's cwd.
+# Step 5: resolve complete global locks before installing updated tools.
+# Global `mise upgrade` can write npm versions without their dependency graphs,
+# breaking later locked installs. Lock first; --bump preserves exact config pins.
+# Running from $HOME avoids including a project config from the caller's cwd.
 if (( have_mise )); then
-    header "mise upgrade"
-    if ! mise -C "$HOME" --yes upgrade; then
-        echo "(mise upgrade failed; continuing)"
+    header "mise lock"
+    if mise -C "$HOME" --yes lock --global --bump; then
+        header "mise install"
+        if ! mise -C "$HOME" --yes install --locked; then
+            echo "(mise install failed; continuing)"
+        fi
+    else
+        echo "(mise lock failed; skipping mise install and continuing)"
     fi
 else
-    echo "(mise not installed; skipping mise upgrade)"
+    echo "(mise not installed; skipping mise updates)"
 fi
 
 # Step 6: firmware update report.
@@ -108,7 +115,7 @@ if (( have_fwupdmgr )); then
 fi
 
 # Step 8: report exact mise pins with newer releases. These are intentionally
-# not changed by `mise upgrade` and can be omitted with the exclusion list above.
+# not changed by `mise lock --bump` and can be omitted with the exclusion list above.
 if (( have_mise )); then
     header "mise pinned updates"
     pinned_mise_tools=()
@@ -161,8 +168,8 @@ if (( have_mise )); then
                         printf 'TOOL\tCURRENT\tLATEST\tUPDATE COMMAND\n'
                         while IFS=$'\t' read -r tool current latest; do
                             printf -v update_command \
-                                'mise -C %q --yes upgrade --bump %q' \
-                                "$HOME" "$tool"
+                                'mise -C %q --yes lock --global %q && mise -C %q --yes install --locked %q' \
+                                "$HOME" "$tool@$latest" "$HOME" "$tool"
                             printf '%s\t%s\t%s\t%s\n' \
                                 "$tool" "$current" "$latest" "$update_command"
                         done <<< "$pinned_mise_update_output"
