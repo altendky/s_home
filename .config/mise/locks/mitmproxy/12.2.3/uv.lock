@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-10-09T15:05:21.261879843Z"
+exclude-newer = "2026-10-13T11:41:36.696083038Z"
 
 [[package]]
 name = "aioquic"

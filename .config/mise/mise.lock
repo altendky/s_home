@@ -34,9 +34,9 @@ checksum = "sha256:601d79af94d9562ba70e2d4947034ba159aae293a3c860855335a7c76c144
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libcurl-8.22.0-h86273da_0.conda"
 checksum = "sha256:8634a43ca7161d49b94098d8d27f32040ccf19b5227b37d05826ec8b5729b3c4"
 
-[conda-packages.linux-arm64."libedit-3.1.20250104-pl5321hc48eb74_1"]
-url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libedit-3.1.20250104-pl5321hc48eb74_1.conda"
-checksum = "sha256:2d7218da06f1121619335bff25a2669df810dee90d2eb65b17f8b2e6b1c0d372"
+[conda-packages.linux-arm64."libedit-3.1.20260512-pl5321hc48eb74_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libedit-3.1.20260512-pl5321hc48eb74_0.conda"
+checksum = "sha256:58fd637d0219016bb69edf2973b089975de283e8a38149d69ef586b8fc4ad90b"
 
 [conda-packages.linux-arm64."libev-4.33-h80f16a2_3"]
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libev-4.33-h80f16a2_3.conda"
@@ -134,9 +134,9 @@ checksum = "sha256:601d79af94d9562ba70e2d4947034ba159aae293a3c860855335a7c76c144
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libcurl-8.22.0-h86273da_0.conda"
 checksum = "sha256:8634a43ca7161d49b94098d8d27f32040ccf19b5227b37d05826ec8b5729b3c4"
 
-[conda-packages.linux-arm64-musl."libedit-3.1.20250104-pl5321hc48eb74_1"]
-url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libedit-3.1.20250104-pl5321hc48eb74_1.conda"
-checksum = "sha256:2d7218da06f1121619335bff25a2669df810dee90d2eb65b17f8b2e6b1c0d372"
+[conda-packages.linux-arm64-musl."libedit-3.1.20260512-pl5321hc48eb74_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libedit-3.1.20260512-pl5321hc48eb74_0.conda"
+checksum = "sha256:58fd637d0219016bb69edf2973b089975de283e8a38149d69ef586b8fc4ad90b"
 
 [conda-packages.linux-arm64-musl."libev-4.33-h80f16a2_3"]
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libev-4.33-h80f16a2_3.conda"
@@ -234,9 +234,9 @@ checksum = "sha256:2a5c38c85e63df84c4e69ee71439841ce570d259ae3060627bb9a49a938d6
 url = "https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.22.0-ha042cf0_0.conda"
 checksum = "sha256:483b7eb97f56fbb3a9cb7190d33012dfa0a5aaed99ede61465563cd97dd82504"
 
-[conda-packages.linux-x64."libedit-3.1.20250104-pl5321h373387f_1"]
-url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20250104-pl5321h373387f_1.conda"
-checksum = "sha256:6473eb8caf2aae830f37caa93db9b26dddf7ac84b63229e8bf7fc0e5c3ab95b0"
+[conda-packages.linux-x64."libedit-3.1.20260512-pl5321h373387f_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20260512-pl5321h373387f_0.conda"
+checksum = "sha256:45301f14f4eb66da57cfaf2d265f3eeee73f8b07e99614ee3afc5b26eea91126"
 
 [conda-packages.linux-x64."libev-4.33-h280c20c_3"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-h280c20c_3.conda"
@@ -334,9 +334,9 @@ checksum = "sha256:2a5c38c85e63df84c4e69ee71439841ce570d259ae3060627bb9a49a938d6
 url = "https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.22.0-ha042cf0_0.conda"
 checksum = "sha256:483b7eb97f56fbb3a9cb7190d33012dfa0a5aaed99ede61465563cd97dd82504"
 
-[conda-packages.linux-x64-baseline."libedit-3.1.20250104-pl5321h373387f_1"]
-url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20250104-pl5321h373387f_1.conda"
-checksum = "sha256:6473eb8caf2aae830f37caa93db9b26dddf7ac84b63229e8bf7fc0e5c3ab95b0"
+[conda-packages.linux-x64-baseline."libedit-3.1.20260512-pl5321h373387f_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20260512-pl5321h373387f_0.conda"
+checksum = "sha256:45301f14f4eb66da57cfaf2d265f3eeee73f8b07e99614ee3afc5b26eea91126"
 
 [conda-packages.linux-x64-baseline."libev-4.33-h280c20c_3"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-h280c20c_3.conda"
@@ -434,9 +434,9 @@ checksum = "sha256:2a5c38c85e63df84c4e69ee71439841ce570d259ae3060627bb9a49a938d6
 url = "https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.22.0-ha042cf0_0.conda"
 checksum = "sha256:483b7eb97f56fbb3a9cb7190d33012dfa0a5aaed99ede61465563cd97dd82504"
 
-[conda-packages.linux-x64-musl."libedit-3.1.20250104-pl5321h373387f_1"]
-url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20250104-pl5321h373387f_1.conda"
-checksum = "sha256:6473eb8caf2aae830f37caa93db9b26dddf7ac84b63229e8bf7fc0e5c3ab95b0"
+[conda-packages.linux-x64-musl."libedit-3.1.20260512-pl5321h373387f_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20260512-pl5321h373387f_0.conda"
+checksum = "sha256:45301f14f4eb66da57cfaf2d265f3eeee73f8b07e99614ee3afc5b26eea91126"
 
 [conda-packages.linux-x64-musl."libev-4.33-h280c20c_3"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-h280c20c_3.conda"
@@ -534,9 +534,9 @@ checksum = "sha256:2a5c38c85e63df84c4e69ee71439841ce570d259ae3060627bb9a49a938d6
 url = "https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.22.0-ha042cf0_0.conda"
 checksum = "sha256:483b7eb97f56fbb3a9cb7190d33012dfa0a5aaed99ede61465563cd97dd82504"
 
-[conda-packages.linux-x64-musl-baseline."libedit-3.1.20250104-pl5321h373387f_1"]
-url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20250104-pl5321h373387f_1.conda"
-checksum = "sha256:6473eb8caf2aae830f37caa93db9b26dddf7ac84b63229e8bf7fc0e5c3ab95b0"
+[conda-packages.linux-x64-musl-baseline."libedit-3.1.20260512-pl5321h373387f_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20260512-pl5321h373387f_0.conda"
+checksum = "sha256:45301f14f4eb66da57cfaf2d265f3eeee73f8b07e99614ee3afc5b26eea91126"
 
 [conda-packages.linux-x64-musl-baseline."libev-4.33-h280c20c_3"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-h280c20c_3.conda"
@@ -626,13 +626,13 @@ checksum = "sha256:aaea1d42b07769920db2af7471ece9399d2613448863da64ad8272998db5d
 url = "https://conda.anaconda.org/conda-forge/osx-arm64/libcurl-8.22.0-h6651222_0.conda"
 checksum = "sha256:46def32ec20d4dc6bce75d90fe5f2465a71cc22acef608c5ba37cc392e80e01d"
 
-[conda-packages.macos-arm64."libcxx-23.1.2-h55c6f16_0"]
-url = "https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-23.1.2-h55c6f16_0.conda"
-checksum = "sha256:087a610bacee7901d259ef72c6f060d795ab26831bd7541ba75ced786a5a63f9"
+[conda-packages.macos-arm64."libcxx-23.1.3-h55c6f16_0"]
+url = "https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-23.1.3-h55c6f16_0.conda"
+checksum = "sha256:2d9d31172d7919bd276a8d1be338de567dd5afdd181e8d3d3d8c2d8695e09de2"
 
-[conda-packages.macos-arm64."libedit-3.1.20250104-pl5321h26f1114_1"]
-url = "https://conda.anaconda.org/conda-forge/osx-arm64/libedit-3.1.20250104-pl5321h26f1114_1.conda"
-checksum = "sha256:257c926f19e32bdb981fc674c76966049b6fc73f706bae58e9fed8757ad1da70"
+[conda-packages.macos-arm64."libedit-3.1.20260512-pl5321h26f1114_0"]
+url = "https://conda.anaconda.org/conda-forge/osx-arm64/libedit-3.1.20260512-pl5321h26f1114_0.conda"
+checksum = "sha256:5692a969e49b200c7874d1e869d281753361980b2ecfe9191b571d7e550f8b92"
 
 [conda-packages.macos-arm64."libev-4.33-h1a92334_3"]
 url = "https://conda.anaconda.org/conda-forge/osx-arm64/libev-4.33-h1a92334_3.conda"
@@ -710,13 +710,13 @@ checksum = "sha256:f41875ab241c4862b6bdb8316e5f4268ee8ff9e9115770d3d30a02028957c
 url = "https://conda.anaconda.org/conda-forge/osx-64/libcurl-8.22.0-h5318221_0.conda"
 checksum = "sha256:5625672a0a27c58c1c3c5849927c226eb65c88900e778262284e843dcce9c8f8"
 
-[conda-packages.macos-x64."libcxx-23.1.2-h19cb2f5_0"]
-url = "https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.2-h19cb2f5_0.conda"
-checksum = "sha256:0ad8c788c3681674f100820cf5e76fcc8ec88502e7aa64f4776581985009a7be"
+[conda-packages.macos-x64."libcxx-23.1.3-h19cb2f5_0"]
+url = "https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.3-h19cb2f5_0.conda"
+checksum = "sha256:19ec3adf903c04aac6f31b180d283f0beb6d0393c5c1603f1d57355eb3a8fd66"
 
-[conda-packages.macos-x64."libedit-3.1.20250104-pl5321hba2e2ab_1"]
-url = "https://conda.anaconda.org/conda-forge/osx-64/libedit-3.1.20250104-pl5321hba2e2ab_1.conda"
-checksum = "sha256:4aa5161db41602af1abff73f5af415902135a47855d02c1ac05681a36320bd4b"
+[conda-packages.macos-x64."libedit-3.1.20260512-pl5321hba2e2ab_0"]
+url = "https://conda.anaconda.org/conda-forge/osx-64/libedit-3.1.20260512-pl5321hba2e2ab_0.conda"
+checksum = "sha256:3b664a2fcc69b0e2ed6622bfacdf408a31003e92191ace3f4f1ab086c384449d"
 
 [conda-packages.macos-x64."libev-4.33-ha3d0635_3"]
 url = "https://conda.anaconda.org/conda-forge/osx-64/libev-4.33-ha3d0635_3.conda"
@@ -794,13 +794,13 @@ checksum = "sha256:f41875ab241c4862b6bdb8316e5f4268ee8ff9e9115770d3d30a02028957c
 url = "https://conda.anaconda.org/conda-forge/osx-64/libcurl-8.22.0-h5318221_0.conda"
 checksum = "sha256:5625672a0a27c58c1c3c5849927c226eb65c88900e778262284e843dcce9c8f8"
 
-[conda-packages.macos-x64-baseline."libcxx-23.1.2-h19cb2f5_0"]
-url = "https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.2-h19cb2f5_0.conda"
-checksum = "sha256:0ad8c788c3681674f100820cf5e76fcc8ec88502e7aa64f4776581985009a7be"
+[conda-packages.macos-x64-baseline."libcxx-23.1.3-h19cb2f5_0"]
+url = "https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.3-h19cb2f5_0.conda"
+checksum = "sha256:19ec3adf903c04aac6f31b180d283f0beb6d0393c5c1603f1d57355eb3a8fd66"
 
-[conda-packages.macos-x64-baseline."libedit-3.1.20250104-pl5321hba2e2ab_1"]
-url = "https://conda.anaconda.org/conda-forge/osx-64/libedit-3.1.20250104-pl5321hba2e2ab_1.conda"
-checksum = "sha256:4aa5161db41602af1abff73f5af415902135a47855d02c1ac05681a36320bd4b"
+[conda-packages.macos-x64-baseline."libedit-3.1.20260512-pl5321hba2e2ab_0"]
+url = "https://conda.anaconda.org/conda-forge/osx-64/libedit-3.1.20260512-pl5321hba2e2ab_0.conda"
+checksum = "sha256:3b664a2fcc69b0e2ed6622bfacdf408a31003e92191ace3f4f1ab086c384449d"
 
 [conda-packages.macos-x64-baseline."libev-4.33-ha3d0635_3"]
 url = "https://conda.anaconda.org/conda-forge/osx-64/libev-4.33-ha3d0635_3.conda"
@@ -1035,37 +1035,36 @@ url = "https://github.com/taiki-e/cargo-llvm-cov/releases/download/v0.6.14/cargo
 url_api = "https://api.github.com/repos/taiki-e/cargo-llvm-cov/releases/assets/198609655"
 
 [[tools.aws]]
-version = "2.37.12"
+version = "2.38.0"
 backend = "aqua:aws/aws-cli"
 specifiers = ["latest"]
 
 [tools.aws."platforms.linux-arm64"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.37.12.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.38.0.zip"
 
 [tools.aws."platforms.linux-arm64-musl"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.37.12.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64-2.38.0.zip"
 
 [tools.aws."platforms.linux-x64"]
-checksum = "blake3:b2a0e40afb31608f2c9219ecb4b113c0340ac6cd2c789744b9c2c273a46bfcbf"
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.12.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.38.0.zip"
 
 [tools.aws."platforms.linux-x64-baseline"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.12.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.38.0.zip"
 
 [tools.aws."platforms.linux-x64-musl"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.12.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.38.0.zip"
 
 [tools.aws."platforms.linux-x64-musl-baseline"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.12.zip"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.38.0.zip"
 
 [tools.aws."platforms.macos-arm64"]
-url = "https://awscli.amazonaws.com/AWSCLIV2-2.37.12.pkg"
+url = "https://awscli.amazonaws.com/AWSCLIV2-2.38.0.pkg"
 
 [tools.aws."platforms.macos-x64"]
-url = "https://awscli.amazonaws.com/AWSCLIV2-2.37.12.pkg"
+url = "https://awscli.amazonaws.com/AWSCLIV2-2.38.0.pkg"
 
 [tools.aws."platforms.macos-x64-baseline"]
-url = "https://awscli.amazonaws.com/AWSCLIV2-2.37.12.pkg"
+url = "https://awscli.amazonaws.com/AWSCLIV2-2.38.0.pkg"
 
 [[tools.bitwarden]]
 version = "2026.9.1"
@@ -1531,7 +1530,7 @@ conda_deps = [
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-h4777abc_10",
     "keyutils-1.6.3-h5bc82ec_1",
-    "libedit-3.1.20250104-pl5321hc48eb74_1",
+    "libedit-3.1.20260512-pl5321hc48eb74_0",
     "c-ares-1.34.8-h29ee22c_2",
     "libev-4.33-h80f16a2_3",
     "icu-78.3-py311h3512406_2",
@@ -1562,7 +1561,7 @@ conda_deps = [
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-h4777abc_10",
     "keyutils-1.6.3-h5bc82ec_1",
-    "libedit-3.1.20250104-pl5321hc48eb74_1",
+    "libedit-3.1.20260512-pl5321hc48eb74_0",
     "c-ares-1.34.8-h29ee22c_2",
     "libev-4.33-h80f16a2_3",
     "icu-78.3-py311h3512406_2",
@@ -1593,7 +1592,7 @@ conda_deps = [
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-hda65f42_10",
     "keyutils-1.6.3-h7cc23a3_1",
-    "libedit-3.1.20250104-pl5321h373387f_1",
+    "libedit-3.1.20260512-pl5321h373387f_0",
     "c-ares-1.34.8-hebe6cf0_2",
     "libev-4.33-h280c20c_3",
     "icu-78.3-py310h44b86e0_2",
@@ -1624,7 +1623,7 @@ conda_deps = [
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-hda65f42_10",
     "keyutils-1.6.3-h7cc23a3_1",
-    "libedit-3.1.20250104-pl5321h373387f_1",
+    "libedit-3.1.20260512-pl5321h373387f_0",
     "c-ares-1.34.8-hebe6cf0_2",
     "libev-4.33-h280c20c_3",
     "icu-78.3-py310h44b86e0_2",
@@ -1655,7 +1654,7 @@ conda_deps = [
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-hda65f42_10",
     "keyutils-1.6.3-h7cc23a3_1",
-    "libedit-3.1.20250104-pl5321h373387f_1",
+    "libedit-3.1.20260512-pl5321h373387f_0",
     "c-ares-1.34.8-hebe6cf0_2",
     "libev-4.33-h280c20c_3",
     "icu-78.3-py310h44b86e0_2",
@@ -1686,7 +1685,7 @@ conda_deps = [
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-hda65f42_10",
     "keyutils-1.6.3-h7cc23a3_1",
-    "libedit-3.1.20250104-pl5321h373387f_1",
+    "libedit-3.1.20260512-pl5321h373387f_0",
     "c-ares-1.34.8-hebe6cf0_2",
     "libev-4.33-h280c20c_3",
     "icu-78.3-py310h44b86e0_2",
@@ -1712,8 +1711,8 @@ conda_deps = [
     "zstd-1.5.7-hf451053_7",
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-h4e30115_10",
-    "libedit-3.1.20250104-pl5321h26f1114_1",
-    "libcxx-23.1.2-h55c6f16_0",
+    "libedit-3.1.20260512-pl5321h26f1114_0",
+    "libcxx-23.1.3-h55c6f16_0",
     "c-ares-1.34.8-h74c22ad_2",
     "libev-4.33-h1a92334_3",
     "icu-78.3-py310h579977c_2",
@@ -1739,8 +1738,8 @@ conda_deps = [
     "zstd-1.5.7-hbc1a06c_7",
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-h374f1ed_10",
-    "libedit-3.1.20250104-pl5321hba2e2ab_1",
-    "libcxx-23.1.2-h19cb2f5_0",
+    "libedit-3.1.20260512-pl5321hba2e2ab_0",
+    "libcxx-23.1.3-h19cb2f5_0",
     "c-ares-1.34.8-had63097_2",
     "libev-4.33-ha3d0635_3",
     "icu-78.3-py313hbf1d544_2",
@@ -1766,8 +1765,8 @@ conda_deps = [
     "zstd-1.5.7-hbc1a06c_7",
     "ca-certificates-2026.7.22-hbd8a1cb_0",
     "bzip2-1.0.8-h374f1ed_10",
-    "libedit-3.1.20250104-pl5321hba2e2ab_1",
-    "libcxx-23.1.2-h19cb2f5_0",
+    "libedit-3.1.20260512-pl5321hba2e2ab_0",
+    "libcxx-23.1.3-h19cb2f5_0",
     "c-ares-1.34.8-had63097_2",
     "libev-4.33-ha3d0635_3",
     "icu-78.3-py313hbf1d544_2",
@@ -1908,7 +1907,7 @@ url = "https://github.com/nextest-rs/nextest/releases/download/cargo-nextest-0.9
 url_api = "https://api.github.com/repos/nextest-rs/nextest/releases/assets/169726180"
 
 [[tools."github:openchamber/openchamber"]]
-version = "2.2.0"
+version = "2.3.1"
 backend = "github:openchamber/openchamber"
 specifiers = ["latest"]
 
@@ -1916,59 +1915,59 @@ specifiers = ["latest"]
 asset_pattern = "*linux-x86_64.AppImage"
 
 [tools."github:openchamber/openchamber"."platforms.linux-arm64"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.linux-arm64-musl"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64-baseline"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64-musl"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.macos-arm64"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.macos-x64"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.macos-x64-baseline"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.windows-x64"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [tools."github:openchamber/openchamber"."platforms.windows-x64-baseline"]
-checksum = "sha256:3982a24d1a0553bf56a9cdee53cd7510545739888b92724bd472e65217ce3f1e"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.2.0/OpenChamber-2.2.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/622565062"
+checksum = "sha256:c0b2388e3845a751fc09c14d5837fbc845caaa3a1a8a46d31c72ab3a7c6439d0"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.3.1/OpenChamber-2.3.1-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/635392069"
 
 [[tools."github:reteps/dockerfmt"]]
 version = "0.3.9"
@@ -2140,7 +2139,7 @@ specifiers = ["latest"]
 version = "12.2.3"
 backend = "pypi:mitmproxy"
 specifiers = ["latest"]
-uv = { path = "locks/mitmproxy/12.2.3", digest = "sha256:28039f233ecd9171f8b5f6c59c739ca9dbcff4d1cf888cca1b0f3923ff0c3394" }
+uv = { path = "locks/mitmproxy/12.2.3", digest = "sha256:5f683b33d1e127aeccb7d2205350f3257002343712d423b6acff362c57c581fc" }
 
 [[tools.mold]]
 version = "3.0.0"
@@ -2441,54 +2440,54 @@ url = "https://github.com/opentofu/opentofu/releases/download/v1.13.1/tofu_1.13.
 url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/603708102"
 
 [[tools.pipx]]
-version = "1.17.12"
+version = "1.17.14"
 backend = "aqua:pypa/pipx"
 specifiers = ["latest"]
 
 [tools.pipx."platforms.linux-arm64"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.linux-arm64-musl"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.linux-x64"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.linux-x64-baseline"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.linux-x64-musl"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.macos-arm64"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.macos-x64"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [tools.pipx."platforms.macos-x64-baseline"]
-checksum = "sha256:e27cb4aecff5da2784d7d8e0ee64af6f01d12eead2668ec366f040dece79c93e"
-url = "https://github.com/pypa/pipx/releases/download/1.17.12/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/619690377"
+checksum = "sha256:12cc141f0c668e6f3af40b6d8abc181af0430427eebca102bb93eed453950759"
+url = "https://github.com/pypa/pipx/releases/download/1.17.14/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/633012947"
 
 [[tools."pipx:grip"]]
 version = "4.6.2"
@@ -2502,13 +2501,13 @@ uvx = "false"
 version = "2026.10.5"
 backend = "pipx:mergify-cli"
 specifiers = ["latest"]
-uv = { path = "locks/pipx-mergify-cli/2026.10.5", digest = "sha256:68d65aeb4f1736f7de11b210c8dd3ad1dc767578ba6fdbd309affda55b9ad893" }
+uv = { path = "locks/pipx-mergify-cli/2026.10.5", digest = "sha256:39a28fe9ec3aee076c76d945dcf0801be492c38ff6b45c0b97743a46cb752488" }
 
 [[tools."pipx:pre-commit"]]
-version = "4.6.2"
+version = "4.7.0"
 backend = "pipx:pre-commit"
 specifiers = ["latest"]
-uv = { path = "locks/pipx-pre-commit/4.6.2", digest = "sha256:a63ef87f9c8f8c1bc02bf8eaf1302db95fc15d8fb3334e3200d99484d18719cd" }
+uv = { path = "locks/pipx-pre-commit/4.7.0", digest = "sha256:af8eb2466369f21ed419ff7c6ba74c6eb11c633cc49136e4c55fe4798a7f0d65" }
 
 [[tools.python]]
 version = "3.14.8"

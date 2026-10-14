@@ -3,7 +3,7 @@ revision = 5
 requires-python = ">=3.10"
 
 [options]
-exclude-newer = "2026-10-09T15:01:39.773306364Z"
+exclude-newer = "2026-10-13T11:41:36.696083038Z"
 
 [[package]]
 name = "mergify-cli"
