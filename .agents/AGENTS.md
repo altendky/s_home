@@ -200,8 +200,10 @@ and offer a follow-up change rather than including them in the current diff.
 
 # Git Commits
 
-All commits must be GPG signed. Do not pass options that skip signing such as
-`--no-gpg-sign`.
+All commits must be signed using the normal configured Git signing path.
+Git uses `gpg.*` configuration names and `--gpg-sign` terminology for multiple
+signing formats, including OpenPGP and SSH; a configured SSH signature satisfies
+this requirement. Do not pass options that skip signing such as `--no-gpg-sign`.
 
 Avoid force pushes (`--force`, `-f`, `--force-with-lease`) unless explicitly
 requested by the user. If a situation arises where you believe a force push is
