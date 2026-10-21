@@ -106,11 +106,6 @@ screen_reader_detection_done = true
 gpt-6-astra = 4
 "gpt-6.1-sol" = 4
 
-[mcp_servers.linear]
-command = "agentic-mcp"
-env_vars = ["LINEAR_API_KEY"]
-enabled_tools = ["linear_add_comment", "linear_archive_issue", "linear_create_issue", "linear_get_issue_comments", "linear_get_metadata", "linear_read_issue", "linear_search_issues", "linear_set_relation", "linear_update_issue"]
-
 [mcp_servers.node_repl]
 command = "/usr/lib/chatgpt/resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120.0
