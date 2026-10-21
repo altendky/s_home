@@ -2,6 +2,6 @@
   "name": "mise-npm-install",
   "private": true,
   "dependencies": {
-    "playwright": "1.64.0"
+    "@openai/codex": "0.163.0"
   }
 }
