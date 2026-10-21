@@ -3,6 +3,7 @@ lockfile = true
 locked = true
 status = { missing_tools = "always" }
 trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
+disable_tools = ["rust"]
 
 [shell_alias]
 #bs = "Bambu_Studio.AppImage"
