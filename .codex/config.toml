@@ -96,6 +96,9 @@ trust_level = "trusted"
 [projects."/home/altendky/repos/mujou"]
 trust_level = "trusted"
 
+[projects."/tmp/agents"]
+trust_level = "trusted"
+
 [tui]
 screen_reader_detection_done = true
 
@@ -211,3 +214,7 @@ enabled = true
 
 [plugins."template-creator@openai-primary-runtime"]
 enabled = true
+
+[shell_environment_policy]
+inherit = "all"
+ignore_default_excludes = true
