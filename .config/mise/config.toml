@@ -7,13 +7,11 @@ disable_tools = ["rust"]
 
 [shell_alias]
 #bs = "Bambu_Studio.AppImage"
-oco = 'OPENCODE_DB="opencode-orchestrator.db" mise exec -- opencode --hostname 127.0.0.1 --port 0 --no-mdns'
 
 [tool_alias]
 bs = "github:bambulab/BambuStudio"
 codex = "npm:@openai/codex"
 grip = "pipx:grip"
-orchestrator = "cargo:opencode-orchestrator-mcp"
 
 # for gw
 dockerfmt = "github:reteps/dockerfmt"
@@ -59,7 +57,6 @@ claude-code = "latest"
 "pipx:mergify-cli" = "latest"
 just = "latest"
 mold = "latest"
-"cargo:opencode-orchestrator-mcp" = "0.7.12"
 
 bitwarden = "latest"
 mitmproxy = "latest"

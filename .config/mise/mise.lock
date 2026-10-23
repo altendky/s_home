@@ -1368,11 +1368,6 @@ version = "0.28.0"
 backend = "cargo:cargo-modules"
 specifiers = ["latest"]
 
-[[tools."cargo:opencode-orchestrator-mcp"]]
-version = "0.7.12"
-backend = "cargo:opencode-orchestrator-mcp"
-specifiers = ["0.7.12"]
-
 [[tools."cargo:rust-script"]]
 version = "0.36.0"
 backend = "cargo:rust-script"
