@@ -1,5 +1,6 @@
 [settings]
 lockfile = true
+lockfile_platforms = ["linux-x64"]
 locked = true
 status = { missing_tools = "always" }
 trusted_config_paths = ["~/repos/.mise.local.toml", "~/repos/gw"]
