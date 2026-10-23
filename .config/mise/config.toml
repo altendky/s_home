@@ -72,3 +72,4 @@ ninja = "latest"
 aws = { version = "latest", symlink_bins = "true" }
 python = "3.14"
 markdownlint-cli2 = "latest"
+go = "1.27.2"
