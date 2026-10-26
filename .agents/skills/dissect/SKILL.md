@@ -39,7 +39,7 @@ or require authorization. Branch placement does not itself authorize replacing
 history.
 
 This workflow ends with local reconstruction and reporting. For a requested
-alternate-review draft PR, use [publish-dissection](../../../.codex/skills/publish-dissection/SKILL.md).
+alternate-review draft PR, use [publish-dissection](../publish-dissection/SKILL.md).
 Using reconstruction alone does not invoke that publication workflow.
 This boundary does not cancel separately requested publication work. Handle an
 authorized update to an existing implementation PR outside reconstruction;
