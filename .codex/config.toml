@@ -219,3 +219,6 @@ enabled = true
 [shell_environment_policy]
 inherit = "all"
 ignore_default_excludes = true
+
+[apps.connector_76869538009648d5b282a4bb21c3d157]
+enabled = false
