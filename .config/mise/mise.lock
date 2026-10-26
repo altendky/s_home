@@ -375,7 +375,7 @@ specifiers = ["latest"]
 version = "12.3.0"
 backend = "pypi:mitmproxy"
 specifiers = ["latest"]
-uv = { path = "locks/mitmproxy/12.3.0", digest = "sha256:0f75d70ecf76c643411a55db2808fa9e5b258f3a0405a51945f1e9138c47b096" }
+uv = { path = "locks/mitmproxy/12.3.0", digest = "sha256:61d07d1da5df94b985e8a14e56316c0817235907da99e29ff49a747b160c49a9" }
 
 [[tools.mold]]
 version = "3.0.0"
@@ -464,13 +464,13 @@ uvx = "false"
 version = "2026.10.5"
 backend = "pipx:mergify-cli"
 specifiers = ["latest"]
-uv = { path = "locks/pipx-mergify-cli/2026.10.5", digest = "sha256:d6b9639cfe2b11e0d60d242056af13add89c32050f418d9ed5552a96434edb94" }
+uv = { path = "locks/pipx-mergify-cli/2026.10.5", digest = "sha256:0198e68663ef03635ab64ec82a1f92351fbfee49696337fb8db5e45ba2c15485" }
 
 [[tools."pipx:pre-commit"]]
 version = "4.7.0"
 backend = "pipx:pre-commit"
 specifiers = ["latest"]
-uv = { path = "locks/pipx-pre-commit/4.7.0", digest = "sha256:60027a239ca2d92560181661f94db877664d82a9602491663936fad3d9841914" }
+uv = { path = "locks/pipx-pre-commit/4.7.0", digest = "sha256:a5563dece1252d94dfb0530ca93bc3a351d82cab1cf96697bf8f39722b9bd034" }
 
 [[tools.python]]
 version = "3.14.9"
