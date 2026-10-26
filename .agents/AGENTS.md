@@ -20,6 +20,15 @@ When creating or modifying shared instructions, preserve the intended scope.
 Requirements must come from the repository or the requested workflow, rather
 than the current user’s personal setup.
 
+# Configuration Locations
+
+Prefer established standard locations when available and tool-neutral locations
+for shared configuration. Use `~/.agents/` for shared agent instructions and
+user-level skills, with skills under `~/.agents/skills/`, rather than a particular
+tool's configuration directory. Use tool-specific locations when the configuration
+is specific to that tool or the tool requires them. Add compatibility links only
+when needed, keeping the shared source in the neutral location.
+
 # Image Retention
 
 User-provided images are generally reference material for observation and
