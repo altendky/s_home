@@ -10,6 +10,16 @@ Guidance about a specific tool's interfaces or session storage applies when usin
 or working on that tool. Use the current host's equivalent interfaces for shared
 workflows.
 
+# Personal Policy and Repository Instructions
+
+Keep personal preferences, machine configuration, and global agent policy out of
+repository files unless explicitly requested. Apply them when doing the work
+without encoding them into shared workflows.
+
+When creating or modifying shared instructions, preserve the intended scope.
+Requirements must come from the repository or the requested workflow, rather
+than the current user’s personal setup.
+
 # Image Retention
 
 User-provided images are generally reference material for observation and
