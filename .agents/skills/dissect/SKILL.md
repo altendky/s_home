@@ -1,6 +1,6 @@
 ---
 name: dissect
-description: Reconstruct an existing Git change or patch as an explanatory DAG of reviewable commits with an exactly equivalent final tree. Use when asked to dissect a change for review or rebuild its review history.
+description: Reconstruct an existing Git change or patch as explanatory commits with an exactly equivalent final tree. Design a review DAG or follow a supplied layout when asked to dissect a change or rebuild its review history.
 ---
 
 # Dissect Changes
@@ -10,13 +10,40 @@ to reconstruct an existing change as a set of small, explanatory commits and
 branches whose integrated tree is exactly the same as the original target.
 The reconstruction may be a DAG: independent pieces should remain parallel,
 while pieces that require earlier work should build on those prerequisite
-branches.
+branches. Follow a supplied review layout when the user or a specialized skill
+provides one.
 
 Prioritize review structure and explanatory value over code validation. A piece
 is allowed to be an intermediate review step that does not compile, lint, or
 pass tests. Exact final-tree equivalence is still required because it proves the
 dissection represents the requested change; it is not a substitute for, or a
 request to perform, build and test validation.
+
+## Reuse and selected layout
+
+A specialized skill can supply the target topology, commit categories, working
+branch or isolation strategy, and reporting preferences. Those choices replace
+the corresponding defaults below. A fixed layout can combine trailing categories
+or keep contract mirrors in the same substantive commit; it must still make their
+relationship clear and must not classify contract changes as cruft.
+
+Keep the shared judgments here: understand the change and its contracts, choose
+useful comparisons, construct the pieces, inspect their actual diffs, and prove
+final-tree equivalence. Refine boundaries within the selected layout rather than
+adding commits that defeat it. Do not fix bugs or change target contents during
+reconstruction.
+
+Apply scope decisions and authorization already supplied. Do not ask the user
+to approve the same layout again; ask about unresolved choices that affect scope
+or require authorization. Branch placement does not itself authorize replacing
+history.
+
+This workflow ends with local reconstruction and reporting. For a requested
+alternate-review draft PR, use [publish-dissection](../../../.codex/skills/publish-dissection/SKILL.md).
+Using reconstruction alone does not invoke that publication workflow.
+This boundary does not cancel separately requested publication work. Handle an
+authorized update to an existing implementation PR outside reconstruction;
+do not substitute an alternate-review PR for that requested outcome.
 
 ## Input
 
@@ -35,7 +62,7 @@ and fall back to an unambiguous local `main`, `master`, or `dev`. For three-dot
 input, resolve the reconstruction base with `git merge-base <left> <right>` and
 use the right side as the target; this matches the tree change selected by
 `git diff <left>...<right>`. Report the detected default branch and resolved
-merge base before presenting the DAG.
+merge base before presenting the selected review structure.
 
 If the default branch cannot be determined unambiguously, or an explicit input
 is ambiguous, inspect the current branch, its upstream, and the working tree,
@@ -55,26 +82,23 @@ failure.
   commits, and branch changes. If these capabilities are unavailable, complete
   permitted inspection and planning, then explain which execution capability
   is needed to construct the approved DAG.
-- Never modify, reset, rebase, delete, or check out the user's source branches.
-- Do not push by default. The only exception is the opt-in publication phase,
-  after local completion and two explicit user decisions. Even then, push only
-  the result branch with a normal non-forced push.
-- Never force-update a branch.
+- By default, leave the user's source branches untouched and use isolated piece
+  and result branches. Follow a different selected placement only within the
+  user's authorization for any history changes.
 - Create every commit and merge with `--no-verify`, preserving configured commit
   signing and its normal approval path. Do not run pre-commit,
   commit-message, or merge hooks manually; they are outside the scope of review
   decomposition and can waste time or introduce unrelated failures.
-- Perform construction in the shared session temporary directory under
-  `${TMPDIR:-/tmp}/agents/`, following the global temporary-file convention.
-  Existing uncommitted changes in the user's current worktree must remain
-  untouched.
-- Put every created branch under `dissect/`.
-- Before creating anything, list colliding `dissect/` branches and worktrees.
+- Keep construction scratch files and temporary worktrees in the shared session
+  directory under `${TMPDIR:-/tmp}/agents/`, following the global temporary-file
+  convention. Preserve pre-existing uncommitted work.
+- For the default isolated layout, put created branches under `dissect/`.
+- Before creating branches or worktrees, check for collisions with their chosen names.
   If names collide, offer to continue the prior dissection, choose another run
   name, or rebuild. Deleting or replacing prior work requires explicit approval.
 - Record the original current branch, HEAD, status, and worktree list. Verify at
-  completion that the original worktree still has the same branch, HEAD, and
-  status.
+  completion that any changes to them are within the selected, authorized scope
+  and that pre-existing uncommitted work is preserved.
 - Remove temporary worktrees when finished, but preserve all resulting branches.
 
 ## Phase 1: Resolve the Change
@@ -93,7 +117,7 @@ failure.
 6. Choose a short, filesystem-safe run name. Default to the target's short hash,
    optionally prefixed by a sanitized target branch name when that adds clarity.
 
-Use these branch conventions:
+For the default isolated layout, use these branch conventions:
 
 ```text
 dissect/<run>/<piece>
@@ -101,15 +125,15 @@ dissect/<run>/result
 dissect/<run>/target       # only when a patch must be materialized
 ```
 
-## Phase 2: Design the DAG
+## Phase 2: Design the Review Structure
 
 Analyze the entire final diff before constructing commits. Group changes by
 reviewable intent rather than merely by file. A useful piece should explain one
 coherent idea and should be independently understandable at its point in the
 graph.
 
-Reserve these mechanical categories instead of mixing them into the substantive
-review pieces:
+Unless a different category layout was supplied, reserve these mechanical
+categories instead of mixing them into the substantive review pieces:
 
 - `imports`: import-only changes from any file;
 - `tests`: all test changes, including test support code, fixtures, and test
@@ -122,7 +146,9 @@ Do not classify a change as `cruft` merely because it is difficult to explain.
 List the proposed cruft scope explicitly and ask the user when classification is
 uncertain. These categories become trailing standalone commits after the
 substantive DAG has been integrated; they are not part of the recommended
-review path.
+review path. Production comments and documentation belong with the code they
+explain, including examples embedded in that documentation. Notice test-only
+items outside the main test module when assigning test changes.
 
 ### Mirrored representations
 
@@ -138,8 +164,9 @@ reviewer concerns:
 - identify which representation is canonical when the repository establishes
   one;
 - put the canonical definition in its substantive commit;
-- put each manually synchronized representation in a dependent follow-up
-  commit, with a subject such as `Synchronize TypeScript wire-type mirror`;
+- make each manually synchronized representation clear in its assigned substantive
+  piece; in the default layout, use a dependent follow-up commit with a subject
+  such as `Synchronize TypeScript wire-type mirror`;
 - explain in the mirror commit which definition it follows and what values or
   behavior must remain synchronized;
 - combine multiple mirrors only when they are mechanical representations of the
@@ -162,10 +189,11 @@ For each proposed piece identify:
 - why those changes belong together;
 - any overlap or likely merge conflict with another piece.
 
-Prefer independent root pieces when no real dependency exists. Introduce a
-dependency when a piece cannot be represented or understood sensibly without
-another piece. Do not add dependencies merely to make every intermediate piece
-compile or pass tests. Avoid artificial linearization.
+When designing the topology, prefer independent root pieces when no real
+dependency exists. Introduce a dependency when a piece cannot be represented or
+understood sensibly without another. A supplied linear layout determines the
+review sequence; do not add branches or commits that defeat it. Do not add
+dependencies merely to make every intermediate piece compile or pass tests.
 
 Optimize the readability of each individual diff, not merely the partitioning
 of the final target diff. An intermediate tree does not have to be a strict
@@ -182,13 +210,13 @@ the reviewer to the follow-up that reaches the final arrangement. Do not create
 gratuitous churn. These transitions are substantive parts of the review
 narrative and must not be classified as `cruft`.
 
-Present the proposed DAG before creating piece branches. Include a topological
-list and a text graph, plus the scope and rationale for each node. Format the
-graph like `git log --graph`: show one proposed commit per row, put topology
-lines on the left, and put the subject on that row. Do not use an abstract
-node-and-arrow diagram. Show the reserved `imports`, `tests`, and optional
-`cruft` commits as a linear tail after substantive integration. Ask the user to
-approve or revise it. Do not begin branch construction until approved.
+Present the proposed structure before construction. Include a topological list
+and a text graph, plus the scope and rationale for each node. Format the graph
+like `git log --graph`: one commit per row, topology lines on the left, and its
+subject on that row. Show the categories and ordering selected for this run;
+the default has `imports`, `tests`, and optional `cruft` as a linear tail.
+Ask the user to approve unresolved layout choices without repeating decisions
+already supplied by the request or specialized skill.
 
 ### Commit numbering
 
@@ -222,7 +250,9 @@ declaring completion.
 
 ## Phase 3: Construct the Pieces
 
-Create each piece in topological order using isolated temporary worktrees:
+Create each piece in topological order. Use isolated temporary worktrees by
+default; a selected workflow may use temporary indexes or another construction
+method that preserves pre-existing work:
 
 1. A root piece starts at the exact base commit.
 2. A piece with one prerequisite starts at that prerequisite branch.
@@ -259,16 +289,19 @@ requirement. Do not create them during substantive piece construction, and do
 not pad their commit messages with explanations nobody is expected to review.
 
 If construction reveals that the proposed grouping is wrong, stop, explain the
-new evidence, and propose a DAG revision. Get confirmation before replacing
-already-created branches.
+new evidence, and propose a revised structure. Ask before changing the selected
+layout or scope, or replacing branches without existing authorization. Refinements
+within the selected layout can use authorization already supplied.
 
 ## Phase 4: Integrate the DAG
 
-Create `dissect/<run>/result` from the base and merge the piece branches in a
-topological order that respects dependencies. Do not merge both a prerequisite
+For separately constructed branches, create the selected result branch from
+the base (`dissect/<run>/result` by default) and merge pieces in a topological
+order that respects dependencies. Do not merge both a prerequisite
 and its descendant when the descendant already contains the prerequisite,
 unless another leaf requires the prerequisite independently. Use
-`git merge --no-verify` for every merge.
+`git merge --no-verify` for every merge. A linear sequence already constructed
+on its result branch needs no integration merge.
 
 Resolve only mechanical merge conflicts whose intended result is unambiguous
 from the target tree. If conflict resolution would introduce substantive code
@@ -280,28 +313,27 @@ reviewer which parent pieces are being combined, why they can now be considered
 together, and where to continue the review. Do not use Git's default merge
 message as the entire explanation.
 
-After all substantive leaves are integrated, append the reserved changes to the
-result branch as standalone commits in this order:
+For the default category layout, after all substantive leaves are integrated,
+append the reserved changes as standalone commits in this order:
 
 1. `imports`, containing only import changes;
 2. `tests`, containing all remaining test-related changes;
 3. `cruft`, when any confirmed cruft remains.
 
-Omit an empty category. Use the category name as the subject text after its
-numbering prefix. Keep these commits separate even when combining them would
-reduce the commit count. Do not place substantive implementation changes in
-this trailing sequence. Create each trailing commit with
-`git commit --no-verify`, for example `[11/12] tests`.
+In that default layout, omit empty categories and keep the others separate,
+using their category names as subjects after the numbering prefix. A specialized
+layout can combine them. Do not place substantive implementation changes in
+trailing mechanical commits. Create each commit with `git commit --no-verify`.
 
 ## Phase 5: Prove Equivalence and Iterate
 
 Compare the reconstructed result with the original target in both ways:
 
 ```text
-git rev-parse dissect/<run>/result^{tree}
+git rev-parse <result>^{tree}
 git rev-parse <target>^{tree}
-git diff --binary --stat <target> dissect/<run>/result
-git diff --binary --exit-code <target> dissect/<run>/result
+git diff --binary --stat <target> <result>
+git diff --binary --exit-code <target> <result>
 ```
 
 Success requires identical tree IDs and an empty diff. Commit IDs are expected
@@ -313,8 +345,8 @@ If the trees differ:
 2. Attribute every discrepancy to the piece that conceptually owns it.
 3. Update that piece and any descendants affected by the update.
 4. Rebuild the result branch without force-updating or deleting prior work
-   unless the user explicitly approves replacement. Prefer correction commits
-   during early iteration so the history of the attempt remains inspectable.
+   unless the user explicitly approves replacement. Preserve the selected layout;
+   do not add correction commits that violate a requested fixed count.
 5. Repeat the tree-equivalence comparison until the trees are identical.
 
 Do not create a generic "remaining changes" or "make trees match" commit unless
@@ -347,11 +379,11 @@ Read every commit message immediately before its parent diff. Evaluate:
   recognize behavior preservation;
 - whether temporary review-oriented arrangements improve clarity and have an
   understandable follow-up;
-- whether canonical definitions and mirrored representations are separated;
+- whether canonical definitions and mirrored representations are clear within
+  the selected layout;
 - whether dependencies are real rather than artifacts of construction;
-- whether a large commit should be split or adjacent small commits combined;
-- whether `imports`, `tests`, and `cruft` contain only their reserved mechanical
-  changes;
+- whether boundaries should be refined within the selected layout;
+- whether the selected trailing categories contain only their assigned changes;
 - whether merge commits explain their parents and advance the review narrative.
 
 When available, ask a fresh read-only reviewer subagent to inspect the graph,
@@ -359,9 +391,10 @@ messages, and commit diffs for clarity problems. Use it as an independent
 perspective, not as a replacement for the main workflow's review.
 
 If the pass finds concrete improvements to boundaries, ordering, explanations,
-dependencies, or diff readability, present a concise refinement plan and get
-approval before replacing generated branches. Apply the approved refinements,
-rebuild affected descendants and the result, then re-prove exact tree
+dependencies, or diff readability, explain and apply refinements within the
+selected layout and existing authorization. Ask before changing that layout or
+scope, or replacing branches without authorization. Rebuild affected descendants
+and the result, then re-prove exact tree
 equivalence. Repeat the reviewer-simulation pass while it continues to find
 material improvements. Stop when a full pass finds none; do not prolong the
 workflow for subjective polish without a specific reviewer benefit.
@@ -380,208 +413,25 @@ topological order does not match the prefixes, or the graph changed during
 iteration, renumber and rebuild the generated history. Do not complete with
 stale or duplicate numbering.
 
-## Phase 6: Optional Publication
+## Phase 6: Report
 
-Publication is separate from local reconstruction; invoking the skill alone
-does not authorize it. After exact tree equivalence and commit numbering are
-proven, if the user has not already explicitly requested publication, briefly
-ask:
+Follow the calling skill's reporting guidance when supplied. Otherwise report:
 
-> Publish this as a draft dissection PR and link it from the original PR?
+- the resolved base, original target and tree, and result branch and tree;
+- the final graph from `git log --graph --oneline --decorate --topo-order <base>..<result>`;
+- each piece's purpose and prerequisites, plus the scope of trailing categories;
+- the equivalence proof, final numbering check, and reviewer-simulation findings;
+- any remaining concerns and confirmation that pre-existing work was preserved.
 
-If the user declines, perform no publication discovery or network mutation and
-continue to the report. If the user accepts, perform the following read-only
-preflight. Acceptance of the brief offer authorizes discovery only, not remote
-mutation. Honor explicit authorization already given for these same actions;
-do not repeat an approval step the user has already completed.
-
-### Discover the original PR
-
-Use `gh` to identify an open original PR whose head OID exactly equals the
-resolved target commit. Prefer a PR explicitly established earlier in the
-conversation or repository context; otherwise inspect PRs associated with the
-target commit and open PR heads.
-
-- Require an exact head OID match. Tree equality alone is not sufficient.
-- If exactly one open PR matches, use it.
-- If multiple PRs match, present them and ask the user to choose.
-- If none match, stop publication and explain how the user can identify the
-  original PR. Do not guess from branch names alone.
-- Recheck the selected PR immediately before mutation. If its head moved away
-  from the resolved target, stop publication.
-- Record its number, URL, title, head repository, head branch, and head OID.
-
-The draft dissection PR targets the original PR's head/source branch, not the
-original PR's base branch and not the repository default branch. This makes it
-a review aid stacked on the implementation branch rather than a competing
-implementation PR. If the original head repository is missing or inaccessible,
-stop publication.
-
-### Resolve the push destination
-
-Select an existing writable remote in the same GitHub repository network from
-which a PR can be opened against the original PR's head repository. Do not add
-or rewrite remotes. Do not assume `origin` is correct when the original PR uses
-a fork. If no destination is unambiguous, show the candidates and ask the user.
-
-Inspect `refs/heads/dissect/<run>/result` on that remote:
-
-- if absent, plan a new push;
-- if it equals the local result OID, plan no push;
-- if it is an ancestor of the local result, plan an ordinary fast-forward push;
-- if it is ahead or diverged, stop rather than force-pushing.
-
-Search all PR states in the original head repository for a PR using this result
-branch. Search the original PR's comments for an existing dissection link.
-
-### Idempotency markers
-
-Keep the legacy `opencode-dissect` marker names so previous dissections remain
-discoverable across hosts and reruns do not create duplicate PRs or comments.
-They identify the artifact format, not the host executing the skill.
-
-Put a stable hidden identity marker in the draft PR body:
-
-```html
-<!-- opencode-dissect:v1 original=OWNER/REPO#NUMBER target=TARGET_SHA tree=TREE_SHA run=RUN -->
-```
-
-Put a corresponding marker containing the dissection PR number and first review
-commit SHA in the original PR comment:
-
-```html
-<!-- opencode-dissect-link:v1 original=OWNER/REPO#NUMBER dissection=OWNER/REPO#NUMBER first=FIRST_SHA target=TARGET_SHA tree=TREE_SHA run=RUN -->
-```
-
-On rerun:
-
-- reuse an open draft PR only when its marker, head branch, head OID, base
-  branch, target SHA, and tree SHA all match;
-- skip a push when the remote result already equals the local result;
-- skip an original-PR comment when its marker and direct first-commit review URL
-  already match;
-- stop before overwriting an unrelated PR or comment that happens to use the
-  same branch or URL;
-- stop and ask before reopening a closed PR, converting a ready PR back to
-  draft, or replacing user-edited content;
-- preserve user-authored PR body text outside clearly marked generated content.
-
-### Final publication confirmation
-
-After preflight, present one concise summary containing:
-
-- original PR URL and exact target snapshot;
-- local result branch, commit OID, and equivalent tree OID;
-- push remote URL and whether the push is new, fast-forward, or unnecessary;
-- draft PR repository;
-- draft PR base: the original PR's head branch;
-- draft PR head: the pushed result branch;
-- first commit SHA in final topological order and, when reusing a draft PR, its
-  direct review URL;
-- whether a draft PR or original-PR comment will be created or reused.
-
-Ask a yes/no question: "Publish exactly this dissection now?" Do not mutate any
-remote state without an affirmative answer to this second confirmation.
-
-### Publish
-
-Push only the result branch, bypassing hooks but never forcing:
+Suggest a review order matching the selected layout. For the default layout,
+stop the substantive review before `imports`, `tests`, and `cruft`. End the
+standalone report with a fenced Tig command using the actual base and result:
 
 ```text
-git push --no-verify <remote> \
-  refs/heads/dissect/<run>/result:refs/heads/dissect/<run>/result
+tig <base>..<result>
 ```
 
-Create the draft PR in the original PR's head repository with its head branch as
-the base. Use a clear title such as `[Dissection] <original PR title>`. Lead the
-body with this warning:
-
-> This is an alternate review structure for the original PR. It is not an
-> implementation PR and must not be merged.
-
-Populate the body with:
-
-- the original PR link and exact target snapshot;
-- the resolved base and target;
-- both identical tree IDs and the empty binary-diff result;
-- the reconstructed numbered `git log --graph` output;
-- piece explanations and prerequisites;
-- the suggested substantive review order;
-- an explicit note to stop before trailing `imports`, `tests`, and `cruft`;
-- the Tig command for the local review.
-
-After creating or identifying the draft PR, resolve the first review commit from
-the final numbered history:
-
-```text
-git rev-list --reverse --topo-order <base>..dissect/<run>/result | sed -n '1p'
-```
-
-Construct its GitHub commit-review URL as
-`<draft-dissection-pr-url>/changes/<first-commit-sha>`. Comment on the original
-PR with a compact human-readable link such as
-``[`<first-short-sha>` (#<dissection-pr-number>)](<direct-review-url>)``. Use the
-direct first-commit review URL rather than the draft PR's overview URL, and
-include the target snapshot and tree ID. State that it provides an alternate
-review structure with an equivalent final tree, is not an implementation PR,
-and must not be merged. Include the complete corresponding idempotency marker
-with the original PR, dissection PR, first full commit SHA, target SHA, tree SHA,
-and run name.
-
-### Verify publication
-
-Verify all of the following from remote data:
-
-- the remote result ref equals the local result OID;
-- the new PR head repository, branch, and OID are correct;
-- its base is the original PR's head branch;
-- it is still a draft and its URL is known;
-- its body contains the identity marker and equivalence proof;
-- the direct review URL names the first commit from the verified final
-  topological order;
-- the original PR contains exactly one matching direct first-commit link
-  comment.
-
-Recheck the original PR head. If it moved during publication, report that the
-dissection proves equivalence only to the recorded snapshot. Do not rewrite the
-claim or force-update anything automatically.
-
-Failures are resumable. If pushing succeeds but PR creation fails, preserve the
-remote branch. If PR creation succeeds but commenting fails, preserve the PR.
-If comment verification fails, search by marker before retrying. Never roll back
-by deleting a remote branch, PR, or comment; report the partial state so a rerun
-can continue idempotently.
-
-## Phase 7: Report
-
-Report:
-
-- the resolved base, target, and target tree ID;
-- the final graph, generated from the resulting Git history with
-  `git log --graph --oneline --decorate --topo-order <base>..<result>`, with one
-  commit per row and topology lines on the left;
-- each piece's reviewer-facing explanation and prerequisites;
-- the scope placed in the trailing `imports`, `tests`, and `cruft` commits;
-- the result branch and its tree ID;
-- whether exact tree equality was proven;
-- how many reviewer-simulation passes were performed and what they refined;
-- whether commit numbering was verified against the final result history;
-- publication status, including the draft PR, direct first-commit review, and
-  original-comment URLs when publication was requested;
-- any correction commits, unresolved concerns, or intentionally imperfect
-  boundaries;
-- confirmation that the original worktree was left unchanged.
-
-Do not supplement or replace the final graph with an abstract node-and-arrow
-diagram. End with a suggested review order that stops before the trailing
-`imports`, `tests`, and `cruft` commits.
-
-The final item in the response must be a copy-pastable Tig command that shows
-only commits reachable from the dissection result and not from its base. Use the
-resolved base commit and actual result branch name:
-
-```text
-tig <base>..dissect/<run>/result
-```
-
-Put this command in a fenced code block and output no text after it.
+When handing off to another workflow, also retain the original target OID,
+resolved base, result branch and OID, tree proof, numbered graph, review order,
+category scopes, and run name. These identify the exact reconstruction; a
+downstream publication step must not infer them from branch names alone.
