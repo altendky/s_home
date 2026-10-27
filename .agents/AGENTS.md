@@ -224,6 +224,15 @@ Git uses `gpg.*` configuration names and `--gpg-sign` terminology for multiple
 signing formats, including OpenPGP and SSH; a configured SSH signature satisfies
 this requirement. Do not pass options that skip signing such as `--no-gpg-sign`.
 
+Before an otherwise authorized commit, account for sandbox restrictions on the
+configured signing agent. If the environment is known to block its local socket,
+request the required execution permissions before attempting the commit,
+preserving the normal configured signing path.
+
+For socket connection failures, use connection-only diagnostics to distinguish
+sandbox denial from an unavailable agent. Do not call `op signin` solely because
+SSH signing failed; CLI authentication is separate.
+
 Avoid force pushes (`--force`, `-f`, `--force-with-lease`) unless explicitly
 requested by the user. If a situation arises where you believe a force push is
 necessary (e.g., after a rebase or amend), ask the user before making the commits
