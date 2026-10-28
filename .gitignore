@@ -1,5 +1,7 @@
 **/**
 
+!/gitignore.global
+
 !/.agents/
 !/.agents/AGENTS.md
 !/.agents/skills/
