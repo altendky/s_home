@@ -2,6 +2,11 @@
 
 !/gitignore.global
 
+!/.codex/
+!/.codex/config.toml
+!/.codex/hooks/
+!/.codex/hooks/**
+
 !/.agents/
 !/.agents/AGENTS.md
 !/.agents/skills/

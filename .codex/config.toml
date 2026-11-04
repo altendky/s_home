@@ -6,6 +6,11 @@ model_reasoning_effort = "high"
 service_tier = "default"
 check_for_update_on_startup = false
 
+[features]
+hooks = true
+exec_permission_approvals = true
+request_permissions_tool = true
+
 [projects."/home/altendky"]
 trust_level = "trusted"
 
@@ -179,6 +184,9 @@ trusted_hash = "sha256:67a7cfe9a4ac6a308d01ff74ebe488e826b3deedc575b7cc4be93aa56
 [hooks.state."/home/altendky/repos/mise/.codex/hooks.json:stop:0:0"]
 trusted_hash = "sha256:b667168b4504bb7b99c5afea6af0dbb0f45898bf61c6dabdee686a00e6dae992"
 
+[hooks.state."/home/altendky/.codex/config.toml:pre_tool_use:0:0"]
+trusted_hash = "sha256:b993aa6cccf729c504646dc4536ddfbe670a85591602178553e7830670958660"
+
 [desktop]
 followUpQueueMode = "steer"
 conversationDetailMode = "STEPS_COMMANDS"
@@ -225,3 +233,12 @@ ignore_default_excludes = true
 
 [apps.connector_76869538009648d5b282a4bb21c3d157]
 enabled = false
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = '"/home/altendky/.codex/hooks/codex_mise.py"'
+timeout = 10
+statusMessage = "Preparing the session mise environment"
