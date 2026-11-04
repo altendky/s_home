@@ -67,11 +67,16 @@ canonical GitHub login to displayed column label:
 
 Use canonical logins for API lookup and matching. Unconfigured reviewers keep
 their logins as labels; collisions are disambiguated with logins. Keep nickname
-changes in this JSON file. The table groups people first, then bots, then teams,
-and sorts by displayed label within each group.
+changes in this JSON file. Put the active user's reviewer column first when present
+(`--user`, otherwise the authenticated user). Group the remaining columns as people,
+then bots, then teams, and sort by displayed label within each group.
 
 ## Cell meanings
 
+- **•**: PR author. Include authors in the user columns even without review
+  activity; honor `--exclude-bots` for bot authors. Author dots do not count as
+  pending requests. Render them in medium gray (`#888888`) in Rich output;
+  plain Markdown retains the uncolored character.
 - **🟠**: Currently requested. A re-request takes precedence over an old approval
   or change request. Missing approval alone does not imply a pending request.
 - **🟥**: Changes requested, with no outstanding re-request.
@@ -122,8 +127,13 @@ column's header (above the PR titles). Insert a secondary header row with
 **Reviewing** in bold in the second cell where the groups meet. Repeat the
 reviewer labels and **Q** in bold in their respective columns on that row;
 leave its first cell empty. If there are only reviewing rows, use **Reviewing** as the second
-column's top header without a duplicate secondary header. Keep one continuous table and
-descending PR order within each repository in each group. PRs qualifying for both
+column's top header without a duplicate secondary header. Keep one continuous table.
+Sort authored PRs by repository, then descending PR number. Sort reviewing PRs
+first by the active user's effective review state: requested, changes requested,
+approved, then comment-only or no active decision. Within each state, sort by
+author in the same order as the user columns, then descending PR number, using
+repository as a final tie-breaker. Within each state, authors hidden by
+`--exclude-bots` follow visible authors, ordered by login. PRs qualifying for both
 groups appear only in the authored group.
 For multiple repos, qualify PR numbers with their repository. Escape Markdown in
 titles and labels. Save or publish the report only when requested.

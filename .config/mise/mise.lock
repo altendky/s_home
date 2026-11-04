@@ -129,26 +129,29 @@ backend = "aqua:taiki-e/cargo-llvm-cov"
 specifiers = ["0.6.14"]
 
 [tools."aqua:taiki-e/cargo-llvm-cov"."platforms.linux-x64"]
+checksum = "sha256:fe206de95d5f664710bdb30f0aa78507c45e65b831a221b237a167a4050fdb07"
 url = "https://github.com/taiki-e/cargo-llvm-cov/releases/download/v0.6.14/cargo-llvm-cov-x86_64-unknown-linux-gnu.tar.gz"
 url_api = "https://api.github.com/repos/taiki-e/cargo-llvm-cov/releases/assets/198609423"
 
 [[tools.aws]]
-version = "2.38.4"
+version = "2.39.3"
 backend = "aqua:aws/aws-cli"
 specifiers = ["latest"]
 
 [tools.aws."platforms.linux-x64"]
-url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.38.4.zip"
+checksum = "sha256:14cb35809ad7547dd3c69fa9899a3975fbd850b6a6791f3fe264856490cd9a63"
+url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.39.3.zip"
 
 [[tools.bitwarden]]
-version = "2026.10.0"
+version = "2026.10.1"
 backend = "aqua:bitwarden/clients"
 specifiers = ["latest"]
 
 [tools.bitwarden."platforms.linux-x64"]
-checksum = "sha256:269b67559caab860d1737f7554b32bdb8be9285d5689fee55193c137a0df9973"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.0/bw-linux-2026.10.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/644458067"
+checksum = "sha256:eb09c3715291c21cf744819b873a255c1247b1b8b45bae138621a644ec7ad8f5"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-linux-2026.10.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688476344"
 
 [[tools.bs]]
 version = "02.08.04.57"
@@ -162,27 +165,6 @@ asset_pattern = "*ubu*24*.AppImage"
 checksum = "sha256:4870e355fa5e98e3a47bcd196b7ae16c2e9c15896a81ceaabe09ddbefa80d2f0"
 url = "https://github.com/bambulab/BambuStudio/releases/download/v02.08.04.57/BambuStudio_ubu24-v02.08.04.57-20260922164607.AppImage"
 url_api = "https://api.github.com/repos/bambulab/BambuStudio/releases/assets/581287341"
-
-[[tools.bun]]
-version = "1.3.14"
-backend = "core:bun"
-specifiers = ["1.3"]
-
-[tools.bun."platforms.linux-x64"]
-checksum = "sha256:951ee2aee855f08595aeec6225226a298d3fea83a3dcd6465c09cbccdf7e848f"
-url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64.zip"
-
-[tools.bun."platforms.linux-x64-baseline"]
-checksum = "sha256:a063908ae08b7852ca10939bbdc6ceed3ddabce8fb9402dce83d65d73b36e6c7"
-url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-baseline.zip"
-
-[tools.bun."platforms.linux-x64-musl"]
-checksum = "sha256:14bd9aedeebf1dba67e8def9531c89bc989ecfdf1de42e5bfcaf1b8cd9294719"
-url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-musl.zip"
-
-[tools.bun."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:56a7d6806cf155536c0178f0ea5fbd098e684fa509ebdb4fc0a7e19fb65382dc"
-url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-musl-baseline.zip"
 
 [[tools.bun]]
 version = "1.4.4"
@@ -205,15 +187,36 @@ url = "https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64
 checksum = "sha256:6e9c37098b293920aed28bfb51ab240e26d23bfdd9bbfecb3ad428ac166549bc"
 url = "https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64-musl-baseline.zip"
 
+[[tools.bun]]
+version = "1.3.14"
+backend = "core:bun"
+specifiers = ["1.3"]
+
+[tools.bun."platforms.linux-x64"]
+checksum = "sha256:951ee2aee855f08595aeec6225226a298d3fea83a3dcd6465c09cbccdf7e848f"
+url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64.zip"
+
+[tools.bun."platforms.linux-x64-baseline"]
+checksum = "sha256:a063908ae08b7852ca10939bbdc6ceed3ddabce8fb9402dce83d65d73b36e6c7"
+url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-baseline.zip"
+
+[tools.bun."platforms.linux-x64-musl"]
+checksum = "sha256:14bd9aedeebf1dba67e8def9531c89bc989ecfdf1de42e5bfcaf1b8cd9294719"
+url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-musl.zip"
+
+[tools.bun."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:56a7d6806cf155536c0178f0ea5fbd098e684fa509ebdb4fc0a7e19fb65382dc"
+url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-musl-baseline.zip"
+
 [[tools.cargo-binstall]]
-version = "1.26.0"
+version = "1.26.2"
 backend = "aqua:cargo-bins/cargo-binstall"
 specifiers = ["latest"]
 
 [tools.cargo-binstall."platforms.linux-x64"]
-checksum = "sha256:e59aec44d811ab53b1bb4c5e0b57e433b017999c37e24ca577a3afbefd49dabd"
-url = "https://github.com/cargo-bins/cargo-binstall/releases/download/v1.26.0/cargo-binstall-x86_64-unknown-linux-gnu.tgz"
-url_api = "https://api.github.com/repos/cargo-bins/cargo-binstall/releases/assets/650343654"
+checksum = "sha256:4f28eba175325f67f7c4bb8ae8686914d2d88fead279c0b8c4d3125264d7a512"
+url = "https://github.com/cargo-bins/cargo-binstall/releases/download/v1.26.2/cargo-binstall-x86_64-unknown-linux-gnu.tgz"
+url_api = "https://api.github.com/repos/cargo-bins/cargo-binstall/releases/assets/695464312"
 provenance = "github-attestations"
 
 [[tools."cargo:cargo-audit"]]
@@ -232,24 +235,26 @@ backend = "cargo:rust-script"
 specifiers = ["latest"]
 
 [[tools.claude-code]]
-version = "2.1.308"
+version = "2.1.316"
 backend = "aqua:anthropics/claude-code"
 specifiers = ["latest"]
 
 [tools.claude-code."platforms.linux-x64"]
-checksum = "sha256:6a699c7205d3c5f99e03a21d6b0511366f41c9a7284547b6e0785504ebdb261a"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.308/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/664635981"
+checksum = "sha256:9ca14cd81a7b0d9654d392fc1253773e70f31f470aa98334732744956cd1006b"
+checksum_source = "mise-versions"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.316/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/693882314"
 
 [[tools.cmake]]
-version = "4.4.4"
+version = "4.4.5"
 backend = "aqua:Kitware/CMake"
 specifiers = ["latest"]
 
 [tools.cmake."platforms.linux-x64"]
-checksum = "sha256:e5bb807f7728cb60cd8b27ebc97a2edb469b68655f21e844a600c3575b76f5bb"
-url = "https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-linux-x86_64.tar.gz"
-url_api = "https://api.github.com/repos/Kitware/CMake/releases/assets/605992585"
+checksum = "sha256:ed85135c5a5135b45e50423cb406dea04ca3338da0b8ef3c9ede963559680be0"
+checksum_source = "mise-versions"
+url = "https://github.com/Kitware/CMake/releases/download/v4.4.5/cmake-4.4.5-linux-x86_64.tar.gz"
+url_api = "https://api.github.com/repos/Kitware/CMake/releases/assets/682699189"
 
 [[tools."conda:git"]]
 version = "2.56.0"
@@ -291,14 +296,14 @@ conda_deps = [
 ]
 
 [[tools.gh]]
-version = "2.103.0"
+version = "2.103.3"
 backend = "aqua:cli/cli"
 specifiers = ["latest"]
 
 [tools.gh."platforms.linux-x64"]
-checksum = "sha256:fdd768eb70f6409f80fcfa9f3a1c0adf0fc98d827ab3ce0bed2ac22762c5d786"
-url = "https://github.com/cli/cli/releases/download/v2.103.0/gh_2.103.0_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/662956379"
+checksum = "sha256:4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d"
+url = "https://github.com/cli/cli/releases/download/v2.103.3/gh_2.103.3_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/cli/cli/releases/assets/679195621"
 provenance = "github-attestations"
 
 [[tools."github:nextest-rs/nextest"]]
@@ -310,11 +315,12 @@ specifiers = ["0.9.72"]
 version_prefix = "cargo-nextest-"
 
 [tools."github:nextest-rs/nextest"."platforms.linux-x64"]
+checksum = "sha256:e6f66397d3ba9a150b5debbc414a9ad1f87e4707da1f989c0681444ba5d15571"
 url = "https://github.com/nextest-rs/nextest/releases/download/cargo-nextest-0.9.72/cargo-nextest-0.9.72-x86_64-unknown-linux-gnu.tar.gz"
 url_api = "https://api.github.com/repos/nextest-rs/nextest/releases/assets/169725677"
 
 [[tools."github:openchamber/openchamber"]]
-version = "2.5.0"
+version = "2.6.0"
 backend = "github:openchamber/openchamber"
 specifiers = ["latest"]
 
@@ -322,9 +328,10 @@ specifiers = ["latest"]
 asset_pattern = "*linux-x86_64.AppImage"
 
 [tools."github:openchamber/openchamber"."platforms.linux-x64"]
-checksum = "sha256:f90527c3537d28c3f09c9a7f9affc6fd2ef73731709b9f3c92e325c157ae19cf"
-url = "https://github.com/openchamber/openchamber/releases/download/v2.5.0/OpenChamber-2.5.0-linux-x86_64.AppImage"
-url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/656785925"
+checksum = "sha256:c44d6d023ab83ec02f9982231c783c2043018b46f7b30ca99439cdb10045e968"
+checksum_source = "mise-versions"
+url = "https://github.com/openchamber/openchamber/releases/download/v2.6.0/OpenChamber-2.6.0-linux-x86_64.AppImage"
+url_api = "https://api.github.com/repos/openchamber/openchamber/releases/assets/700065771"
 
 [[tools."github:reteps/dockerfmt"]]
 version = "0.3.9"
@@ -367,15 +374,15 @@ url_api = "https://api.github.com/repos/casey/just/releases/assets/642949555"
 
 [[tools.markdownlint-cli2]]
 version = "0.24.0"
-aube = { path = "locks/markdownlint-cli2/0.24.0", digest = "sha256:689e86a3f956c317400e5d3bcf0915902a43dbbb8aeec7210a3aa3efb6859684" }
+aube = { path = "locks/markdownlint-cli2/0.24.0", digest = "sha256:b38be5102270e6a898ac4ecc1dbe772e511f6dd4f1000dc6c6df8a992cecc761" }
 backend = "npm:markdownlint-cli2"
 specifiers = ["latest"]
 
 [[tools.mitmproxy]]
-version = "12.3.0"
+version = "12.3.1"
 backend = "pypi:mitmproxy"
 specifiers = ["latest"]
-uv = { path = "locks/mitmproxy/12.3.0", digest = "sha256:61d07d1da5df94b985e8a14e56316c0817235907da99e29ff49a747b160c49a9" }
+uv = { path = "locks/mitmproxy/12.3.1", digest = "sha256:7c3d6925c69188af745f385ace8c2d49458b93cf889fd9bc54f25959ae9f3b67" }
 
 [[tools.mold]]
 version = "3.0.0"
@@ -398,13 +405,13 @@ url = "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-linu
 url_api = "https://api.github.com/repos/ninja-build/ninja/releases/assets/318865358"
 
 [[tools.node]]
-version = "26.12.1"
+version = "26.13.0"
 backend = "core:node"
 specifiers = ["latest"]
 
 [tools.node."platforms.linux-x64"]
-checksum = "sha256:0fd1eb7770598f52a21995edf6ed35fc690400fa437c2386af329519e9143132"
-url = "https://nodejs.org/dist/v26.12.1/node-v26.12.1-linux-x64.tar.gz"
+checksum = "sha256:5848553868b402d3fabb5b09270649977780a390f832155721025a08b5104455"
+url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.gz"
 
 [[tools.npm]]
 version = "12.2.1"
@@ -412,11 +419,12 @@ backend = "aqua:npm/cli"
 specifiers = ["latest"]
 
 [tools.npm."platforms.linux-x64"]
+checksum = "sha256:228bd64aaef23270dbdbd2cf3d5ef5c467602ef38c4066246cef1984adab9a67"
 url = "https://registry.npmjs.org/npm/-/npm-12.2.1.tgz"
 
 [[tools."npm:@openai/codex"]]
-version = "0.163.0"
-aube = { path = "locks/npm-openai-codex/0.163.0", digest = "sha256:4af0e1f21460d257cd753ed486e7f7eee03fdc539209e5deb765956c46144aaf" }
+version = "0.166.0"
+aube = { path = "locks/npm-openai-codex/0.166.0", digest = "sha256:b74228de5c6a94f9e2e4218e96555a912ee57bd51c08a3768bf533b575bb6081" }
 backend = "npm:@openai/codex"
 specifiers = ["latest"]
 
@@ -443,14 +451,15 @@ url = "https://github.com/opentofu/opentofu/releases/download/v1.13.2/tofu_1.13.
 url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/662742636"
 
 [[tools.pipx]]
-version = "1.18.4"
+version = "1.18.11"
 backend = "aqua:pypa/pipx"
 specifiers = ["latest"]
 
 [tools.pipx."platforms.linux-x64"]
-checksum = "sha256:9273476832b2672f0799a84f69c72fcd5008e7a4dab3723a48fd0e25c3ddd19f"
-url = "https://github.com/pypa/pipx/releases/download/1.18.4/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/652706332"
+checksum = "sha256:37282fd4fad8700169a718f2ca8c469dbf4ffbf004972670cb468cf255106f07"
+checksum_source = "mise-versions"
+url = "https://github.com/pypa/pipx/releases/download/1.18.11/pipx.pyz"
+url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/693756457"
 
 [[tools."pipx:grip"]]
 version = "4.6.2"
@@ -461,25 +470,25 @@ specifiers = ["latest"]
 uvx = "false"
 
 [[tools."pipx:mergify-cli"]]
-version = "2026.10.5"
+version = "2026.10.11"
 backend = "pipx:mergify-cli"
 specifiers = ["latest"]
-uv = { path = "locks/pipx-mergify-cli/2026.10.5", digest = "sha256:0198e68663ef03635ab64ec82a1f92351fbfee49696337fb8db5e45ba2c15485" }
+uv = { path = "locks/pipx-mergify-cli/2026.10.11", digest = "sha256:c9c79558961bad8709803031f7fff8ef507bafe059839005cb5b610217b2c4bd" }
 
 [[tools."pipx:pre-commit"]]
 version = "4.7.0"
 backend = "pipx:pre-commit"
 specifiers = ["latest"]
-uv = { path = "locks/pipx-pre-commit/4.7.0", digest = "sha256:a5563dece1252d94dfb0530ca93bc3a351d82cab1cf96697bf8f39722b9bd034" }
+uv = { path = "locks/pipx-pre-commit/4.7.0", digest = "sha256:0b37adaf8822eef1de98c1aa0ba3413547bea7d2a95c76f5c0be252f5c08cd5b" }
 
 [[tools.python]]
-version = "3.14.9"
+version = "3.14.10"
 backend = "core:python"
 specifiers = ["3.14"]
 
 [tools.python."platforms.linux-x64"]
-checksum = "sha256:561e91c1cadf30e84aec94d1917384ae3267e5f3e6e135e51fd1578bb19f4064"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20261021/cpython-3.14.9+20261021-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
+checksum = "sha256:4d3c16c59ed0802a3d1d34d8bce504b15ceeaff39d62dadecc6a9fa803412aed"
+url = "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.14.10+20261026-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
 provenance = "github-attestations"
 
 [[tools.rclone]]
@@ -534,14 +543,14 @@ url_api = "https://api.github.com/repos/aquasecurity/trivy/releases/assets/66225
 provenance = "cosign"
 
 [[tools.uv]]
-version = "0.13.5"
+version = "0.13.6"
 backend = "aqua:astral-sh/uv"
 specifiers = ["latest"]
 
 [tools.uv."platforms.linux-x64"]
-checksum = "sha256:f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f"
-url = "https://github.com/astral-sh/uv/releases/download/0.13.5/uv-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/664336023"
+checksum = "sha256:f29c3e94ffabd7e6f3ba521dba169a9b7ec12100bf3257087f0f24f6123f3645"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.6/uv-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/679980644"
 provenance = "github-attestations"
 
 [[tools.zig]]

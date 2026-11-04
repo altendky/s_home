@@ -166,11 +166,56 @@ class ReviewMatrixTests(unittest.TestCase):
             ],
         )
         table = matrix.render([pr], aliases, "author")
-        self.assertIn("|  | Authoring | e | j | n | 🐇 | example/platform | Q |", table)
-        self.assertIn("|  | **Pending requests** | 1 | 1 | 1 | 0 | 1 |  |", table)
+        self.assertIn(
+            "|  | Authoring | author | e | j | n | 🐇 | example/platform | Q |", table
+        )
+        self.assertIn("|  | **Pending requests** | 0 | 1 | 1 | 1 | 0 | 1 |  |", table)
         self.assertIn("| 🟠 | 🟠 | 🟠 | 💚 | 🟠 |", table)
         self.assertIn("A \\| title \\[with\\] \\`markup\\` and lines", table)
         self.assertNotIn(matrix.Reviewer("author"), pr.reviewers)
+
+    def test_active_user_column_precedes_other_reviewers(self):
+        raw = raw_pr(["ericaltendorf", "j3m7", "secemp9"])
+        raw["requested_teams"] = [{"slug": "platform"}]
+        pr = matrix.resolve_pr(
+            "example/repo", raw, [review(1, "APPROVED", "coderabbitai[bot]")]
+        )
+        aliases = {"ericaltendorf": "e", "j3m7": "j", "secemp9": "n"}
+        for user, labels in [
+            ("SECEMP9", "n | author | e | j"),
+            ("j3m7", "j | author | e | n"),
+        ]:
+            with self.subTest(user=user):
+                table = matrix.render([pr], aliases, user)
+                self.assertIn(
+                    f"|  | Reviewing | {labels} | coderabbitai\\[bot\\] | example/platform | Q |",
+                    table,
+                )
+                self.assertIn("| 🟠 | • | 🟠 | 🟠 | 💚 | 🟠 |  |", table)
+                self.assertIn("|  | **Pending requests** | 1 | 0 | 1 | 1 | 0 | 1 |  |", table)
+
+    def test_author_dot_adds_column_without_review_activity_or_pending_count(self):
+        pr = matrix.resolve_pr(
+            "example/repo", raw_pr(), [review(1, "COMMENTED", "author")]
+        )
+        self.assertNotIn(matrix.Reviewer("author"), pr.reviewers)
+        self.assertEqual(matrix.cell(pr, matrix.Reviewer("author")), "•")
+        table = matrix.render([pr], {}, "author")
+        self.assertIn("|  | Authoring | author | Q |", table)
+        self.assertIn("and lines | • |  |", table)
+        self.assertIn("|  | **Pending requests** | 0 |  |", table)
+        self.assertIn("• PR author", table)
+
+    def test_bot_author_column_respects_exclude_bots(self):
+        raw = raw_pr(["j3m7"])
+        raw["user"] = {"login": "robot[bot]", "type": "Bot"}
+        pr = matrix.resolve_pr("example/repo", raw, [])
+        table = matrix.render([pr], {}, "j3m7")
+        self.assertIn("|  | Reviewing | j3m7 | robot\\[bot\\] | Q |", table)
+        self.assertIn("and lines | 🟠 | • |  |", table)
+        filtered = matrix.render([pr], {}, "j3m7", exclude_bots=True)
+        self.assertIn("|  | Reviewing | j3m7 | Q |", filtered)
+        self.assertNotIn("robot", filtered)
 
     def test_neutral_reviews_are_not_pending_or_approved(self):
         pr = matrix.resolve_pr(
@@ -180,6 +225,47 @@ class ReviewMatrixTests(unittest.TestCase):
         )
         self.assertEqual(matrix.cell(pr, matrix.Reviewer("j3m7")), "💬")
         self.assertNotIn(matrix.Reviewer("unsubmitted"), pr.reviewers)
+
+    def test_reviewing_rows_sort_by_active_state_then_author_column_then_number(self):
+        def make(number, author, states, requested=False, repo="example/repo"):
+            raw = raw_pr(["altendky"] if requested else [])
+            raw.update(
+                number=number,
+                title=f"PR {number}",
+                html_url=f"https://github.com/{repo}/pull/{number}",
+                user={"login": author},
+            )
+            return matrix.resolve_pr(
+                repo,
+                raw,
+                [review(i, state, "altendky") for i, state in enumerate(states)],
+            )
+
+        prs = [
+            make(90, "alpha", ["CHANGES_REQUESTED"]),
+            make(80, "zulu", ["APPROVED", "COMMENTED"]),
+            make(60, "zulu", ["APPROVED"], requested=True),
+            make(50, "zulu", ["CHANGES_REQUESTED"]),
+            make(100, "zulu", ["COMMENTED"]),
+            make(110, "zulu", ["APPROVED", "DISMISSED"]),
+            make(70, "zulu", [], requested=True, repo="example/z"),
+            make(60, "zulu", [], requested=True, repo="example/a"),
+            make(99, "altendky", [], repo="example/z"),
+            make(2, "altendky", []),
+            make(1, "altendky", []),
+        ]
+        table = matrix.render(prs, {"alpha": "b", "zulu": "a"}, "ALTENDKY")
+        self.assertIn("|  | Authoring | altendky | a | b | Q |", table)
+        actual = [
+            line.split(" | ")[0]
+            for line in table.splitlines()
+            if line.startswith("| [")
+        ]
+        expected = [prs[i] for i in (9, 10, 8, 6, 7, 2, 3, 0, 1, 5, 4)]
+        self.assertEqual(
+            actual,
+            [f"| [{pr.repo}#{pr.number}]({pr.url})" for pr in expected],
+        )
 
     def test_pagination_and_failures_do_not_yield_partial_tables(self):
         with patch.object(
@@ -259,7 +345,7 @@ class ReviewMatrixTests(unittest.TestCase):
                         report.count(f"[#{number}]"), int(number in expected)
                     )
                 self.assertIn(f"{drafts} drafts excluded", report)
-                section_row = "|  | **Reviewing** | **k** | **Q** |"
+                section_row = "|  | **Reviewing** | **k** | **other** | **Q** |"
                 self.assertEqual(
                     report.splitlines().count(section_row),
                     int(not extra or extra == ["--include-drafts"]),
@@ -267,12 +353,12 @@ class ReviewMatrixTests(unittest.TestCase):
                 if not extra:
                     self.assertLess(report.index("[#5]"), report.index("[#1]"))
                     self.assertLess(report.index("[#1]"), report.index(section_row))
-                    self.assertLess(report.index(section_row), report.index("[#3]"))
-                    self.assertLess(report.index("[#3]"), report.index("[#2]"))
+                    self.assertLess(report.index(section_row), report.index("[#2]"))
+                    self.assertLess(report.index("[#2]"), report.index("[#3]"))
                 if not extra:
-                    self.assertIn("|  | Authoring | k | Q |", report)
-                    self.assertIn("scope-pr-2 | 🟠 |  |", report)
-                    self.assertIn("scope-pr-3 | 💬 |  |", report)
+                    self.assertIn("|  | Authoring | k | other | Q |", report)
+                    self.assertIn("scope-pr-2 | 🟠 | • |  |", report)
+                    self.assertIn("scope-pr-3 | 💬 | • |  |", report)
                     self.assertIn("k = altendky", report)
 
     def test_queue_states_and_queue_precedence(self):
@@ -294,7 +380,7 @@ class ReviewMatrixTests(unittest.TestCase):
             matrix.apply_merge_status(prs[-1], status)
         self.assertEqual([pr.queue for pr in prs], ["", "🟦", "🔶", "🔶"])
         table = matrix.render(prs, {}, "author")
-        self.assertIn("|  | Authoring | Q |", table)
+        self.assertIn("|  | Authoring | author | Q |", table)
         self.assertIn("| 🔶 |", table)
         self.assertIn("| 🟦 |", table)
 
@@ -945,7 +1031,8 @@ class ReviewMatrixTests(unittest.TestCase):
                 file=output,
                 width=200,
                 force_terminal=True,
-                color_system="standard",
+                color_system="truecolor",
+                no_color=False,
                 record=True,
             )
             with (
@@ -961,6 +1048,7 @@ class ReviewMatrixTests(unittest.TestCase):
                 "A | title [with] `markup` and lines",
                 "Pending requests",
                 "🟠",
+                "•",
                 "Q",
             ):
                 self.assertIn(literal, text)
@@ -968,6 +1056,7 @@ class ReviewMatrixTests(unittest.TestCase):
             self.assertNotIn("[#7]", text)
             self.assertIn("\x1b]8;", output.getvalue())
             self.assertIn(pr.url, output.getvalue())
+            self.assertIn("\x1b[38;2;136;136;136m•", output.getvalue())
 
     def test_rich_failure_keeps_stdout_empty(self):
         output, errors = io.StringIO(), io.StringIO()

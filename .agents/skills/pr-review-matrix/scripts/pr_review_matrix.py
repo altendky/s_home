@@ -484,6 +484,8 @@ def resolve_pr(repo, raw, reviews, exclude_bots=False):
 
 def cell(pr, identity):
     """A request is outstanding even when an earlier review approved the PR."""
+    if identity.kind != "team" and identity.key == pr.author:
+        return "•"
     if identity in pr.requested:
         return "🟠"
     return {"APPROVED": "💚", "CHANGES_REQUESTED": "🟥"}.get(
@@ -523,13 +525,21 @@ def markdown(value):
     return text
 
 
-def render(prs, aliases, user):
+def render(prs, aliases, user, exclude_bots=False):
     """Render dynamic reviewer columns, preserving empty rows and pending totals."""
     if not prs:
         return "No matching PRs."
+    user = user.casefold()
+    identities = {identity for pr in prs for identity in pr.reviewers}
+    identities.update(
+        reviewer({"login": pr.author})
+        for pr in prs
+        if not (exclude_bots and pr.author.endswith("[bot]"))
+    )
     columns = sorted(
-        {identity for pr in prs for identity in pr.reviewers},
+        identities,
         key=lambda identity: (
+            identity.key != user,
             {"person": 0, "bot": 1, "team": 2}[identity.kind],
             aliases.get(identity.key, identity.key).casefold(),
             identity.key,
@@ -540,7 +550,6 @@ def render(prs, aliases, user):
     for identity in columns:
         if label_counts[labels[identity]] > 1:
             labels[identity] = f"{labels[identity]} ({identity.key})"
-    user = user.casefold()
     first_section = "Authoring" if any(pr.author == user for pr in prs) else "Reviewing"
     header = [
         "",
@@ -553,11 +562,23 @@ def render(prs, aliases, user):
         "| " + " | ".join(["---", "---", ":---:", *([":---:"] * len(columns))]) + " |",
     ]
     multi_repo = len({pr.repo for pr in prs}) > 1
+    column_order = {identity.key: index for index, identity in enumerate(columns)}
+    active_reviewer = reviewer({"login": user})
+
+    def row_order(pr):
+        if pr.author == user:
+            return (0, pr.repo.casefold(), -pr.number)
+        return (
+            1,
+            {"🟠": 0, "🟥": 1, "💚": 2}.get(cell(pr, active_reviewer), 3),
+            column_order.get(pr.author, len(columns)),
+            pr.author,
+            -pr.number,
+            pr.repo.casefold(),
+        )
+
     previous_authored = None
-    for pr in sorted(
-        prs,
-        key=lambda value: (value.author != user, value.repo.casefold(), -value.number),
-    ):
+    for pr in sorted(prs, key=row_order):
         authored = pr.author == user
         if previous_authored is not None and authored != previous_authored:
             lines.append(
@@ -598,7 +619,7 @@ def render(prs, aliases, user):
             "",
             "Q: 🟦 Merge when ready enabled · 🔶 In merge queue · Blank: neither",
             "",
-            "🟠 Requested · 🟥 Changes requested · 💚 Approved · 💬 Comment-only review · Blank: no current request or active decision",
+            "• PR author · 🟠 Requested · 🟥 Changes requested · 💚 Approved · 💬 Comment-only review · Blank: no current request or active decision",
         ]
     )
     used_aliases = [
@@ -609,6 +630,22 @@ def render(prs, aliases, user):
     if used_aliases:
         lines.extend(["", "Nicknames: " + "; ".join(used_aliases) + "."])
     return "\n".join(lines)
+
+
+def print_rich(report):
+    """Render Markdown with medium-gray author indicators in centered table cells."""
+    from rich.console import Console
+    from rich.markdown import Markdown, TableDataElement
+
+    class AuthorCell(TableDataElement):
+        def on_leave(self, context):
+            if self.justify == "center" and self.content.plain == "•":
+                self.content.stylize("#888888")
+
+    class ReviewMarkdown(Markdown):
+        elements = {**Markdown.elements, "td_open": AuthorCell}
+
+    Console().print(ReviewMarkdown(report, hyperlinks=True))
 
 
 def load_aliases(path):
@@ -699,7 +736,7 @@ async def build_report(args):
         "authored" if args.authored_only else "authored, review requested, or reviewed"
     )
     scope = f"{', '.join(repos)} · user: {user} · {participation} · {args.state} PRs · {drafts} drafts excluded · fetched {observed_at}"
-    return markdown(scope) + "\n\n" + render(prs, aliases, user)
+    return markdown(scope) + "\n\n" + render(prs, aliases, user, args.exclude_bots)
 
 
 def failure_messages(error):
@@ -748,10 +785,7 @@ def main(argv=None):
         report = anyio.run(build_report, args, backend="trio")
         if args.rich:
             # Keep the Markdown output path independent of terminal rendering.
-            from rich.console import Console
-            from rich.markdown import Markdown
-
-            Console().print(Markdown(report, hyperlinks=True))
+            print_rich(report)
         else:
             print(report)
     except* (ReportError, KeyError, TypeError, ValueError) as errors:
