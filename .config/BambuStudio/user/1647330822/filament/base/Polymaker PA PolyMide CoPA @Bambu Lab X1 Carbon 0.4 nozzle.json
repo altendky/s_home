@@ -20,6 +20,9 @@
     "close_fan_the_first_x_layers": [
         "3"
     ],
+    "close_optional_fan_first_x_layers": [
+        "3"
+    ],
     "compatible_printers": [
         "Bambu Lab X1 Carbon 0.4 nozzle"
     ],
@@ -165,6 +168,9 @@
         "0"
     ],
     "filament_id": "P0e0a72f",
+    "filament_idle_travel_cooling_enabled": [
+        "1"
+    ],
     "filament_is_support": [
         "0"
     ],
@@ -202,8 +208,14 @@
     "filament_pre_cooling_temperature_nc": [
         "0"
     ],
+    "filament_pre_heating_enabled": [
+        "1"
+    ],
     "filament_preheat_temperature_delta": [
         "0"
+    ],
+    "filament_prime_tower_speed_factor_curve": [
+        ""
     ],
     "filament_prime_volume": [
         "45"
@@ -232,7 +244,13 @@
     "filament_retract_length_nc": [
         "14"
     ],
+    "filament_retract_length_toolchange": [
+        "nil"
+    ],
     "filament_retract_restart_extra": [
+        "nil"
+    ],
+    "filament_retract_restart_extra_toolchange": [
         "nil"
     ],
     "filament_retract_when_changing_layer": [
@@ -310,7 +328,13 @@
     "filament_z_hop_types": [
         "nil"
     ],
+    "fins_extrude_safe_temp": [
+        "0"
+    ],
     "first_x_layer_fan_speed": [
+        "0"
+    ],
+    "first_x_layer_optional_fan_speed": [
         "0"
     ],
     "first_x_layer_part_fan_speed": [
@@ -351,6 +375,9 @@
     "long_retractions_when_ec": [
         "0"
     ],
+    "min_temperature_when_ec": [
+        "-1"
+    ],
     "name": "Polymaker PA PolyMide CoPA @Bambu Lab X1 Carbon 0.4 nozzle",
     "no_slow_down_for_cooling_on_outwalls": [
         "0"
@@ -366,6 +393,12 @@
     ],
     "nozzle_temperature_range_low": [
         "240"
+    ],
+    "optional_cooling_fan_speed": [
+        "0"
+    ],
+    "optional_fan_full_speed_layer": [
+        "0"
     ],
     "overhang_fan_speed": [
         "95"

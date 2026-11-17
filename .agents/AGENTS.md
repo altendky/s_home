@@ -217,6 +217,14 @@ Never alter pre-existing user or agent changes while cleaning the diff.
 When you notice worthwhile out-of-scope improvements, mention them separately
 and offer a follow-up change rather than including them in the current diff.
 
+# Routine Check Permissions
+
+When routine repository checks require write access to sandbox-protected files,
+proactively submit a command-scoped permission request for the exact files
+needed. Use the normal approval mechanism without first asking for separate
+conversational confirmation. Do not weaken checks or modify tooling merely to
+avoid requesting access.
+
 # Git Commits
 
 All commits must be signed using the normal configured Git signing path.

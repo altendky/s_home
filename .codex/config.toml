@@ -113,6 +113,18 @@ trust_level = "trusted"
 [projects."/home/altendky/repos/headerly"]
 trust_level = "trusted"
 
+[projects."/home/altendky/repos/panelchemy"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/motley"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/CVTz50"]
+trust_level = "trusted"
+
+[projects."/home/altendky/repos/motley-more"]
+trust_level = "trusted"
+
 [tui]
 screen_reader_detection_done = true
 
@@ -121,23 +133,25 @@ gpt-6-astra = 4
 "gpt-6.1-sol" = 4
 
 [mcp_servers.node_repl]
+args = []
 command = "/usr/lib/chatgpt/resources/cua_node/bin/node_repl"
-startup_timeout_sec = 120.0
+env_vars = ["BROWSER_USE_ACCESS_EXECUTOR_ID", "BROWSER_USE_ACCESS_PIPE_PATH", "BROWSER_USE_ACCESS_VERIFYING_IDENTITY"]
+startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.915.31029"
-BROWSER_USE_TINYSKY_ENABLED = "1"
-CODEX_CLI_PATH = "/usr/lib/chatgpt/resources/codex"
-CODEX_HOME = "/home/altendky/.codex"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
-NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
 NODE_REPL_NODE_MODULE_DIRS = "/usr/lib/chatgpt/resources/cua_node/lib/node_modules"
 NODE_REPL_NODE_PATH = "/usr/lib/chatgpt/resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/home/altendky/.codex:/usr/lib/chatgpt/resources/cua_node/lib/node_modules"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/openai-bundled/browser/26.915.31029/scripts/browser-service.mjs"}'
+CODEX_HOME = "/home/altendky/.codex"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab,mcpapps"
+BROWSER_USE_TINYSKY_ENABLED = "1"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.1029.61003"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/home/altendky/.codex/plugins/cache/openai-bundled/browser/26.1029.61003/scripts/browser-service.mjs"}'
+CODEX_CLI_PATH = "/usr/lib/chatgpt/resources/codex"
 
 [mcp_servers.playwright]
 command = "npx"
@@ -187,9 +201,25 @@ trusted_hash = "sha256:b667168b4504bb7b99c5afea6af0dbb0f45898bf61c6dabdee686a00e
 [hooks.state."/home/altendky/.codex/config.toml:pre_tool_use:0:0"]
 trusted_hash = "sha256:b993aa6cccf729c504646dc4536ddfbe670a85591602178553e7830670958660"
 
+[hooks.state."rqml@motley:hooks/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:c607f510c618a04ab6b5712eb4fb09a3697ddfd4c4dddbb7741ef90f193225e8"
+trusted_content_hash = "sha256:5e3af6fa9e4ab56cf4b588f8521aec82a55fe0f502e203afd7a8d730a39f61c7"
+
+[hooks.state."rqml@motley:hooks/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:bacdbefacaa76b9944a3f5c901ea0ba3796e63bbf878f3440c9bbd529161bdf3"
+trusted_content_hash = "sha256:5e3af6fa9e4ab56cf4b588f8521aec82a55fe0f502e203afd7a8d730a39f61c7"
+
+[hooks.state."rqml@motley:hooks/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:62ecfa6b0c88b4fc8026eb625bab3244b50295ed7b096fb21712f49c2bc43882"
+trusted_content_hash = "sha256:5e3af6fa9e4ab56cf4b588f8521aec82a55fe0f502e203afd7a8d730a39f61c7"
+
+[hooks.state."rqml@motley:hooks/hooks.json:stop:0:0"]
+trusted_hash = "sha256:1dcb1e73e46ca759c93445d476a258ae749288c65233396601ade6a141d68ea6"
+trusted_content_hash = "sha256:5e3af6fa9e4ab56cf4b588f8521aec82a55fe0f502e203afd7a8d730a39f61c7"
+
 [desktop]
 followUpQueueMode = "steer"
-conversationDetailMode = "STEPS_COMMANDS"
+conversationDetailMode = "STEPS_PROSE"
 ambient-suggestions-enabled = true
 
 [marketplaces.openai-bundled]
