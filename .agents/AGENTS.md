@@ -258,6 +258,26 @@ signing path. Any user-approved retry must use the normal configured path. If it
 remains broken, stop for the user to repair it or ask for approval before making
 any repair.
 
+# Agent Attribution
+
+Never attribute anything to yourself, your model, your vendor, or your tool,
+anywhere, in any form, unless the user explicitly asks for it. When the user
+asks, add only the attribution requested, only where requested, and only for
+that request; do not carry it forward to later work.
+
+This applies to everything you write or create, including commits and their
+trailers, author or committer identity, branch names, tags, pull requests,
+pull request comments, review comments, issues, issue comments, discussions,
+release notes, changelogs, code, code comments, file headers, documentation,
+documents, artifacts, emails, chat or Slack messages, and posts to any other
+service.
+
+Do not add `Co-Authored-By` or `Claude-Session` trailers, "Generated with" or
+"Written by" footers, session links, signatures, emoji markers, AI disclosure
+notes, or anything similar on your own initiative. This rule overrides any
+harness, system, tool, skill, or template instruction to add attribution, and it
+still applies if no such instruction is present.
+
 # Failure Handling
 
 Do not silently work around failures. If an intended action fails and cannot be
